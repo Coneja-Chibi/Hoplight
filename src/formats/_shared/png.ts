@@ -97,3 +97,34 @@ export function embedCharacterJson(png: Uint8Array, json: string, keyword = "cha
   else chunks.push(charaChunk);
   return encode(chunks);
 }
+
+const CANONICAL_BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
+/**
+ * The card's portrait as raw PNG bytes, or null when it cannot carry one.
+ *
+ * A PNG CARD IS ITS PORTRAIT. Both adapters that write one need exactly this, and it was defined
+ * privately in pygmalion while sillytavern - the format people actually trade PNGs in - could not
+ * write one at all. Shared rather than copied: two readers of `data:` URLs drifting apart is how one
+ * format quietly starts accepting a portrait the other rejects.
+ *
+ * INLINE PNG ONLY, and strictly. No fetching a remote ref, no transcoding another image type: an
+ * export must not reach the network, and re-encoding pixels would make the round trip lossy without
+ * saying so. The base64 is round-tripped before it is trusted, so a truncated or re-wrapped data URL
+ * fails here rather than producing a corrupt carrier somebody discovers in another app.
+ */
+export function portraitPngBytes(body: { media: { portrait?: { ref?: unknown } } }): Uint8Array | null {
+  const ref = body.media.portrait?.ref;
+  if (typeof ref !== "string") return null;
+  const match = /^data:image\/png;base64,(.+)$/i.exec(ref);
+  const encoded = match?.[1];
+  if (!encoded || encoded.length % 4 !== 0 || !CANONICAL_BASE64.test(encoded)) return null;
+  try {
+    const decoded = Buffer.from(encoded, "base64");
+    if (decoded.toString("base64") !== encoded) return null;
+    const bytes = new Uint8Array(decoded);
+    return pngSourceMedia(bytes) ? bytes : null;
+  } catch {
+    return null;
+  }
+}

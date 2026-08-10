@@ -12,7 +12,7 @@ import regexCodec from "./regex";
 import personaCodec from "./persona";
 import presetCodec from "./preset";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
-import { getVersion, pngSourceMedia } from "../_shared/png";
+import { embedCharacterJson, getVersion, pngSourceMedia, portraitPngBytes } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
 import { assetsToMedia, applyMediaToTavernData } from "../_shared/assets";
 import {
@@ -88,7 +88,7 @@ function detectCard(json: unknown): Detected | null {
 const adapter: CharacterAdapter = {
   id: "sillytavern",
   label: "SillyTavern character card (v2/v3, png/json)",
-  outputExtensions: ["json"],
+  outputExtensions: ["json", "png"],
   kind: "character",
   coverage,
   generic: true, // the generic Tavern/CC reader: its cards chip as "Default", not a platform
@@ -157,7 +157,29 @@ const adapter: CharacterAdapter = {
       out = wrapV2(base);
     }
 
-    return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
+    const text = JSON.stringify(out, null, 2);
+
+    /**
+     * THE FORMAT PEOPLE ACTUALLY TRADE. A SillyTavern card is passed around as a PNG with the card
+     * JSON in a tEXt chunk, not as a .json file - so "export as PNG" was the most-asked-for thing
+     * this adapter could not do, and the answer was to route people through pygmalion, which writes
+     * a different card shape.
+     *
+     * The card is unchanged: this is the same bytes the JSON branch emits, carried inside the
+     * portrait. `chara` is the keyword every reader looks for, and `getVersion` reads it back.
+     *
+     * ASKED FOR EXPLICITLY, unlike pygmalion's branch, which prefers PNG whenever a portrait exists.
+     * A .json export must stay a .json export here: this adapter is the generic Tavern reader and
+     * most of what it writes is consumed by tools that want the text.
+     */
+    if (context?.requestedExtension?.toLowerCase() === "png") {
+      const portrait = portraitPngBytes(entity.body);
+      if (!portrait) {
+        throw new Error("sillytavern: PNG export needs the card to have a PNG portrait");
+      }
+      return { bytes: embedCharacterJson(portrait, text, "chara"), suggestedExtension: "png" };
+    }
+    return { text, suggestedExtension: "json" };
   },
 };
 

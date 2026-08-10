@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "FORMAT-SUPPORT",
   "sourcePath": "docs/FORMAT-SUPPORT.md",
-  "sourceHash": "sha256:4f7cb1ea08b0413679c5f6ef55becb5524ba3dc114dabce00d15dcccddb319b2",
+  "sourceHash": "sha256:247b08e19ea28ac63cb3346f3b568a5be1a480a4e289617e0d5d14476de0c158",
   "summary": "Auto-generated format support matrix from live adapters via bun run scripts/format-matrix.ts, canonical schema version 1. It lists every registered adapter by content kind with id, writes extensions, and human labels. How to use shows Hoplight formats, inspect, convert, and validate, and names SillyTavern CCv3 as the default portable character shape for thin hosts such as C.AI Tools dumps and Crushon import. Characters currently has nine adapters including agnai, backyard, byaf, lumiverse, pygmalion, risu, rolecall, sillytavern, and vaud-json. Lorebooks has six: agnai, marinara, novelai, risu, rolecall, and sillytavern world info. Personas has four: lumiverse, marinara, rolecall, and sillytavern. Presets has four: lumiverse, marinara, rolecall, and sillytavern. Regex script sets has five: lumiverse, marinara, risu, rolecall, and sillytavern. Sprite packs has zero adapters; the studio edits the pack kind but no import or export format exists yet. Notes require content-sniff detection not extension alone, same-format lossless round-trips where fixtures prove them, honest cross-format drops, and Default CCv3 via sillytavern for skipped host-native bags. Samples lists per-platform fixture folders under samples/.",
   "topics": [
     "format support matrix",
@@ -38,7 +38,7 @@
       "slug": "characters-9",
       "title": "Characters (9)",
       "level": 2,
-      "sourceHash": "sha256:52e7bdaaf676e33edd1013f5be1084caafe0ae9900fa7678d7752f2398ce1483",
+      "sourceHash": "sha256:845466cbfdf20660399acdd8744287c79e9908bddc6ba972dd9ec23f8bd34c68",
       "summary": "Nine character adapters. agnai writes .json for Agnai Agnaistic. backyard writes .json for Backyard.ai or Faraday legacy json. byaf writes .byaf Backyard archives. lumiverse writes .json and .charx for ST plus modules. pygmalion writes .json and .png flat character. risu writes .charx zip with card.json and assets. rolecall writes .json for RoleCall v3 png or json cards. sillytavern writes .json for SillyTavern CCv2 and v3 png or json. vaud-json writes .json as Hoplight native. All are kind character.",
       "topics": [
         "agnai backyard byaf",

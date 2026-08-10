@@ -1,12 +1,12 @@
 {
-  "generated": "2026-08-08",
+  "generated": "2026-08-10",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 1015599,
+  "totalSourceChars": 1015605,
   "batches": [
     {
       "id": "batch-001",
-      "sourceChars": 88072,
+      "sourceChars": 88078,
       "pages": [
         {
           "docId": "01-VISION",
@@ -117,7 +117,7 @@
           "sourcePath": "docs/FORMAT-SUPPORT.md",
           "sidecarPath": "docs/summaries/FORMAT-SUPPORT.json",
           "sectionCount": 9,
-          "sourceChars": 4392,
+          "sourceChars": 4398,
           "status": "APPROVED"
         },
         {

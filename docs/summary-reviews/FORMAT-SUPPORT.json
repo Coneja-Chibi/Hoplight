@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "FORMAT-SUPPORT",
   "sourcePath": "docs/FORMAT-SUPPORT.md",
-  "sourceHash": "sha256:4f7cb1ea08b0413679c5f6ef55becb5524ba3dc114dabce00d15dcccddb319b2",
-  "semanticSummaryHash": "sha256:ae9e66a01a596c2cae72199993266124d019870dad6ea8eeb3ad99c7d3f1a5cb",
+  "sourceHash": "sha256:247b08e19ea28ac63cb3346f3b568a5be1a480a4e289617e0d5d14476de0c158",
+  "semanticSummaryHash": "sha256:f11a028ac82cfa5d887fa362e980bdc7ab21d424441c0ab556dcfac24e9f84cf",
   "verdict": "APPROVE",
-  "reviewer": "codex-credibility-semantic-reviewer",
-  "notes": "matrix:check reports the generated page current. Live hoplight formats --json returns 28 adapters matching every section count and row: 9 character, 6 lorebook, 4 persona, 4 preset, 5 regex, and 0 pack adapters. Generated usage now consistently uses bun run hoplight for executable commands, and Notes correctly names hoplight label. Author check confirms the source and semantic sidecar hashes are current; this receipt replaces the stale prior hash binding.",
-  "reviewedAt": "2026-07-26T10:09:08.147Z"
+  "reviewer": "chi",
+  "notes": "sillytavern now writes png as well as json; regenerated matrix row.",
+  "reviewedAt": "2026-08-10T17:37:45.892Z"
 }
