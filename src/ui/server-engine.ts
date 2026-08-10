@@ -267,7 +267,7 @@ async function resolveLorebooksFromStore(
 }
 
 export async function handleExport(store: StudioStoreLike, body: unknown): Promise<Response> {
-  const b = body as { entity?: unknown; targetId?: unknown } | null;
+  const b = body as { entity?: unknown; targetId?: unknown; extension?: unknown } | null;
   if (!b?.entity || typeof b.targetId !== "string") return err("expected { entity, targetId }");
   const parsed = safeParseCanonicalEntity(b.entity);
   if (!parsed.ok) return err(`invalid canonical entity: ${parsed.issues[0] ?? "invalid shape"}`, 400);
@@ -287,7 +287,21 @@ export async function handleExport(store: StudioStoreLike, body: unknown): Promi
           422,
         );
       }
-      out = emitBundle(target as CharacterAdapter, entity as CanonicalCharacter, resolved.lorebooks);
+      /**
+       * THE EXTENSION THE PERSON PICKED, which this route never sent.
+       *
+       * `emitBundle` has always accepted one and only the CLI ever supplied it - from the output
+       * path - so a format offering more than one container could only ever emit its first from the
+       * app. PNG was unreachable from the studio entirely: the dialog listed ".json · .png" and
+       * every export took the json branch.
+       */
+      const wanted = typeof b.extension === "string" ? b.extension.toLowerCase() : undefined;
+      out = emitBundle(
+        target as CharacterAdapter,
+        entity as CanonicalCharacter,
+        resolved.lorebooks,
+        wanted,
+      );
     } else {
       out = (target.fromCanonical as (e: AnyEntity) => {
         bytes?: Uint8Array;

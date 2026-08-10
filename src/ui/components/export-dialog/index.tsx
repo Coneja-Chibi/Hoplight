@@ -38,6 +38,15 @@ export function ExportDialog({
   const [formats, setFormats] = useState<FormatInfo[]>([]);
   const [coverage, setCoverage] = useState<CoverageInfo[]>([]);
   const [targetId, setTargetId] = useState<string>("");
+  /**
+   * Which container, when the chosen format writes more than one.
+   *
+   * PNG WAS UNREACHABLE FROM THE APP. A card PNG is how characters are traded, the adapter could
+   * write one, and the dialog listed ".json · .png" - but nothing ever sent an extension, so every
+   * export took the first branch and produced json. Empty means "whatever the format suggests",
+   * which is what every single-container format keeps doing.
+   */
+  const [extension, setExtension] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -95,7 +104,7 @@ export function ExportDialog({
     setBusy(true);
     setErr(null);
     try {
-      const out = await ctx.api.exportEntity(entity, targetId);
+      const out = await ctx.api.exportEntity(entity, targetId, extension || undefined);
       if (!out || (typeof out === "object" && "error" in (out as object))) {
         const msg = isRec(out) && typeof out.error === "string" ? out.error : "export failed";
         throw new Error(msg);
@@ -140,7 +149,7 @@ export function ExportDialog({
             role="option"
             aria-selected={f.id === targetId}
             className={`${styles.opt}${f.id === targetId ? ` ${styles.optOn}` : ""}`}
-            onClick={() => setTargetId(f.id)}
+            onClick={() => { setTargetId(f.id); setExtension(""); }}
           >
             <b>{f.friendly || f.label}</b>
             <span>{f.outputExtensions.map((e) => `.${e.replace(/^\./, "")}`).join(" · ") || f.id}</span>
@@ -150,6 +159,33 @@ export function ExportDialog({
           <p className={styles.sub}>No export formats loaded yet.</p>
         )}
       </div>
+
+      {/*
+        Only when there IS a choice. A format that writes one container has nothing to ask about,
+        and a control that always appears teaches people to ignore it.
+      */}
+      {(target?.outputExtensions.length ?? 0) > 1 && (
+        <div className={styles.list} role="radiogroup" aria-label="File type">
+          {target?.outputExtensions.map((raw) => {
+            const ext = raw.replace(/^\./, "");
+            const picked = extension === ext || (!extension && ext === target.outputExtensions[0]?.replace(/^\./, ""));
+            return (
+              <button
+                key={ext}
+                type="button"
+                role="radio"
+                aria-checked={picked}
+                className={`${styles.opt}${picked ? ` ${styles.optOn}` : ""}`}
+                onClick={() => setExtension(ext)}
+              >
+                <b>{`.${ext}`}</b>
+                {/* Said plainly, because "which one do I send someone" is the actual question. */}
+                <span>{ext === "png" ? "the card image other apps import" : "plain data file"}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {honesty && (
         <div className={styles.honesty} role="status">

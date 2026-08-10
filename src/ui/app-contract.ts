@@ -94,7 +94,8 @@ export interface AppContext {
      * itself never round-trips through the browser. `refIds` carries the commit loop's
      * minted-id-to-shelf-id map so the server can rewrite knowledgeRefs before saving. */
     saveStaged(payload: SaveStagedPayload): Promise<SaveBundleResult>;
-    exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
+    /** `extension` picks the container when a format writes more than one (e.g. sillytavern json/png). */
+    exportEntity(entity: unknown, targetId: string, extension?: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
     /**
      * The person's own groupings of pieces, and the five edits that change them.
