@@ -27,10 +27,19 @@ const LARGE = {
   body: { identity: { name: "Large" }, description: "x".repeat(9_000) },
 } as unknown as KitEntity;
 
+/**
+ * Genuinely oversized, which is a moving target and has to be stated against the current ceiling.
+ *
+ * This was 70,000 chars, chosen when a piece spilled above 64,000. That line sat UNDER the size of
+ * ordinary work in a real studio - two presets somebody was editing measured 76KB and 89KB - so the
+ * common case paged eight times to read one file. The threshold moved to 120,000; the fixture moves
+ * with it, because the behaviour under test is "a piece too big to hand over whole still pages
+ * safely", not "70,000 is a lot".
+ */
 const OVERSIZED = {
   id: "oversized",
   kind: "character",
-  body: { identity: { name: "Oversized" }, description: "x".repeat(70_000) },
+  body: { identity: { name: "Oversized" }, description: "x".repeat(200_000) },
 } as unknown as KitEntity;
 
 const fakeBridge: KitBridge = {
@@ -106,6 +115,25 @@ describe("read", () => {
     expect(read.input.safeParse({ kind: "character", id: "" }).success).toBe(false);
   });
 
+  test("A PIECE THE SIZE OF REAL WORK ARRIVES IN ONE CALL", async () => {
+    /**
+     * The regression this threshold exists to prevent. At 64,000 an 89KB preset - small for the
+     * studio it came from - cost eight round trips, and the agent spent its per-turn tool budget
+     * turning pages instead of working. Asserted at a size taken from a real file, not a round
+     * number, so a future tightening has to argue with the actual case.
+     */
+    const REAL = {
+      id: "real-preset",
+      kind: "character",
+      body: { identity: { name: "Real" }, description: "x".repeat(88_945) },
+    } as unknown as KitEntity;
+    const bridge: KitBridge = { ...fakeBridge, async read() { return REAL; } };
+    const result = await read.execute({ kind: "character", id: "real-preset" }, { bridge, results });
+    const output = JSON.parse(result.output) as { spilled: boolean; nextOffset: number | null };
+    expect(output.spilled).toBe(false);
+    expect(output.nextOffset).toBeNull();
+  });
+
   test("returns a normal large card in one complete default read", async () => {
     const result = await read.execute({ kind: "character", id: "large" }, ctx);
     const output = JSON.parse(result.output) as {
@@ -132,11 +160,11 @@ describe("read", () => {
 
     expect(output.spilled).toBe(true);
     expect(output.peek.length).toBe(4_096);
-    expect(output.totalChars).toBeGreaterThan(70_000);
+    expect(output.totalChars).toBeGreaterThan(200_000);
     const tail = await resultQuery.execute({
       action: "read",
       handle: output.handle,
-      offset: 69_500,
+      offset: 199_500,
       limit: 2_000,
     }, ctx);
     expect(JSON.parse(tail.output).content).toContain("xxxxx");

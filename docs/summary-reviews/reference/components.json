@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:9895aaec2725c6efb94cb85e25ed68f4ac8fa08544c7c076aef855378515bea5",
-  "semanticSummaryHash": "sha256:59569e16e45c009a60adcb12c488234acd1a58a852717784f4c0d92130486ff6",
+  "sourceHash": "sha256:4457925e1dde1d4e2d3a921e89e69f8a40876edaaa3f6e58dc90a3f192f629be",
+  "semanticSummaryHash": "sha256:4c659ea1cf5df0ad1d58a4c41ee3892e8cdb2acbd77c17584486e366c888237b",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Regenerated catalog. Adds the Library's new chrome: CollectionsBar (groupings row), SearchBox/NoMatchNotice/SendBar/FirstLanding/StudioUnreachable (search work), and DamageNotice's signature gains an optional prefs seam for dismissal. Table rows and one changed signature; the page's prose and summary still describe what the file is.",
-  "reviewedAt": "2026-08-08T08:01:37.117Z"
+  "notes": "Adds EditorConflict, the workbench bar an editor shows when its file changed on disk. Generated row matches the source.",
+  "reviewedAt": "2026-08-08T21:17:02.629Z"
 }

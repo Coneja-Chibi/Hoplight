@@ -19,10 +19,26 @@ const input = z.strictObject({
     .describe("an RFC 6901 JSON Pointer returned by outline; empty means the whole entity")
     .optional(),
   offset: z.number().int().min(0).optional(),
-  limit: z.number().int().min(1).max(12_000).optional(),
+  limit: z.number().int().min(1).max(48_000).optional(),
 });
 
-const MAX_WHOLE_ENTITY_CHARS = 64_000;
+/**
+ * Below this, a piece comes back whole in one call; above it, it spills and is read in pages.
+ *
+ * RAISED BECAUSE IT SAT UNDER THE SIZE OF ORDINARY WORK. The two presets somebody was editing when
+ * this was measured are 76KB and 89KB - both just over the old 64,000 line, so each cost eight round
+ * trips to read a file that is small by this studio's standards. The threshold was not protecting a
+ * context window; it was fragmenting the common case.
+ *
+ * IT IS STILL A CEILING, and deliberately far below the median preset here (440KB). A piece that
+ * genuinely is enormous still spills, because one tool result that eats a third of the window is
+ * worse than paging - the point is that "large" should mean large, not "bigger than average".
+ */
+const MAX_WHOLE_ENTITY_CHARS = 120_000;
+
+/** The largest page a caller may request, and what they get when they name no size. */
+const MAX_PAGE_CHARS = 48_000;
+const DEFAULT_PAGE_CHARS = 16_000;
 
 /**
  * The piece as a READER should see it: everything except its original.
@@ -133,7 +149,7 @@ const read: HarnessTool<z.infer<typeof input>> = {
     }
 
     const offset = Math.max(0, Math.min(content.length, args.offset ?? 0));
-    const limit = Math.max(1, Math.min(12_000, args.limit ?? 4_096));
+    const limit = Math.max(1, Math.min(MAX_PAGE_CHARS, args.limit ?? DEFAULT_PAGE_CHARS));
     const page = content.slice(offset, offset + limit);
     const end = offset + page.length;
     return {

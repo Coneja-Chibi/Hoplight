@@ -12,7 +12,7 @@ const input = z.discriminatedUnion("action", [
     action: z.literal("read"),
     handle,
     offset: z.number().int().min(0).optional(),
-    limit: z.number().int().min(1).max(12_000).optional(),
+    limit: z.number().int().min(1).max(48_000).optional(),
   }),
   z.strictObject({
     action: z.literal("search"),

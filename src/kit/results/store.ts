@@ -69,7 +69,19 @@ const DEFAULT_INLINE_CHARS = 4_096;
 const DEFAULT_MAX_ENTRY_BYTES = 1_000_000;
 const DEFAULT_MAX_ENTRIES = 24;
 const DEFAULT_MAX_TOTAL_BYTES = 4_000_000;
-const MAX_READ_CHARS = 12_000;
+/**
+ * The largest page a reader may ask for.
+ *
+ * MEASURED AGAINST REAL PRESETS RATHER THAN CHOSEN. At 12,000 this was four round trips per 50KB,
+ * and the studio it was written for has a MEDIAN preset of 440KB - so an ordinary "read this preset"
+ * cost thirty-odd tool calls, against a per-turn budget of forty-eight. The agent was spending its
+ * whole turn turning pages, and the person watching saw a minute of "consulting" for one file.
+ *
+ * 48,000 chars is roughly 13k tokens: still a fraction of any modern window, and a quarter of the
+ * round trips. The spill itself stays - a 440KB entity must NOT arrive whole, whatever the window,
+ * because one tool result should never be able to crowd out the conversation that asked for it.
+ */
+const MAX_READ_CHARS = 48_000;
 const MAX_SEARCH_ROWS = 50;
 const MAX_SEARCH_LINE_CHARS = 500;
 

@@ -261,11 +261,23 @@ async function main(argv: string[]): Promise<number> {
   if (first === "ui") {
     await ensureFormats();
     const { startUi } = await import("./ui/server");
+    const { claimPort } = await import("./ui/port-owner");
     const port = Number(args[1]) || 8321;
     // Default matches the compiled exe: the user's own Documents. A repo-relative "studio" default
     // scattered entities into whatever cwd the command ran from.
     const studioDir = args[2] ?? resolveDefaultStudioDir(homedir());
-    const { url, sandboxUrl } = startUi(port, studioDir, PACKAGED_ASSETS ?? undefined);
+    /**
+     * Take the next free port rather than dying on a busy one, and confirm we are the one answering
+     * there (ui/port-owner.ts). The packaged exe has hunted since it shipped; this command bound
+     * exactly what it was given and threw, so a stray `npx http-server -p 8321` stopped the studio
+     * starting at all. The port actually in use is printed below, and is the only URL that works.
+     */
+    const { server: started, port: bound } = await claimPort(port, 10, (p) =>
+      startUi(p, studioDir, PACKAGED_ASSETS ?? undefined));
+    if (bound !== port) {
+      console.log(`\n  Port ${port} is held by something that is not Hoplight - using ${bound}.`);
+    }
+    const { url, sandboxUrl } = started;
     const { forwardingGuide } = await import("./ui/forwarding");
     const guide = forwardingGuide(
       new URL(url).port,

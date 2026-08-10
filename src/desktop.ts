@@ -16,21 +16,10 @@ import { PACKAGED_ASSETS } from "./generated/packaged-assets";
 import type { PackagedAssets } from "./ui/assets";
 import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 import { reportBootFailure, reportWindowFailure } from "./desktop-boot-report";
+import { runningHoplightAt } from "./ui/port-owner";
 
 const PORT = 8321;
 const PORT_TRIES = 10;
-
-/** A Hoplight already listening here? Its own /api/version answers with a version string. */
-async function runningHoplightAt(port: number): Promise<string | null> {
-  try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/version`, { signal: AbortSignal.timeout(1500) });
-    if (!res.ok) return null;
-    const body = (await res.json()) as { version?: unknown };
-    return typeof body.version === "string" ? `http://127.0.0.1:${port}` : null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Claim a port for the studio. The exe used to hard-bind 8321 and die on EADDRINUSE, which read as
