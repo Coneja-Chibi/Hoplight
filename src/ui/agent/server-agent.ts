@@ -35,6 +35,56 @@ interface TurnRequest {
    * so a page naming a terminal session must be refused here rather than trusted to be well-meaning.
    */
   readonly sessionId?: string;
+  /**
+   * Pictures attached to THIS question, already decoded.
+   *
+   * Decoded here rather than passed as data URLs, so the one place that parses untrusted input is
+   * the one place that decides what an image is. Whether they are actually sent is not this file's
+   * call: `runTurn` attaches them only when the active spoke declared it takes images, so a
+   * text-only provider silently gets a text-only turn instead of a request it would reject.
+   */
+  readonly images?: readonly Uint8Array[];
+}
+
+/** How many pictures one question may carry, and how big each may be once decoded. */
+const MAX_IMAGES = 4;
+const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+
+/** The image types every vision model takes. Anything else is refused by name rather than sent. */
+const IMAGE_MIMES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+
+/**
+ * Read the attached pictures, or say why not.
+ *
+ * FAIL-CLOSED AND BY NAME. A picture that is too big, too many, or not a picture is refused with a
+ * sentence somebody can act on - not dropped silently, which would send the question without the
+ * thing it was asking about and make the answer look like the model ignoring them.
+ */
+function parseImages(raw: unknown): { ok: true; images: Uint8Array[] } | { ok: false; why: string } {
+  if (raw === undefined) return { ok: true, images: [] };
+  if (!Array.isArray(raw)) return { ok: false, why: "images must be an array" };
+  if (raw.length > MAX_IMAGES) return { ok: false, why: `at most ${MAX_IMAGES} images per message` };
+  const images: Uint8Array[] = [];
+  for (const item of raw) {
+    if (typeof item !== "string") return { ok: false, why: "each image must be a data URL" };
+    const match = /^data:([a-z]+\/[a-z0-9.+-]+);base64,(.+)$/i.exec(item);
+    if (!match) return { ok: false, why: "each image must be a base64 data URL" };
+    if (!IMAGE_MIMES.has(match[1]!.toLowerCase())) {
+      return { ok: false, why: `${match[1]} is not an image type models read` };
+    }
+    let bytes: Buffer;
+    try {
+      bytes = Buffer.from(match[2]!, "base64");
+    } catch {
+      return { ok: false, why: "an image was not valid base64" };
+    }
+    if (bytes.length === 0) return { ok: false, why: "an image was empty" };
+    if (bytes.length > MAX_IMAGE_BYTES) {
+      return { ok: false, why: `each image must be under ${Math.round(MAX_IMAGE_BYTES / 1024 / 1024)}MB` };
+    }
+    images.push(new Uint8Array(bytes));
+  }
+  return { ok: true, images };
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -109,12 +159,16 @@ export function parseTurn(body: unknown): { ok: true; value: TurnRequest } | { o
     return { ok: false, why: "sessionId is not a window session" };
   }
 
+  const pictures = parseImages(body["images"]);
+  if (!pictures.ok) return { ok: false, why: pictures.why };
+
   return {
     ok: true,
     value: {
       messages,
       ...(typeof brief === "string" && brief ? { brief } : {}),
       ...(typeof sessionId === "string" ? { sessionId } : {}),
+      ...(pictures.images.length > 0 ? { images: pictures.images } : {}),
     },
   };
 }

@@ -159,10 +159,35 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
     : null;
   const brief = reading ? briefText(reading) : undefined;
 
+  /**
+   * Pictures staged for the next message.
+   *
+   * HELD BESIDE THE DRAFT, not inside it: a data URL in the text box would be pasted into the
+   * conversation as characters, cost the whole context window, and still not reach the model as an
+   * image. They ride separately and clear with the send that carried them.
+   */
+  const [shots, setShots] = useState<readonly string[]>([]);
+
+  /** Read files into data URLs, ignoring anything that is not an image. */
+  const attach = useCallback((files: readonly File[]): void => {
+    for (const file of files.slice(0, 4)) {
+      if (!file.type.startsWith("image/")) continue;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const url = typeof reader.result === "string" ? reader.result : "";
+        // Capped here as well as on the server, so the browser never holds five in memory to be told no.
+        if (url) setShots((prior) => (prior.length >= 4 ? prior : [...prior, url]));
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
   const submit = (): void => {
     const text = draft;
+    const carried = shots;
     setDraft("");
-    void chat.send(text, brief);
+    setShots([]);
+    void chat.send(text, brief, carried.length ? carried : undefined);
   };
 
   const slash = useSlash(draft, setDraft, kitCommands.seam.catalog, kitCommands.suggest);
@@ -347,12 +372,41 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
           active={mentions.active}
           onPick={mentions.pick}
         />
+        {/*
+          WHAT IS ATTACHED, VISIBLE, AND REMOVABLE. An attachment nobody can see is one that gets
+          sent by accident; the thumbnail is the receipt and clicking it is the undo.
+        */}
+        {shots.length > 0 && (
+          <div className="agent-room__shots">
+            {shots.map((src, at) => (
+              <button
+                key={at}
+                type="button"
+                title="Remove this picture"
+                onClick={() => { setShots((prior) => prior.filter((_, i) => i !== at)); }}
+              >
+                <img src={src} alt="attached" />
+              </button>
+            ))}
+          </div>
+        )}
         <form className="agent-room__composer" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <Searchlight on={chat.busy} />
           <textarea
             ref={composerRef}
             value={draft}
             rows={2}
+            /**
+             * PASTE IS THE REAL GESTURE. Somebody with a screenshot presses ctrl+v; making them find
+             * a file picker for an image they already have on the clipboard is the friction this
+             * feature exists to remove. The button below stays for files on disk.
+             */
+            onPaste={(e) => {
+              const files = [...e.clipboardData.files];
+              if (files.length === 0) return;
+              e.preventDefault();
+              attach(files);
+            }}
             /**
              * SPELLCHECKED. This is a sentence somebody is writing to another party; the browser
              * already has the dictionary, and switching it off here would be switching off the only

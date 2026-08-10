@@ -137,6 +137,8 @@ export async function runAgentTurn(input: {
   readonly brief?: string;
   /** The window's own saved session, or absent to open a new one. See window-session.ts. */
   readonly sessionId?: string;
+  /** Pictures attached to this question, already decoded and bounded by parseTurn. */
+  readonly images?: readonly Uint8Array[];
   readonly signal?: AbortSignal;
   readonly emit: (frame: StreamFrame) => void;
 }): Promise<void> {
@@ -234,6 +236,18 @@ export async function runAgentTurn(input: {
           return answer;
         },
       },
+      /**
+       * The pictures attached to this question.
+       *
+       * THE LAST UNWIRED LINK. `runTurn` has always taken these and only ever received undefined
+       * from here, so the window could not show the model an image no matter what the provider
+       * supported - the one thing somebody wants when they cannot describe a picture in words.
+       *
+       * Passed as-is because the decision to SEND is not this file's: runTurn attaches them only
+       * when the active spoke declared it takes images, so a text-only provider gets a text-only
+       * turn rather than a request it would reject.
+       */
+      input.images,
     );
 
     /**

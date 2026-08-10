@@ -68,7 +68,7 @@ export interface AgentChat {
   readonly trace: { text: string; seconds: number } | null;
   /** When the running turn began; 0 between turns. */
   readonly startedAt: number;
-  send: (text: string, brief?: string) => Promise<void>;
+  send: (text: string, brief?: string, images?: readonly string[]) => Promise<void>;
   answerGate: (choice: GateAnswerChoice) => void;
   /**
    * Fold or reopen a long reply. An explicit choice overrules the newest-reply-is-open rule.
@@ -143,9 +143,9 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
    * SEPARATE FROM `send` SO THE COMMAND CHECK CANNOT BE SKIPPED BY ACCIDENT, and so that the one
    * caller that must skip it can. See `send` and `answerChoice`.
    */
-  const sendTurn = useCallback(async (text: string, brief?: string): Promise<void> => {
+  const sendTurn = useCallback(async (text: string, brief?: string, images?: readonly string[]): Promise<void> => {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed && !images?.length) return; // a picture on its own is still a question
     /**
      * ONE TURN AT A TIME, checked on a REF. Two clicks in the same tick both read `busy === false`
      * from a stale render and both fire, which bills twice and interleaves two answers.
@@ -197,8 +197,8 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
             .filter((l): l is ChatLine & { role: "user" | "assistant" } => l.role === "user" || l.role === "assistant")
             .map((l) => ({ role: l.role, content: l.text })),
           ...(brief ? { brief } : {}),
-          // Absent on the very first turn of a tab; the server names one and the next turn carries it.
           ...(sessionIdRef.current ? { sessionId: sessionIdRef.current } : {}),
+          ...(images?.length ? { images } : {}),
         },
         controller.signal,
       );

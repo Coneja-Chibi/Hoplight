@@ -29,8 +29,15 @@ import {
 } from "./server-providers";
 import { handleCommandComplete, handleCommandList, handleCommandRun } from "./server-commands";
 
-/** Conversations are bigger than settings payloads and much smaller than an upload. */
-const TURN_BODY_MAX = 256 * 1024;
+/**
+ * Conversations are bigger than settings payloads, and a turn may now carry pictures.
+ *
+ * 256KB was sized for text alone, which made an attached image impossible before anything could
+ * refuse it by name - the request died at the reader with a size error about the whole body. The
+ * real bounds on pictures live in parseTurn (how many, how big each, which types); this only has to
+ * be large enough that those bounds are the ones a person meets.
+ */
+const TURN_BODY_MAX = 32 * 1024 * 1024;
 const GATE_BODY_MAX = 64 * 1024;
 
 export async function handleAgentRoutes(
@@ -142,7 +149,12 @@ export async function handleAgentRoutes(
 
 /** Server-sent events for one turn. */
 function streamTurn(
-  turn: { messages: readonly { role: string; content: string }[]; brief?: string; sessionId?: string },
+  turn: {
+    messages: readonly { role: string; content: string }[];
+    brief?: string;
+    sessionId?: string;
+    images?: readonly Uint8Array[];
+  },
   studioDir: string,
   signal?: AbortSignal,
 ): Response {
@@ -184,6 +196,8 @@ function streamTurn(
           history,
           ...(turn.brief ? { brief: turn.brief } : {}),
           ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
+          // Forwarded, not re-read: parseTurn already decoded and bounded them.
+          ...(turn.images ? { images: turn.images } : {}),
           ...(signal ? { signal } : {}),
           emit,
         });

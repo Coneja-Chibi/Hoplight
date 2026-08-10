@@ -92,6 +92,11 @@ export const AGENT_STYLE = `
 
 /** The composer: Kit's input bar, stamped rather than floating. */
 export const AGENT_TALK_STYLE = `
+/* Attached pictures, above the composer. Clicking one removes it, so the whole tile is the button. */
+.agent-room__shots{display:flex;gap:.4rem;flex-wrap:wrap;padding:.4rem .5rem 0}
+.agent-room__shots button{position:relative;padding:0;border:1px solid var(--kit-line);background:none;cursor:pointer;line-height:0}
+.agent-room__shots img{width:3rem;height:3rem;object-fit:cover;display:block}
+.agent-room__shots button:hover{border-color:var(--kit-bad)}
 .agent-room__composer{position:relative;display:flex;align-items:stretch;gap:0;background:var(--kit-well);
   border-top:1px solid var(--kit-seam);padding:.5rem .7rem;flex:none}
 /* The rose prompt block, fused to the field's left border. Kit: "a real stamp, not a marker". */
