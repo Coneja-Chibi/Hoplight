@@ -154,9 +154,36 @@ export function makeGatedDispatch(
         };
       }
       // allow-session / set-mode: evolve the working policy and re-decide (bounded by MAX_ROUNDS).
-      working = applyGateChoice(working, choice, name);
+      const next = applyGateChoice(working, choice, name);
+
+      /**
+       * A YES THAT CHANGES NOTHING IS STILL A YES.
+       *
+       * `allow-session` grants the name and re-decides, which is right when the grant clears the
+       * call. When it does NOT - a class the grant cannot reach - the loop asked the identical
+       * question again, got the same answer, and ran out of rounds: the call came back refused as
+       * "too many confirmation rounds" after the person had explicitly permitted it three times.
+       * From the outside that is the gate ignoring you and then blaming you for answering.
+       *
+       * So a session grant that cannot take effect falls back to what it unambiguously means for the
+       * call in front of it: run this one. It is exactly `allow-once`, which the same panel offers
+       * one button along, so this authorises nothing the person could not already have chosen - it
+       * stops a strictly weaker answer from being treated as no answer at all.
+       *
+       * `set-mode` is deliberately NOT covered: changing the policy is not saying yes to this call,
+       * so it re-decides and may legitimately still ask.
+       */
+      if (type === "allow-session" && decideGate(name, verdict, next) === "confirm") {
+        return inner(call);
+      }
+      working = next;
     }
 
-    return blocked(name, "too many confirmation rounds");
+    /**
+     * Reached only when the answers kept changing the policy without ever resolving this call.
+     * Named so the next person can act on it, rather than "too many confirmation rounds", which
+     * describes the counter rather than the situation.
+     */
+    return blocked(name, `${verdict.reason} - still unresolved after ${MAX_ROUNDS} answers`);
   };
 }

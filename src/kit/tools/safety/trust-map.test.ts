@@ -18,10 +18,56 @@
  * of somebody using it.
  */
 import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { discoverTools } from "../discover";
 import { resolveAccess } from "./access";
 
+/**
+ * Every tool in the SOURCE TREE that names itself and declares an effect.
+ *
+ * WHY NOT `discoverTools()` ALONE, which the tests below use. Discovery finds drop-ins: modules that
+ * export a ready tool. A tool needing session state is built by a factory instead - and that is
+ * enough to be invisible here. `preset_copy_blocks` was, so it shipped outside the map, resolved to
+ * "unknown", and hit the danger floor: a staging tool that no permission setting could authorise,
+ * because the floor asks in every mode. Answering only re-decided until the round cap gave up.
+ *
+ * Reading the folder catches both kinds, which is the property this guard was always claimed to have.
+ */
+function declaredInSource(): { name: string; effect: string }[] {
+  const root = fileURLToPath(new URL("../", import.meta.url));
+  const found: { name: string; effect: string }[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) { walk(path); continue; }
+      if (!entry.name.endsWith(".ts") || entry.name.includes(".test.")) continue;
+      const source = readFileSync(path, "utf8");
+      const name = /name:\s*"([a-z0-9_]+)"/.exec(source);
+      const effect = /effect:\s*"(read|draft|write|delete|exec)"/.exec(source);
+      if (name && effect) found.push({ name: name[1]!, effect: effect[1]! });
+    }
+  };
+  walk(root);
+  return found;
+}
+
 describe("the trust map covers every shipped tool", () => {
+  test("NO TOOL IN THE SOURCE TREE IS MISSING, factory-built ones included", () => {
+    /**
+     * The hole this closes let `preset_copy_blocks` reach a user. It only stages, but with no entry
+     * it resolved to "unknown" - the danger floor - so it asked in every mode, could not be allowed
+     * for the session, and ended every attempt as "too many confirmation rounds".
+     */
+    const declared = declaredInSource();
+    // A scan that found nothing would be vacuously green, which is the same absence-reads-as-success
+    // trap the map itself fell into.
+    expect(declared.length).toBeGreaterThan(20);
+
+    const missing = declared.map((t) => t.name).filter((name) => resolveAccess(name) === "unknown");
+    expect(missing).toEqual([]);
+  });
+
   test("no first-party tool resolves to unknown", async () => {
     const tools = await discoverTools();
     // A belt that came back empty would make this test vacuously green, which is the same trap the

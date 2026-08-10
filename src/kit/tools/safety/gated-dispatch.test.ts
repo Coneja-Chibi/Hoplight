@@ -187,7 +187,18 @@ describe("makeGatedDispatch", () => {
     expect(inner.calls()).toBe(0);
   });
 
-  test("allow-session cannot open a floor tool; the re-decision loop is bounded", async () => {
+  test("ALLOW-SESSION ON A FLOOR TOOL RUNS THAT ONE CALL, AND STILL ASKS FOR THE NEXT", async () => {
+    /**
+     * The floor is not grantable, and that is the point: a session grant must never quietly
+     * authorise later dangerous calls. But the previous behaviour drew the wrong conclusion from it.
+     * It re-asked the identical question until the round cap expired and then REFUSED the call - so
+     * somebody who clicked "allow for this session" three times was told they had answered too many
+     * times. Clicking "allow once", one button along on the same panel, ran it.
+     *
+     * A session grant is now honoured for the call in front of it and no further. That authorises
+     * nothing the person could not already have chosen, and the second call below is what proves the
+     * invariant survives: the floor asks again.
+     */
     const inner = spyInner();
     let asked = 0;
     const gated = makeGatedDispatch(
@@ -197,11 +208,16 @@ describe("makeGatedDispatch", () => {
         return { type: "allow-session" };
       }),
     );
-    const r = await gated(call("exec-something")); // unknown -> floor -> never grantable
-    expect(inner.calls()).toBe(0);
-    expect(r.summary).toContain("blocked");
-    expect(asked).toBeGreaterThan(0);
-    expect(asked).toBeLessThanOrEqual(3);
+
+    const first = await gated(call("exec-something")); // unknown -> floor -> never grantable
+    expect(first.summary).not.toContain("blocked");
+    expect(inner.calls()).toBe(1);
+    // Asked once, not three times: a yes that cannot clear the class is not a reason to re-ask.
+    expect(asked).toBe(1);
+
+    // THE INVARIANT: the grant did not open the floor. The next one asks on its own account.
+    await gated(call("exec-something"));
+    expect(asked).toBe(2);
   });
 
   test("set-mode to autopilot still cannot auto-allow a floor tool", async () => {

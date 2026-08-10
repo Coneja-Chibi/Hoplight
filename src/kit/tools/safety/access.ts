@@ -70,6 +70,22 @@ const TRUST = new Map<string, ToolAccess>([
   // regular expression, the engine refuses anything the validator calls a backtracking bomb, and
   // every run is time-bounded. Nothing is stored - saving belongs to regex_create.
   ["regex_lab", "read"],
+  /**
+   * Copies blocks between presets BY REFERENCE and stages the result. `draft` like every other
+   * create: it composes a change and writes nothing.
+   *
+   * THE SECOND TOOL TO REACH A USER FROM OUTSIDE THIS MAP, and it went further than block_lookup
+   * did. Missing here it resolved to "unknown", which is the danger floor - and the floor asks in
+   * EVERY mode, so neither "allow for this session" nor `/gates full` could clear it. Each answer
+   * re-decided, the three-round cap ran out, and the call came back "too many confirmation rounds":
+   * a tool that only stages, permanently unusable, with the gate insisting it was too dangerous to
+   * run. Somebody answered that prompt nine times before it was diagnosed.
+   *
+   * The CI guard that was supposed to prevent exactly this only walked the drop-in tools that
+   * `discoverTools()` finds. This one is built by a factory (it needs the change session), so the
+   * guard never saw it. `trust-map.test.ts` now reads the source tree instead.
+   */
+  ["preset_copy_blocks", "draft"],
 ]);
 
 export type AccessResolver = (name: string) => ToolAccess;

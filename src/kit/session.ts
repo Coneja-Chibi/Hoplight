@@ -154,7 +154,13 @@ export interface Session {
   activeProvider(): Promise<{ name: string; model: string; context?: number; images?: boolean } | null>;
 }
 
-const MAX_STEPS = 12;
+/**
+ * How many model turns one request may take. Twelve capped ambition, not runaway: on a studio whose
+ * median preset is 440KB, reading two pieces and staging a draft spent most of them before any
+ * thinking happened. Runaway is held by loop-core's tool-call and elapsed budgets plus no-progress
+ * detection; this only decides how much a turn is ALLOWED to attempt.
+ */
+const MAX_STEPS = 64;
 
 /**
  * An id nothing answers to yet, derived from the one asked for.

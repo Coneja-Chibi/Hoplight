@@ -11,11 +11,30 @@
  * blocks is not in a turn and calls `requestConfirm` directly. Lock down blocked that one write and
  * left the session unlocked.
  */
-import { expect, test } from "bun:test";
+import { beforeAll, expect, test } from "bun:test";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { ReactNode } from "react";
 import { runRenderUpdate, settleRender as tick, testRender } from "../test-render";
 import { useGateController, type GateController } from "./use-gate";
 import type { GateRequest } from "../../tools/safety/gated-dispatch";
+
+/**
+ * THESE TESTS READ A REAL FILE, and until this was here they read the DEVELOPER'S.
+ *
+ * The hook remembers the mode from `~/.hoplight/gates.json`, so the suite's idea of "the standing
+ * policy starts guarded" was really "whatever this machine last chose". Running `/gates full` in the
+ * app - an ordinary thing to do, and the thing this feature exists for - turned six tests red with
+ * failures that pointed at the gate logic and had nothing to do with it. A suite that breaks because
+ * somebody used the product is a suite that gets ignored the next time it is right.
+ *
+ * HOPLIGHT_HOME is the seam the config already reads, so pointing it at an empty directory gives
+ * every run the same fresh-install starting point.
+ */
+beforeAll(() => {
+  process.env["HOPLIGHT_HOME"] = mkdtempSync(join(tmpdir(), "hoplight-gate-"));
+});
 
 const request = (name: string): GateRequest => ({
   name,

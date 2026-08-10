@@ -185,8 +185,23 @@ export async function* runTurn(
   const recentObservationKeys: string[] = [];
   const now = deps.now ?? Date.now;
   const startedAt = now();
-  const maxToolCalls = deps.maxToolCalls ?? 48;
-  const maxElapsedMs = deps.maxElapsedMs ?? 120_000;
+  /**
+   * The two runaway budgets, sized for work rather than for a demo.
+   *
+   * TWO MINUTES WAS THE REAL LIMIT and it was invisible, because it is not phrased as a limit on
+   * anything a person recognises. One read-heavy turn measured 17 seconds on a studio whose median
+   * preset is 440KB, so a job that reads two pieces, looks up their blocks, stages a draft and
+   * verifies it was never going to fit - it stopped partway and reported a budget, which reads as
+   * the agent giving up for no reason. Raising the step count without this would have changed
+   * nothing: the clock got there first every time.
+   *
+   * THESE ARE STILL THE RUNAWAY GUARDS, not a formality. What actually catches a stuck loop is
+   * no-progress detection, which stops after three identical calls in a row - in seconds, not
+   * minutes. These two exist for the case that guard cannot see: genuine but unbounded work. Ten
+   * minutes and two hundred calls is enough for any real request here and still finite.
+   */
+  const maxToolCalls = deps.maxToolCalls ?? 200;
+  const maxElapsedMs = deps.maxElapsedMs ?? 600_000;
   let toolCalls = 0;
   let lifecycle = initialLoopState();
   let pendingReview: DraftReview | null = null;
