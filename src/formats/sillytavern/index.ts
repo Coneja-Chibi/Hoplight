@@ -177,7 +177,21 @@ const adapter: CharacterAdapter = {
       if (!portrait) {
         throw new Error("sillytavern: PNG export needs the card to have a PNG portrait");
       }
-      return { bytes: embedCharacterJson(portrait, text, "chara"), suggestedExtension: "png" };
+      /**
+       * BOTH KEYWORDS FOR A V3 CARD, and getting this wrong is invisible from here.
+       *
+       * `chara` is the v2 marker every reader knows; `ccv3` is what a v3-aware reader looks for
+       * FIRST. Writing only `chara` produced a file that opened everywhere and announced itself as
+       * v2 - so a v3 card's own reader would take the v2 path, and the fields v3 added would be read
+       * by whatever fallback that app happens to have. The card was right and its label was wrong.
+       *
+       * Writing both is what the spec's own carriers do: v3 readers find `ccv3`, everything older
+       * finds `chara`, and the JSON in each is identical, so there is no version of this file where
+       * the two disagree about the character.
+       */
+      const carrier = embedCharacterJson(portrait, text, "chara");
+      const bytes = emitVariant === "v3" ? embedCharacterJson(carrier, text, "ccv3") : carrier;
+      return { bytes, suggestedExtension: "png" };
     }
     return { text, suggestedExtension: "json" };
   },

@@ -98,3 +98,36 @@ describe("exporting a SillyTavern card as PNG", () => {
       .toThrow(/portrait/i);
   });
 });
+
+describe("every card version exports as PNG", () => {
+  /** A card pinned to one round-trip variant, the way an imported card carries its own. */
+  const at = (variant: string): CanonicalCharacter => {
+    const c = card(true) as unknown as { original: Record<string, unknown> };
+    c.original = { sillytavern: { raw: null, unmapped: { variant } } };
+    return c as unknown as CanonicalCharacter;
+  };
+
+  for (const variant of ["v1", "flat", "v2", "v3"] as const) {
+    test(`${variant} exports and reads back`, () => {
+      const out = characterAdapter.fromCanonical(at(variant), { requestedExtension: "png" });
+      expect(characterAdapter.toCanonical({ bytes: out.bytes!, filename: "v.png" } as never)
+        .body.identity.name).toBe("Vera");
+    });
+  }
+
+  test("A V3 CARD IS LABELLED V3, not merely readable as v2", () => {
+    /**
+     * The defect this pins shipped for one commit. `chara` is the v2 marker every reader knows and
+     * `ccv3` is what a v3-aware reader looks for first, so writing only `chara` produced a v3 card
+     * that announced itself as v2 - opening everywhere, and read by the older path in the one app
+     * that would have understood its newer fields. The card was right; its label was wrong.
+     */
+    const v3 = characterAdapter.fromCanonical(at("v3"), { requestedExtension: "png" });
+    expect(getVersion(v3.bytes!)).toBe("v3");
+    // Still carries `chara` too, so nothing older loses the card.
+    expect(extractCharacterJson(v3.bytes!)).toBe(characterAdapter.fromCanonical(at("v3")).text ?? null);
+
+    const v2 = characterAdapter.fromCanonical(at("v2"), { requestedExtension: "png" });
+    expect(getVersion(v2.bytes!)).toBe("v2");
+  });
+});
