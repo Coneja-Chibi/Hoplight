@@ -89,11 +89,11 @@ export function PersonaEditorView({ entity, revision, ctx, piece, topRight }: Pe
     ctx.setStatus(next ? `${body.name || "this persona"} is the default now` : "default persona cleared");
   };
 
-  const doSave = useCallback(async (): Promise<void> => {
-    if (saving || !dirty) return;
+  const doSave = useCallback(async (): Promise<boolean> => {
+    if (saving || !dirty) return true;
     if (!body.name.trim()) {
       ctx.setStatus("a name is required before saving");
-      return;
+      return false;
     }
     setSaving(true);
     try {
@@ -105,14 +105,18 @@ export function PersonaEditorView({ entity, revision, ctx, piece, topRight }: Pe
       revisionRef.current = saved.revision;
       setBaseline(structuredClone(body));
       ctx.setStatus(`saved persona · ${body.name}`);
+      return true;
     } catch (e) {
       ctx.setStatus(e instanceof Error ? e.message : "could not save the persona");
+      return false;
     } finally {
       setSaving(false);
     }
   }, [saving, dirty, body, ctx, entity, piece.id]);
 
-  useEditorGuards(ctx, piece, dirty, doSave);
+  // savable: a piece with no name cannot be saved at all, so autosave must not try and then report
+  // a failure - "this may have changed on disk" is a false alarm when the name field is just empty.
+  useEditorGuards(ctx, piece, dirty, doSave, body.name.trim().length > 0);
 
   const mobileMenu: MobileMenuItem[] = PERSONA_WRITE_FOR_PROFILES.map((p) => ({
     label: `${writeFor === p ? "● " : "○ "}Writing for: ${PERSONA_WRITE_FOR_LABELS[p]}`,

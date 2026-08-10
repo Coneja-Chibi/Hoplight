@@ -50,6 +50,36 @@ export function shouldAutosave(state: AutosaveState): boolean {
 }
 
 /**
+ * How many times a failing autosave tries again before it stands down.
+ *
+ * A SAVE THAT FAILS MUST NOT SILENTLY END AUTOSAVE, which is what happened: the timer was armed in
+ * an effect keyed on `dirty`, so a refused save left `dirty` true, nothing changed, and no timer was
+ * ever armed again. Autosave was not paused - it was dead for that piece, and the only word about it
+ * was one line in the status bar.
+ *
+ * BUT NOT FOREVER EITHER. The refusal that matters here is a revision conflict, and retrying that
+ * cannot succeed however long it goes on: the file changed underneath and no amount of trying makes
+ * an old revision current. So it tries a few times for the transient cases - a busy disk, a server
+ * still coming up - and then says so and waits for a person.
+ */
+export const AUTOSAVE_TRIES = 3;
+
+/** Backs off, so three tries span a few seconds rather than firing on top of each other. */
+export const retryDelayMs = (attempt: number): number =>
+  AUTOSAVE_QUIET_MS * Math.pow(3, Math.max(0, attempt));
+
+/**
+ * What to say when autosave has stopped trying.
+ *
+ * NAMED, because "autosave is on" beside an editor that stopped saving four minutes ago is the
+ * quiet lie this whole file exists to prevent.
+ */
+export const autosaveStoppedNote = (attempts: number): string | null =>
+  attempts >= AUTOSAVE_TRIES
+    ? "autosave stopped after a failed save - this piece may have changed on disk"
+    : null;
+
+/**
  * The reason autosave is not running, in words, or null when it is.
  *
  * SHOWN RATHER THAN GUESSED AT. "Autosave is on" beside an editor that has not saved for a minute

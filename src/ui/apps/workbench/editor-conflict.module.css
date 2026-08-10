@@ -1,0 +1,61 @@
+/**
+ * The bar an editor shows when its file changed underneath it. Deliberately plain and deliberately
+ * loud: it sits between the head and the work, in caution amber, and it does not go away on its own.
+ */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--stage-warn) 14%, transparent);
+  border-bottom: 2px solid var(--stage-warn);
+  color: var(--stage-card);
+}
+
+.text {
+  flex: 1 1 18rem;
+  min-width: 0;
+  font: 500 0.85rem var(--font-body);
+}
+
+.title {
+  display: block;
+  font: 700 0.75rem var(--font-big);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-warn);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button {
+  border: 2px solid var(--stage-warn);
+  background: transparent;
+  color: var(--stage-card);
+  cursor: pointer;
+  font: 600 0.8rem var(--font-body);
+  padding: 0.4rem 0.8rem;
+}
+
+.button:hover {
+  background: color-mix(in srgb, var(--stage-warn) 22%, transparent);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--stage-warn);
+  outline-offset: 2px;
+}
+
+.primary {
+  background: var(--stage-warn);
+  color: var(--stage);
+}
+
+.primary:hover {
+  background: color-mix(in srgb, var(--stage-warn) 82%, var(--stage));
+}

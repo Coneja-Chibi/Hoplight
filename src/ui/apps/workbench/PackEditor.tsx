@@ -42,8 +42,8 @@ export function PackEditor({ entity, revision, ctx, piece, topRight }: PackEdito
   const currentKey = JSON.stringify({ name, brief, pack: normalizePack(pack) });
   const dirty = currentKey !== baseline;
 
-  const doSave = useCallback(async (): Promise<void> => {
-    if (saving) return;
+  const doSave = useCallback(async (): Promise<boolean> => {
+    if (saving) return true;
     setSaving(true);
     try {
       const body: PackBody = {
@@ -65,8 +65,10 @@ export function PackEditor({ entity, revision, ctx, piece, topRight }: PackEdito
       revisionRef.current = saved.revision;
       setBaseline(JSON.stringify({ name: body.name, brief: body.brief ?? "", pack: body.pack }));
       ctx.setStatus(`saved pack · ${body.name}`);
+      return true;
     } catch (e) {
       ctx.setStatus(e instanceof Error ? e.message : "save failed");
+      return false;
     } finally {
       setSaving(false);
     }

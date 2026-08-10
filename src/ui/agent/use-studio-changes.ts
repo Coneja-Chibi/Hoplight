@@ -136,27 +136,49 @@ export function useStudioChanges(
  * you have unsaved edits AND something else changed the same file - and that case wants a conflict
  * at save time, which the revision check already gives, rather than a silent overwrite either way.
  *
+ * DECLINING IS NOT DISCARDING, and for a long time this hook could not tell the difference. The
+ * effect ran on the version bump, saw a dirty editor, returned - and nothing ever ran it again,
+ * because the version does not bump twice for one change. Saving your edits a second later did not
+ * bring the change in; only ANOTHER write to the same file did. So the room sat on a stale entity
+ * and a stale revision indefinitely, the editor's next save was refused for carrying that stale
+ * revision, and none of it was visible. The pending version is now remembered and replayed.
+ *
  * FILTERED BY KIND, so editing a preset does not re-read every open lorebook. The stream says which
  * decks moved; anything finer would mean the watcher describing entity contents, which is a second
  * description of the studio drifting away from the first.
  */
 export function useReopenOnStudioChange(
   piece: { readonly id: string; readonly kind: string },
-  isDirty: () => boolean,
+  /**
+   * A VALUE, NOT A GETTER. The replay above has to happen when this becomes false, which means the
+   * effect must depend on it; behind a ref it was unobservable, which is precisely how the change
+   * got dropped.
+   */
+  dirty: boolean,
   reopen: () => void,
 ): void {
   const { version, kinds } = useStudioChanges();
-  /** Held rather than depended on: both are rebuilt by the room on every render. */
-  const dirtyRef = useRef(isDirty);
-  dirtyRef.current = isDirty;
+  /** Held rather than depended on: the room rebuilds this closure on every render. */
   const reopenRef = useRef(reopen);
   reopenRef.current = reopen;
+  /**
+   * The version at the last render this hook accounted for. Whatever the stream was up to when this
+   * pane mounted is already in the entity it loaded, so a pane that opens late owes nothing.
+   */
+  const lastRef = useRef(version);
+  /** The newest version this piece still owes a re-read for; 0 means it owes none. */
+  const [owed, setOwed] = useState(0);
 
   useEffect(() => {
-    // Version 0 is the initial subscription; the editor has already loaded by then.
-    if (version === 0) return;
+    if (version === lastRef.current) return;
+    lastRef.current = version;
     if (kinds.length > 0 && !kinds.includes(piece.kind)) return;
-    if (dirtyRef.current()) return;
+    setOwed(version);
+  }, [version, kinds, piece.kind]);
+
+  useEffect(() => {
+    if (owed === 0 || dirty) return;
+    setOwed(0);
     reopenRef.current();
-  }, [version, kinds, piece.id, piece.kind]);
+  }, [owed, dirty]);
 }

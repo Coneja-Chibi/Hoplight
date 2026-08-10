@@ -41,6 +41,15 @@
   gap: 0.4rem;
 }
 
+/* Autosave has used up its tries: said out loud, next to a setting that still reads "on". */
+.autosaveStalled {
+  padding: 0.5rem 1rem;
+  background: color-mix(in srgb, var(--stage-warn) 10%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--stage-warn) 45%, transparent);
+  color: var(--stage-warn);
+  font: 600 0.78rem var(--font-body);
+}
+
 .empty {
   border: 2px dashed color-mix(in srgb, var(--stage-card) 15%, transparent);
   color: var(--stage-mute);

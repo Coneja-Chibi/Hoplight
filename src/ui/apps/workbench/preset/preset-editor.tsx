@@ -31,6 +31,9 @@ import { PromptEditPanel } from "./prompt-edit-panel";
 import { LiveBuild } from "./live-build";
 import { SplitPane } from "../../../components/split-pane";
 import { useReseedOnReread } from "../use-reseed";
+import { EditorConflict } from "../editor-conflict";
+import { apiStatusIs } from "../../../_shared/api-fetch";
+import { AUTOSAVE_TRIES, autosaveStoppedNote } from "../autosave-core";
 import {
   addBlock,
   addGroup,
@@ -153,11 +156,17 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
     ctx.prefs.set(WRITE_FOR_PREF, p);
   };
 
-  const doSave = useCallback(async (): Promise<void> => {
-    if (saving || !dirty) return;
+  /**
+   * The save was refused because the file moved under us. Held here rather than inferred from the
+   * status line, because the status line is overwritten by the next thing that happens.
+   */
+  const [conflict, setConflict] = useState(false);
+
+  const doSave = useCallback(async (): Promise<boolean> => {
+    if (saving || !dirty) return true;
     if (!body.name.trim()) {
       ctx.setStatus("a name is required before saving");
-      return;
+      return false;
     }
     setSaving(true);
     try {
@@ -168,15 +177,60 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
       );
       revisionRef.current = saved.revision;
       setBaseline(structuredClone(body));
+      setConflict(false);
       ctx.setStatus(`saved preset · ${body.name}`);
+      return true;
     } catch (e) {
+      // 409 is the store's revision check, and it is the only failure with a choice attached.
+      if (apiStatusIs(e, 409)) setConflict(true);
       ctx.setStatus(e instanceof Error ? e.message : "could not save the preset");
+      return false;
     } finally {
       setSaving(false);
     }
   }, [saving, dirty, body, ctx, entity, piece.id]);
 
-  useEditorGuards(ctx, piece, dirty, doSave);
+  // savable: a preset with no name cannot be saved at all, so autosave must not try and then report
+  // a failure - "this may have changed on disk" is a false alarm when the name field is just empty.
+  const autosave = useEditorGuards(ctx, piece, dirty, doSave, body.name.trim().length > 0);
+
+  /**
+   * Give up these edits. Clearing dirty is all it takes: the room has been holding the newer read
+   * back precisely because this editor was dirty, and it delivers it the moment that stops.
+   */
+  const takeTheirs = useCallback((): void => {
+    setBody(structuredClone(baseline));
+    setConflict(false);
+    autosave.retry();
+  }, [baseline, autosave]);
+
+  /** Keep these edits, over the top of whatever arrived. The one exit that did not exist before. */
+  const keepMine = useCallback(async (): Promise<void> => {
+    setSaving(true);
+    try {
+      const original = isRec(entity) && isRec(entity.original) ? entity.original : {};
+      await ctx.api.saveEntity(
+        { schemaVersion: CANONICAL_SCHEMA_VERSION, kind: "preset", id: piece.id, body, original },
+        { overwrite: true },
+      );
+      /**
+       * Re-read our own write for its revision. The overwrite route does not return one, and going
+       * on with the stale revision in hand would refuse the very next save all over again.
+       */
+      const fresh = await ctx.api.getEditableEntity(
+        `kind=preset&id=${encodeURIComponent(piece.id)}`,
+      );
+      revisionRef.current = fresh.revision;
+      setBaseline(structuredClone(body));
+      setConflict(false);
+      autosave.retry();
+      ctx.setStatus(`overwrote preset · ${body.name}`);
+    } catch (e) {
+      ctx.setStatus(e instanceof Error ? e.message : "could not overwrite the preset");
+    } finally {
+      setSaving(false);
+    }
+  }, [body, ctx, entity, piece.id, autosave]);
 
   const monogram = (body.name.trim().charAt(0) || "P").toUpperCase();
   const meta = `preset · ${weight.totalCount} block${weight.totalCount === 1 ? "" : "s"} · ${weight.enabledCount} on · ~${weight.tokens} tokens`;
@@ -202,6 +256,14 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
           onChange={setWriteFor}
         />
       </EditorEhead>
+
+      {conflict ? (
+        <EditorConflict what="preset" onTakeTheirs={takeTheirs} onKeepMine={() => void keepMine()} />
+      ) : autosave.stalled ? (
+        <div className={s.autosaveStalled} role="status">
+          {autosaveStoppedNote(AUTOSAVE_TRIES)}
+        </div>
+      ) : null}
 
       <SettingsBar
         body={body}

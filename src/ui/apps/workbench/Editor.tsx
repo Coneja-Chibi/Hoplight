@@ -213,8 +213,8 @@ export function CharacterEditor({ entity, revision, ctx, piece, topRight }: Char
   ] as const;
   const doneCount = chips.filter(([, ok]) => ok).length;
 
-  const doSave = useCallback(async (): Promise<void> => {
-    await runEditorSave({
+  const doSave = useCallback(async (): Promise<boolean> => {
+    return runEditorSave({
       saving,
       dirty,
       baseDraft,
@@ -237,7 +237,9 @@ export function CharacterEditor({ entity, revision, ctx, piece, topRight }: Char
     });
   }, [ctx, dirty, baseDraft, originalDraft, init.ent, init.hadOrder, order, saving]);
 
-  useEditorGuards(ctx, piece, dirty, doSave);
+  // savable: a card with no name cannot be saved at all, so autosave must not try and then report
+  // a failure - "this may have changed on disk" is a false alarm when the name field is just empty.
+  useEditorGuards(ctx, piece, dirty, doSave, str(readPath(baseDraft, "identity.name")).trim().length > 0);
 
   // completion reports in the STATUS BAR (passive status does not rent space in a control row);
   // only what is MISSING is worth words

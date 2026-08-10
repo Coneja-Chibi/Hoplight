@@ -86,7 +86,7 @@ function EditablePane({
    */
   useReopenOnStudioChange(
     piece,
-    () => ctx.workbench.dirty()[keyOf(piece.id, piece.kind)] === true,
+    ctx.workbench.dirty()[keyOf(piece.id, piece.kind)] === true,
     () => { load(); },
   );
 

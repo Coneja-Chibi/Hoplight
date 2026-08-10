@@ -135,12 +135,12 @@ export function RegexSetEditor({ entity, revision, ctx, piece, topRight }: Regex
     ctx.setStatus(`added ${staged.length} rule${staged.length === 1 ? "" : "s"} from import - save to keep`);
   };
 
-  const doSave = useCallback(async (): Promise<void> => {
-    if (saving || !dirty) return;
+  const doSave = useCallback(async (): Promise<boolean> => {
+    if (saving || !dirty) return true;
     const name = session.body.name.trim();
     if (!name) {
       ctx.setStatus("a name is required before saving");
-      return;
+      return false;
     }
     const submitted = structuredClone(session.body);
     setSaving(true);
@@ -163,14 +163,18 @@ export function RegexSetEditor({ entity, revision, ctx, piece, topRight }: Regex
         return { body: r.current, focusedId: live.focusedId };
       });
       ctx.setStatus(`saved regex set · ${name}`);
+      return true;
     } catch (e) {
       ctx.setStatus(e instanceof Error ? e.message : "save failed");
+      return false;
     } finally {
       setSaving(false);
     }
   }, [saving, dirty, session.body, ctx, piece.id, entity]);
 
-  useEditorGuards(ctx, piece, dirty, doSave);
+  // savable: a piece with no name cannot be saved at all, so autosave must not try and then report
+  // a failure - "this may have changed on disk" is a false alarm when the name field is just empty.
+  useEditorGuards(ctx, piece, dirty, doSave, session.body.name.trim().length > 0);
 
   useEffect(() => {
     ctx.setStatus(`${count} rule${count === 1 ? "" : "s"} · ${enabledCount} on`);
