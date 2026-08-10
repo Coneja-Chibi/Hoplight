@@ -12,12 +12,13 @@
  * IT NOTICES THE DISK. The studio-change stream reports the folder rather than an actor, so a file
  * the agent wrote and a file dragged in from Explorer arrive the same way.
  */
-import { useEffect, useMemo, useRef, useState, type JSX, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type JSX, type KeyboardEvent } from "react";
 import type { AppContext } from "../../app-contract";
 import { liveSurface } from "../../agent/live-state";
 import { briefText, readSurface } from "../../agent/surface";
 import { useAgentChat } from "../../agent/use-agent-chat";
 import { useStudioChanges } from "../../agent/use-studio-changes";
+import { loadDraft, saveDraft } from "../../agent/transcript-store";
 import { GateCard } from "../../agent/gate-card";
 import { apiFetch, apiFetchJson } from "../../_shared/api-fetch";
 import { kitVars } from "../../agent/kit-vars";
@@ -47,7 +48,15 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
   const [, bump] = useState(0);
   useEffect(() => liveSurface.onChange(() => { bump((n) => n + 1); }), []);
 
-  const [draft, setDraft] = useState("");
+  /**
+   * Seeded from storage and written back on every change: leaving this tab UNMOUNTS the app (the
+   * shell renders one at a time), so a half-written message would otherwise be gone on return.
+   */
+  const [draft, setDraftState] = useState(loadDraft);
+  const setDraft = useCallback((next: string): void => {
+    setDraftState(next);
+    saveDraft(next);
+  }, []);
   /** The top band folds away and stays folded; it is chrome, and the conversation is not. */
   const [bandFolded, setBandFolded] = useState(() => ctx.prefs.get(PREF_BAND_FOLDED) === true);
   const [traceOpen, setTraceOpen] = useState(false);

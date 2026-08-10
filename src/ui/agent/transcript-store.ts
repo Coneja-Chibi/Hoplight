@@ -107,6 +107,38 @@ export function saveTranscript(lines: readonly StoredLine[]): void {
   }
 }
 
+/**
+ * What you had typed but not sent.
+ *
+ * THE SHELL RENDERS ONE APP AT A TIME, so leaving the Agent tab unmounts it and every piece of
+ * component state goes with it - including a half-written message. Reported from the field as
+ * "you lose your chat input when you go to other tabs", by somebody who had typed a long one.
+ *
+ * Beside the transcript rather than in the shell store: this is the same conversation's state, with
+ * the same lifetime, and a draft that outlived the tab session would be a message reappearing days
+ * later with no context. sessionStorage gives it exactly the life it should have.
+ */
+const DRAFT_KEY = `${TRANSCRIPT_KEY}.draft`;
+
+export function loadDraft(): string {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    return typeof raw === "string" ? raw : "";
+  } catch {
+    return "";
+  }
+}
+
+export function saveDraft(text: string): void {
+  try {
+    // Removed rather than stored empty, so a cleared composer does not come back as a blank entry.
+    if (text) sessionStorage.setItem(DRAFT_KEY, text);
+    else sessionStorage.removeItem(DRAFT_KEY);
+  } catch {
+    // Same posture as the transcript: no storage is a lost draft, never a broken window.
+  }
+}
+
 export function clearTranscript(): void {
   try { sessionStorage.removeItem(KEY); } catch { /* nothing to clear if storage is unavailable */ }
 }
