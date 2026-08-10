@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import type { RemoteDevice, RemoteState } from "../../../remote/sidecar-status";
-import { ApiError } from "../../../api";
+import { apiStatusIs } from "../../../_shared/api-fetch";
 import { copyText } from "../../../_shared/clipboard";
 import { requestExternal } from "../../../_shared/link-gate";
 import type { SettingsSection } from "../section-contract";
@@ -269,7 +269,9 @@ function RemoteAccessSection({ ctx }: { ctx: AppContext }): JSX.Element {
         }
       } catch (e) {
         // A 403 here means this is a tailed-in (remote) session: management is host-only.
-        if (alive && e instanceof ApiError && e.status === 403) setManagedElsewhere(true);
+        // Structural, not `instanceof`: this app is its own bundle, so the shell's error class is
+        // not this one's - the check read false forever and the host-only notice never appeared.
+        if (alive && apiStatusIs(e, 403)) setManagedElsewhere(true);
       }
     };
     void poll();

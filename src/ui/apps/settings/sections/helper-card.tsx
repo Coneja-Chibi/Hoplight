@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import type { AuxHelperStatus } from "../../../remote/sidecar-status";
-import { ApiError } from "../../../api";
+
 import styles from "./remote-access.module.css";
 
 export interface HelperControls {
@@ -65,8 +65,13 @@ export function useHelper(ctx: AppContext, onFirstInstall: () => void): HelperCo
         if (wasMissing) onFirstInstall();
       })
       .catch((e: unknown) => {
+        /**
+         * `instanceof` would always be false here: this app is its own bundle, so the shell's error
+         * class is a different class from this one's - and the server's own explanation was being
+         * thrown away in favour of the generic sentence, every time.
+         */
         setError(
-          e instanceof ApiError && e.message
+          e instanceof Error && e.message
             ? e.message
             : "The download did not finish. Nothing was installed.",
         );

@@ -16,6 +16,16 @@ export interface SafeProvider {
   readonly hasKey: boolean;
   readonly baseURL?: string;
   readonly active: boolean;
+  /** The spoke's own choices as saved. Not secret - they are settings, and the form has to show them. */
+  readonly options?: Readonly<Record<string, string>>;
+}
+
+/** One provider-specific choice a spoke declares, e.g. the Claude subscription's write posture. */
+export interface SpokeOption {
+  readonly key: string;
+  readonly label: string;
+  readonly choices: ReadonlyArray<{ readonly value: string; readonly label: string }>;
+  readonly defaultValue: string;
 }
 
 /** A provider type this build can talk to, from its spoke drop-in. */
@@ -26,6 +36,16 @@ export interface ProviderKind {
   readonly defaultModel?: string;
   readonly keyless: boolean;
   readonly needsBaseUrl: boolean;
+  /**
+   * The choices this provider offers.
+   *
+   * ADVERTISED SINCE THE BEGINNING AND NEVER DRAWN, which is how the Claude subscription ended up
+   * permanently read-only from this window: the spoke declares "Let Kit make changes this session",
+   * the server sent it in this payload, and the form ignored it. There was no control anywhere in
+   * the window that could turn writes on, so the agent could read the whole studio and stage
+   * nothing - and said so, correctly, forever.
+   */
+  readonly options?: ReadonlyArray<SpokeOption>;
 }
 
 /** What the form holds while somebody fills it in. */
@@ -37,7 +57,13 @@ export interface ProviderDraft {
   readonly name: string;
   readonly apiKey: string;
   readonly baseURL: string;
+  /** The spoke's own choices, seeded from their defaults so nothing is ever unset. */
+  readonly options: Readonly<Record<string, string>>;
 }
+
+/** Every option a spoke declares, at its default. The safe posture, chosen by the spoke. */
+export const defaultOptions = (kind: ProviderKind | undefined): Record<string, string> =>
+  Object.fromEntries((kind?.options ?? []).map((o) => [o.key, o.defaultValue]));
 
 export const emptyDraft = (kind: ProviderKind | undefined): ProviderDraft => ({
   kind: kind?.id ?? "",
@@ -45,6 +71,7 @@ export const emptyDraft = (kind: ProviderKind | undefined): ProviderDraft => ({
   name: "",
   apiKey: "",
   baseURL: "",
+  options: defaultOptions(kind),
 });
 
 /**
@@ -54,13 +81,21 @@ export const emptyDraft = (kind: ProviderKind | undefined): ProviderDraft => ({
  * is nothing to prefill it with. What matters is that blank then means "keep what is saved" rather
  * than "clear it" - see `draftProblem`, which only demands a key when there is not already one.
  */
-export const draftFrom = (provider: SafeProvider): ProviderDraft => ({
+export const draftFrom = (provider: SafeProvider, kind?: ProviderKind): ProviderDraft => ({
   id: provider.id,
   kind: provider.kind,
   model: provider.model,
   name: provider.name ?? "",
   apiKey: "",
   baseURL: provider.baseURL ?? "",
+  /**
+   * SEEDED FROM WHAT IS SAVED, defaults only for options this provider has never been asked about.
+   *
+   * Unlike the key, these come back from the server, and they have to: a form that opened with the
+   * default would send the default, and since a save REPLACES the whole entry, editing the model on
+   * a provider with writes enabled would quietly take that permission away again.
+   */
+  options: { ...defaultOptions(kind), ...(provider.options ?? {}) },
 });
 
 /**
@@ -89,14 +124,21 @@ export function draftProblem(
 }
 
 /** The body to POST. Blank optional fields are omitted rather than sent as empty strings. */
-export function saveBody(draft: ProviderDraft): Record<string, string> {
-  const body: Record<string, string> = { kind: draft.kind, model: draft.model.trim() };
+export function saveBody(draft: ProviderDraft): Record<string, unknown> {
+  const body: Record<string, unknown> = { kind: draft.kind, model: draft.model.trim() };
   if (draft.id) body["id"] = draft.id;
   if (draft.name.trim()) body["name"] = draft.name.trim();
   if (draft.baseURL.trim()) body["baseURL"] = draft.baseURL.trim();
   // Omitted when blank, which the server reads as "keep the stored one". Sending "" would be a
   // request to save an empty key, and the difference decides whether an edit destroys a secret.
   if (draft.apiKey.trim()) body["apiKey"] = draft.apiKey.trim();
+  /**
+   * SENT, which this did not do. The spoke's options never left the browser, so a provider added
+   * here had none - and `config.options?.writes === "on"` is what decides whether the Claude
+   * subscription's tool server starts read-only. The answer was always no, and the only symptom was
+   * an agent that could read everything and stage nothing.
+   */
+  if (Object.keys(draft.options).length > 0) body["options"] = { ...draft.options };
   return body;
 }
 

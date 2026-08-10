@@ -61,6 +61,11 @@ function safe(config: ProviderConfig, activeId: string | null): SafeProvider {
     ...(config.name ? { name: config.name } : {}),
     hasKey: typeof config.apiKey === "string" && config.apiKey.length > 0,
     ...(config.baseURL ? { baseURL: config.baseURL } : {}),
+    /**
+     * Settings, not secrets, so they come back - and they have to. The form reopens from this, and a
+     * form that could not see the saved posture would send the default on every edit.
+     */
+    ...(config.options ? { options: { ...config.options } } : {}),
     active: config.id !== undefined && config.id === activeId,
   };
 }
@@ -81,8 +86,18 @@ export async function handleProviderList(): Promise<Response> {
       brand: spoke.brand,
       ...(spoke.defaultModel ? { defaultModel: spoke.defaultModel } : {}),
       keyless: spoke.keyless === true,
-      /** Base-URL-only providers have no fixed host; the form asks for a URL instead. */
-      needsBaseUrl: spoke.host === undefined,
+      /**
+       * Base-URL-only providers have no fixed host; the form asks for a URL instead.
+       *
+       * A MISSING HOST IS TWO DIFFERENT THINGS, and reading it as one locked somebody out of their
+       * own subscription. `custom` and `local` have no host because YOU supply the endpoint.
+       * `claude-sub` has no host because there is no endpoint at all - it drives the Claude CLI as a
+       * subprocess, and no URL it could ask for would mean anything. Asking anyway made the only
+       * keyless provider in the list impossible to save: the form refused, and the save route below
+       * refused after it. A spoke that supplies `chat` is not an HTTP provider, which is the
+       * distinction the terminal's own form already draws (render/settings/providers-data.ts).
+       */
+      needsBaseUrl: spoke.host === undefined && spoke.chat === undefined,
       ...(spoke.options ? { options: spoke.options } : {}),
     })),
     /** A notice from a vault that could not be recovered. Surfaced, never swallowed. */
@@ -127,7 +142,10 @@ export async function handleProviderSave(body: unknown): Promise<Response> {
   const editing = typeof id === "string" && id.length > 0;
   if (needsKey && !keyGiven && !editing) return json({ error: `${spoke.label} needs an API key` }, 400);
 
-  if (spoke.host === undefined && !(typeof baseURL === "string" && baseURL.length > 0)) {
+  // Same rule as the `kinds` list above: a spoke with `chat` runs a subprocess, not a request, so
+  // there is no endpoint for a base URL to name. Demanding one here refused a valid subscription.
+  const httpProvider = spoke.chat === undefined;
+  if (httpProvider && spoke.host === undefined && !(typeof baseURL === "string" && baseURL.length > 0)) {
     return json({ error: `${spoke.label} needs a base URL` }, 400);
   }
 
@@ -145,6 +163,30 @@ export async function handleProviderSave(body: unknown): Promise<Response> {
     : undefined;
   const keptKey = !keyGiven && stored?.apiKey ? stored.apiKey : undefined;
 
+  /**
+   * The spoke's own choices, which this route used to drop on the floor.
+   *
+   * IT DECIDED WHETHER THE AGENT COULD WRITE AT ALL. `claude-sub` reads `options.writes` to decide
+   * whether its tool server starts with `--read-only`; a provider saved from the window carried no
+   * options, so the answer was always "no". The agent could read the whole studio and stage nothing,
+   * with no control anywhere in the window to change it.
+   *
+   * ONLY KEYS THE SPOKE DECLARES, and only values it offers. This arrives from a browser and lands
+   * in the vault, so it is filtered against the spoke's own option list rather than stored as sent -
+   * an unknown key here would be a setting nothing reads, and an unknown value a posture nobody
+   * defined.
+   */
+  const declared = spoke.options ?? [];
+  const sent = isRecord(body["options"]) ? body["options"] : undefined;
+  const options: Record<string, string> = {};
+  for (const option of declared) {
+    const given = sent?.[option.key];
+    const valid = typeof given === "string" && option.choices.some((c) => c.value === given);
+    // Given and valid wins; otherwise keep what was saved; otherwise the spoke's own default.
+    const kept = stored?.options?.[option.key];
+    options[option.key] = valid ? given : (kept ?? option.defaultValue);
+  }
+
   const config: ProviderConfig = {
     kind,
     model,
@@ -152,6 +194,7 @@ export async function handleProviderSave(body: unknown): Promise<Response> {
     ...(keyGiven ? { apiKey: apiKey as string } : keptKey ? { apiKey: keptKey } : {}),
     ...(typeof baseURL === "string" && baseURL ? { baseURL } : {}),
     ...(typeof name === "string" && name ? { name } : {}),
+    ...(Object.keys(options).length > 0 ? { options } : {}),
   };
 
   try {
@@ -238,11 +281,39 @@ export async function handleProviderTest(body: unknown, signal?: AbortSignal): P
 export async function handleProviderModels(body: unknown, signal?: AbortSignal): Promise<Response> {
   if (!isRecord(body)) return json({ error: "expected an object" }, 400);
   const id = body["id"];
-  if (typeof id !== "string" || !id) return json({ error: "id is required" }, 400);
+  const kind = body["kind"];
 
-  const vault = await readVault();
-  const config = vault.providers.find((p) => p.id === id);
-  if (!config) return json({ error: "no such provider" }, 404);
+  /**
+   * A SAVED PROVIDER OR A DRAFT ONE, and the second case is why the picker existed only in theory.
+   *
+   * This took a saved `id` and nothing else, so the model list could not be fetched until after the
+   * provider was already saved - on the ADD screen, where somebody is deciding which model to use,
+   * there was no list at all and the field fell back to typing an id from memory. That is the exact
+   * moment the list is worth having.
+   *
+   * A draft carries no secret here beyond what the save route already accepts, and the response is
+   * only model ids: nothing about a key travels back, which is this file's standing rule.
+   */
+  let config: ProviderConfig | undefined;
+  if (typeof id === "string" && id) {
+    const vault = await readVault();
+    config = vault.providers.find((p) => p.id === id);
+    if (!config) return json({ error: "no such provider" }, 404);
+  } else if (typeof kind === "string" && kind) {
+    const spoke = (await spokes()).get(kind);
+    if (!spoke) return json({ error: `unknown provider type: ${kind.slice(0, 40)}` }, 400);
+    const apiKey = body["apiKey"];
+    const baseURL = body["baseURL"];
+    config = {
+      kind,
+      // Only a list is being asked for; the model is whatever the draft holds or the spoke suggests.
+      model: typeof body["model"] === "string" ? body["model"] : (spoke.defaultModel ?? ""),
+      ...(typeof apiKey === "string" && apiKey ? { apiKey } : {}),
+      ...(typeof baseURL === "string" && baseURL ? { baseURL } : {}),
+    } as ProviderConfig;
+  } else {
+    return json({ error: "id or kind is required" }, 400);
+  }
 
   try {
     const found = await listModelsFor(config);

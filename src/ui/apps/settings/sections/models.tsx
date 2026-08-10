@@ -32,6 +32,14 @@ interface ListReply {
   notice?: string;
 }
 
+/**
+ * The picker's escape hatch, as a sentinel no real model id can collide with.
+ *
+ * A provider may publish no list, or the model somebody wants may be newer than the index the
+ * provider serves. Neither is rare enough to make the list the only way through.
+ */
+const TYPE_IT = "__type_an_id__";
+
 function ModelsSection({ ctx }: { ctx: AppContext }): JSX.Element {
   const [providers, setProviders] = useState<SafeProvider[]>([]);
   const [kinds, setKinds] = useState<ProviderKind[]>([]);
@@ -41,6 +49,8 @@ function ModelsSection({ ctx }: { ctx: AppContext }): JSX.Element {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [tested, setTested] = useState<Record<string, string>>({});
+  /** Somebody chose "Type an id...", so the picker stands aside until the draft changes. */
+  const [typing, setTyping] = useState(false);
 
   const reload = useCallback(async (): Promise<void> => {
     try {
@@ -118,12 +128,17 @@ function ModelsSection({ ctx }: { ctx: AppContext }): JSX.Element {
     }
   };
 
-  /** Ask the provider what it offers, so the model is a choice rather than a string to get right. */
-  const loadModels = async (id: string): Promise<void> => {
+  /**
+   * Ask the provider what it offers, so the model is a choice rather than a string to get right.
+   *
+   * BY SAVED ID OR BY DRAFT KIND. Asking by id alone meant the list arrived only for a provider that
+   * already existed, which is one screen too late: the model is chosen while ADDING one.
+   */
+  const loadModels = async (target: { id: string } | { kind: string }): Promise<void> => {
     try {
       const reply = await apiFetchJson<{ models: { id: string; label?: string }[] }>(
         "/api/agent/providers/models",
-        { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id }) },
+        { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(target) },
       );
       setModels(reply.models);
     } catch {
@@ -167,7 +182,7 @@ function ModelsSection({ ctx }: { ctx: AppContext }): JSX.Element {
               <button
                 type="button"
                 disabled={busy}
-                onClick={() => { setDraft(draftFrom(p)); setModels([]); void loadModels(p.id); }}
+                onClick={() => { setDraft(draftFrom(p, kindOf(p.kind))); setModels([]); setTyping(false); void loadModels({ id: p.id }); }}
               >
                 {"Edit"}
               </button>
@@ -184,7 +199,14 @@ function ModelsSection({ ctx }: { ctx: AppContext }): JSX.Element {
           type="button"
           className={styles.add}
           disabled={busy || kinds.length === 0}
-          onClick={() => { setDraft(emptyDraft(kinds[0])); }}
+          onClick={() => {
+            const first = kinds[0];
+            setDraft(emptyDraft(first));
+            setModels([]);
+            setTyping(false);
+            // The add form opens already knowing what its first provider offers.
+            if (first) void loadModels({ kind: first.id });
+          }}
         >
           {"Add a model"}
         </button>
@@ -201,6 +223,10 @@ function ModelsSection({ ctx }: { ctx: AppContext }): JSX.Element {
                 const next = kindOf(e.target.value);
                 setDraft({ ...draft, kind: e.target.value, model: next?.defaultModel ?? "" });
                 setModels([]);
+                setTyping(false);
+                // Ask THIS provider what it offers, now, rather than after it has been saved. The
+                // add screen is where the model is being decided, so it is where the list belongs.
+                void loadModels({ kind: e.target.value });
               }}
             >
               {kinds.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}
@@ -209,18 +235,64 @@ function ModelsSection({ ctx }: { ctx: AppContext }): JSX.Element {
 
           <label>
             {"Model"}
-            <input
-              value={draft.model}
-              list="model-suggestions"
-              placeholder={kindOf(draft.kind)?.defaultModel ?? "model id"}
-              onChange={(e) => { setDraft({ ...draft, model: e.target.value }); }}
-            />
-            {/* A datalist rather than a select: the live list helps, and typing still works when a
-                provider publishes none or offers something newer than its own index. */}
-            <datalist id="model-suggestions">
-              {models.map((m) => <option key={m.id} value={m.id}>{m.label ?? m.id}</option>)}
-            </datalist>
+            {/*
+              A PICKER WHEN THERE IS SOMETHING TO PICK FROM, and a text field when there is not.
+              The datalist this replaces was a picker only in principle: it renders as a plain text
+              box with a hint some browsers hide entirely, so the honest description of the old
+              behaviour is "type the id exactly and hope". A typo there is indistinguishable from an
+              outage at the first turn.
+
+              TYPING SURVIVES, which the old comment here was right to defend: a provider may publish
+              no list at all, or offer something newer than its own index. That is what "Type an
+              id..." is - the escape hatch made visible, rather than the only path.
+            */}
+            {models.length > 0 && !typing ? (
+              <select
+                value={draft.model}
+                onChange={(e) => {
+                  if (e.target.value === TYPE_IT) { setTyping(true); return; }
+                  setDraft({ ...draft, model: e.target.value });
+                }}
+              >
+                {/* A saved model the list does not carry stays selectable rather than being
+                    silently swapped for whatever happens to sort first. */}
+                {!models.some((m) => m.id === draft.model) && draft.model && (
+                  <option value={draft.model}>{`${draft.model} (saved)`}</option>
+                )}
+                {models.map((m) => <option key={m.id} value={m.id}>{m.label ?? m.id}</option>)}
+                <option value={TYPE_IT}>{"Type an id..."}</option>
+              </select>
+            ) : (
+              <input
+                value={draft.model}
+                placeholder={kindOf(draft.kind)?.defaultModel ?? "model id"}
+                onChange={(e) => { setDraft({ ...draft, model: e.target.value }); }}
+              />
+            )}
           </label>
+
+          {/*
+            THE SPOKE'S OWN CHOICES, drawn from what it declares rather than hand-written here, so a
+            spoke that adds one gets a control without anybody editing this file.
+
+            This is the control that did not exist. The Claude subscription declares "Let Kit make
+            changes this session", and without it that provider could only ever run read-only from
+            this window - an agent that reads the whole studio, agrees the plan, and then cannot
+            stage a single draft.
+          */}
+          {(kindOf(draft.kind)?.options ?? []).map((option) => (
+            <label key={option.key}>
+              {option.label}
+              <select
+                value={draft.options[option.key] ?? option.defaultValue}
+                onChange={(e) => {
+                  setDraft({ ...draft, options: { ...draft.options, [option.key]: e.target.value } });
+                }}
+              >
+                {option.choices.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+              </select>
+            </label>
+          ))}
 
           <label>
             {"Name (optional)"}

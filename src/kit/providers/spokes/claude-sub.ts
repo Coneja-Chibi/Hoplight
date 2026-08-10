@@ -80,6 +80,14 @@ export function serverCommand(writes = false): { command: string; args: string[]
   return { command: process.execPath, args: [cli, ...args] };
 }
 
+/**
+ * How long the model list may take before the picker gives up.
+ *
+ * Bounded because this spawns a subprocess on a settings screen somebody is looking at: a CLI that
+ * hangs must cost a few seconds of no suggestions, not a stuck form.
+ */
+const LIST_MODELS_TIMEOUT_MS = 20_000;
+
 const claudeSub: ProviderSpoke = {
   id: "claude-sub",
   label: "Claude (subscription)",
@@ -113,18 +121,44 @@ const claudeSub: ProviderSpoke = {
     return makeClaudeCliChat(config.model || "sonnet", SYSTEM, { signal, mcpServers });
   },
   /**
-   * The aliases the CLI resolves itself, rather than a live catalog.
+   * ASKED, NOT ASSUMED. The CLI knows exactly which models this subscription may run, and the SDK
+   * exposes it: `query(...).supportedModels()` answers over the control channel without starting a
+   * turn, so this costs a subprocess and no tokens.
    *
-   * There is no models endpoint to ask: a subscription's available models are decided by the plan and
-   * the CLI picks the current build behind each alias, which is what makes an alias the right thing
-   * to store. A pinned id would rot on the next release.
+   * THE HAND-WRITTEN LIST THAT WAS HERE WAS WRONG, which is the argument for asking. It offered
+   * sonnet, opus and haiku. The real answer on a current plan is five rows including Fable, and the
+   * opus row's value is `opus[1m]` rather than the bare `opus` this file invented - so the list was
+   * simultaneously missing a model the person was paying for and naming one the CLI does not
+   * advertise. A list maintained by hand is a list that is wrong between releases, silently, and the
+   * only symptom is a model you cannot pick.
+   *
+   * EMPTY ON FAILURE, NEVER A FABRICATED FALLBACK. If the CLI is absent or nobody has logged in,
+   * there is no honest answer to give, and inventing three aliases would put names in the picker
+   * that may not run. The model field is free text with the list as suggestions - the form says so
+   * in its own comment - so no suggestions degrades to typing, while wrong suggestions degrade to a
+   * turn that fails later with a worse message.
    */
   async listModels() {
-    return [
-      { id: "sonnet", label: "Sonnet (latest)" },
-      { id: "opus", label: "Opus (latest)" },
-      { id: "haiku", label: "Haiku (latest)" },
-    ];
+    try {
+      const { query } = await import("@anthropic-ai/claude-agent-sdk");
+      const abort = new AbortController();
+      const timer = setTimeout(() => { abort.abort(); }, LIST_MODELS_TIMEOUT_MS);
+      try {
+        const q = query({
+          // Never yields: only the control channel is wanted, so no turn is ever started.
+          prompt: (async function* () { /* no messages */ })(),
+          // The same isolation the chat path takes: none of the person's own config comes with us.
+          options: { abortController: abort, settingSources: [], tools: [], skills: [] },
+        });
+        const models = await q.supportedModels();
+        return models.map((m) => ({ id: m.value, label: m.displayName }));
+      } finally {
+        clearTimeout(timer);
+        abort.abort();
+      }
+    } catch {
+      return [];
+    }
   },
 };
 
