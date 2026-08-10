@@ -16,6 +16,7 @@ import { extractCharacterJson, getVersion } from "../_shared/png";
 import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { dataToBody } from "../_shared/tavern-fields";
+import { characterPngCard, pngCardRefusal } from "../_shared/card-png";
 
 /**
  * A REAL PNG, read from the samples we already ship.
@@ -129,5 +130,31 @@ describe("every card version exports as PNG", () => {
 
     const v2 = characterAdapter.fromCanonical(at("v2"), { requestedExtension: "png" });
     expect(getVersion(v2.bytes!)).toBe("v2");
+  });
+});
+
+describe("a PNG card is a property of the character, not of a platform", () => {
+  test("A CHARACTER FROM ANY FORMAT EXPORTS AS A STANDARD CARD", () => {
+    /**
+     * The asymmetry this closes: `card-io` reads a card out of a PNG for any adapter that asks, so
+     * import already treated PNG as the ecosystem's carrier. Export made it a per-adapter opt-in
+     * that two of nine had taken, so whether a character could become a picture depended on picking
+     * the right platform first - which is the one thing somebody exporting a picture does not know.
+     *
+     * `original: {}` is the load-bearing part: this character never came from SillyTavern.
+     */
+    const anyCharacter = card(true);
+    expect(anyCharacter.original).toEqual({});
+
+    const bytes = characterPngCard(anyCharacter);
+    expect(getVersion(bytes)).not.toBeNull();
+    expect(characterAdapter.toCanonical({ bytes, filename: "any.png" } as never)
+      .body.identity.name).toBe("Vera");
+  });
+
+  test("and it REFUSES in words when there is no portrait to carry it", () => {
+    expect(pngCardRefusal(card(false))).toMatch(/portrait/i);
+    expect(pngCardRefusal(card(true))).toBeNull();
+    expect(() => characterPngCard(card(false))).toThrow(/portrait/i);
   });
 });

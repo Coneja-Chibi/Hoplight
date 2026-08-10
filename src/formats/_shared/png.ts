@@ -128,3 +128,18 @@ export function portraitPngBytes(body: { media: { portrait?: { ref?: unknown } }
     return null;
   }
 }
+
+/**
+ * Embed a card into its portrait, under the keywords readers actually look for.
+ *
+ * ONE IMPLEMENTATION, because "write a card into a PNG" is not a property of any one format. Both
+ * writers had their own copy of this decision and they disagreed: a v3 card went out labelled v2
+ * for a commit, because only one of them knew about `ccv3`.
+ *
+ * A v3 card carries BOTH keywords with identical JSON - `ccv3` for readers that want it, `chara` so
+ * nothing older loses the card. Anything else carries `chara` alone, which is what it is.
+ */
+export function embedCardPng(portrait: Uint8Array, json: string, v3: boolean): Uint8Array {
+  const carrier = embedCharacterJson(portrait, json, "chara");
+  return v3 ? embedCharacterJson(carrier, json, "ccv3") : carrier;
+}

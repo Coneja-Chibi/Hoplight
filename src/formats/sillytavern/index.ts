@@ -12,7 +12,7 @@ import regexCodec from "./regex";
 import personaCodec from "./persona";
 import presetCodec from "./preset";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
-import { embedCharacterJson, getVersion, pngSourceMedia, portraitPngBytes } from "../_shared/png";
+import { embedCardPng, getVersion, pngSourceMedia, portraitPngBytes } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
 import { assetsToMedia, applyMediaToTavernData } from "../_shared/assets";
 import {
@@ -189,9 +189,7 @@ const adapter: CharacterAdapter = {
        * finds `chara`, and the JSON in each is identical, so there is no version of this file where
        * the two disagree about the character.
        */
-      const carrier = embedCharacterJson(portrait, text, "chara");
-      const bytes = emitVariant === "v3" ? embedCharacterJson(carrier, text, "ccv3") : carrier;
-      return { bytes, suggestedExtension: "png" };
+      return { bytes: embedCardPng(portrait, text, emitVariant === "v3"), suggestedExtension: "png" };
     }
     return { text, suggestedExtension: "json" };
   },
