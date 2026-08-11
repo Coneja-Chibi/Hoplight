@@ -30,6 +30,22 @@
  *     operation vocabulary, so RISU_MACRO_GROUPS has no `op` annotations at all; until it does,
  *     macroGroupsForDialect serves it and PresetWriteForProfile does not.
  *
+ * SILLYTAVERN IS HERE TWICE, ON PURPOSE, because it really is two engines.
+ * `power_user.experimental_macro_engine` - default true since 1.18.0 - chooses between the regex
+ * table in public/scripts/macros.js and the MacroRegistry in public/scripts/macros/. `sillytavern`
+ * documents the first, `sillytavern-new` the second, and both are true at once for different
+ * installs.
+ *
+ * IT IS NOT A COMPATIBILITY SPLIT, and that was measured rather than assumed: the registry engine
+ * resolves {{roll:1d6}} and {{roll::1d6}}, {{random:x,y}} and {{random::x::y}}, verified by running
+ * both through the real 1.18.0 engine. `exampleUsage` states a canonical form, not the only accepted
+ * one. What the second catalog buys is the 28 macros that exist ONLY in the registry - the
+ * indexed-variable family, the instruct family, {{maxcontext}}, {{chardescription}} - which a legacy
+ * install genuinely does not have.
+ *
+ * The write-for lens stays single. `sillytavern-new` is a reference dialect like Risu, so nothing
+ * here claims a preset can be authored for one engine mode rather than the other.
+ *
  * Agnai is not this shape at all - it is a template system of named slots (system/history/post) -
  * so it has no macro library to publish here. Ground truth if that changes:
  * agnai/common/template-parser.ts.
@@ -41,6 +57,7 @@ import { SILLYTAVERN_MACRO_GROUPS } from "./sillytavern";
 import { MARINARA_MACRO_GROUPS } from "./marinara";
 import { LUMIVERSE_MACRO_GROUPS } from "./lumiverse";
 import { RISU_MACRO_GROUPS } from "./risu";
+import { SILLYTAVERN_NEW_MACRO_GROUPS } from "./sillytavern-new";
 
 export type { MacroEntry, MacroGroup } from "./types";
 export { ROLECALL_MACRO_GROUPS } from "./rolecall";
@@ -48,6 +65,7 @@ export { SILLYTAVERN_MACRO_GROUPS } from "./sillytavern";
 export { MARINARA_MACRO_GROUPS } from "./marinara";
 export { LUMIVERSE_MACRO_GROUPS } from "./lumiverse";
 export { RISU_MACRO_GROUPS } from "./risu";
+export { SILLYTAVERN_NEW_MACRO_GROUPS } from "./sillytavern-new";
 
 /**
  * The catalog each Write-for lens exposes. `full` (Hoplight) carries the superset dialect, mirroring
@@ -81,11 +99,12 @@ export function macroGroupsForProfile(profile: PresetWriteForProfile): MacroGrou
  * Widening a PARAMETER is backward compatible: every existing caller passes a PresetWriteForProfile,
  * which is still accepted, and nothing that took the narrow type has to change.
  */
-export type MacroDialect = PresetWriteForProfile | "risu";
+export type MacroDialect = PresetWriteForProfile | "risu" | "sillytavern-new";
 
 export const MACRO_DIALECTS: readonly MacroDialect[] = [
   "rolecall",
   "sillytavern",
+  "sillytavern-new",
   "marinara",
   "lumiverse",
   "risu",
@@ -95,6 +114,7 @@ export const MACRO_DIALECT_LABELS: Record<MacroDialect, string> = {
   full: "Hoplight",
   rolecall: "RoleCall",
   sillytavern: "SillyTavern",
+  "sillytavern-new": "SillyTavern (new engine)",
   marinara: "Marinara",
   lumiverse: "Lumiverse",
   risu: "RisuAI",
@@ -110,11 +130,11 @@ export const MACRO_DIALECT_LABELS: Record<MacroDialect, string> = {
  * somebody annotates its divergences by reading the parser.
  */
 export const canTranslate = (dialect: MacroDialect): dialect is PresetWriteForProfile =>
-  dialect !== "risu";
+  dialect !== "risu" && dialect !== "sillytavern-new";
 
 /** The macro groups a dialect publishes. Accepts every write-for lens, plus the reference-only ones. */
 export function macroGroupsForDialect(dialect: MacroDialect): MacroGroup[] {
-  return dialect === "risu"
-    ? RISU_MACRO_GROUPS
-    : macroGroupsForProfile(dialect);
+  if (dialect === "risu") return RISU_MACRO_GROUPS;
+  if (dialect === "sillytavern-new") return SILLYTAVERN_NEW_MACRO_GROUPS;
+  return macroGroupsForProfile(dialect);
 }

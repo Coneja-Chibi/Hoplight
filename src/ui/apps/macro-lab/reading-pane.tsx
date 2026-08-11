@@ -12,7 +12,7 @@ import { useState, type JSX } from "react";
 import { MACRO_DIALECT_LABELS, type MacroDialect } from "../../../core/preset/macros";
 import {
   dialectTranslates,
-  NO_TRANSLATION_NOTE,
+  noTranslationNote,
   readMacros,
   travelFor,
   VERDICT_LABEL,
@@ -145,7 +145,7 @@ export function ReadingPane({
 
           {/* Said once at the foot rather than beside every row, where it would be noise. */}
           {dialectTranslates(lens) ? null : (
-            <p className={styles.quiet}>{NO_TRANSLATION_NOTE}</p>
+            <p className={styles.quiet}>{noTranslationNote(lens)}</p>
           )}
         </>
       )}

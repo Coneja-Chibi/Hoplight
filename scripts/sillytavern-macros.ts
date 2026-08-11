@@ -1,10 +1,15 @@
 /**
- * Rebuild src/core/preset/macros/sillytavern.ts against the NEW (registry) macro engine.
+ * Generate src/core/preset/macros/sillytavern-new.ts from SillyTavern's registry engine.
  *
- * WHICH ENGINE, DECIDED. SillyTavern has two macro surfaces and
- * power_user.experimental_macro_engine - default true in 1.18.0 - picks between them. The catalog
- * used to document the older regex table; it now documents the registry, which is what a default
- * install runs. See scripts/macro-audit.ts for the difference between them.
+ * BOTH SURFACES, NOT ONE. SillyTavern carries two macro engines and
+ * power_user.experimental_macro_engine - default true in 1.18.0 - picks between them. Rather than
+ * migrate the catalog and lose the older one, this writes a SECOND catalog: sillytavern.ts keeps
+ * describing the regex table, this describes the registry, and MacroDialect offers both.
+ *
+ * The registry engine accepts the legacy spellings as well as its own - {{roll:1d6}} and
+ * {{roll::1d6}} both resolve on 1.18.0, verified through the renderer - so this is not a
+ * compatibility split. What it buys is the 28 macros that exist ONLY in the registry: the
+ * indexed-variable family, the instruct family, {{maxcontext}}, {{chardescription}}.
  *
  * A MERGE, NEVER A REPLACEMENT, and there are two separate reasons - both of which cost real macros
  * if ignored.
@@ -19,12 +24,13 @@
  *
  * Run: bun run scripts/sillytavern-macros.ts --st-root=<a SillyTavern checkout>
  */
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { SILLYTAVERN_MACRO_GROUPS } from "../src/core/preset/macros/sillytavern";
 import { macroName } from "../src/core/preset/macros/support";
 import type { MacroEntry } from "../src/core/preset/macros/types";
 
-const OUT_PATH = "src/core/preset/macros/sillytavern.ts";
+const OUT_PATH = "src/core/preset/macros/sillytavern-new.ts";
 
 const arg = (name: string): string | null => {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -128,17 +134,40 @@ if (opConflicts.length > 0) {
   );
 }
 
-/** Entries the registry does not carry, kept verbatim: module-registered and legacy-only macros. */
 const registryNames = new Set<string>();
 for (const m of reply.macros) {
   registryNames.add(m.name.toLowerCase());
   for (const a of m.aliases) registryNames.add(a.toLowerCase());
 }
+
+/** Names the OLD regex table carries, scraped, and used only to tell two absences apart. */
+const legacyNames = new Set<string>();
+try {
+  const src = readFileSync(join(stRoot, "public", "scripts", "macros.js"), "utf8");
+  for (const m of src.matchAll(/\{\{\\?\/?([A-Za-z_][A-Za-z0-9_]*)/g)) {
+    legacyNames.add(m[1]!.toLowerCase());
+  }
+} catch { /* an install without the legacy file simply has one surface */ }
+
+/**
+ * Entries the registry does not carry but the new engine still has.
+ *
+ * TWO KINDS OF ABSENCE, and only one belongs in a new-engine catalog. A macro missing from the dump
+ * because it is registered outside the macro folder - {{authorsNote}}, {{summary}}, {{charPrefix}} -
+ * is present on this engine and must be carried. A macro missing because it only ever existed in the
+ * old regex table - {{time_UTC±#}} - is not, and carrying it would put a legacy-only macro in a file
+ * whose whole claim is that it describes the registry.
+ *
+ * The old catalog keeps documenting the second kind, which is the point of having both.
+ */
 const preserved: { group: string; entry: MacroEntry }[] = [];
+const legacyOnly: string[] = [];
 for (const group of SILLYTAVERN_MACRO_GROUPS) {
   for (const entry of group.macros) {
     const name = macroName(entry.macro);
-    if (name && !registryNames.has(name)) preserved.push({ group: group.name, entry });
+    if (!name || registryNames.has(name)) continue;
+    if (legacyNames.has(name)) { legacyOnly.push(entry.macro); continue; }
+    preserved.push({ group: group.name, entry });
   }
 }
 
@@ -226,7 +255,7 @@ const file = `/**
  */
 import type { MacroGroup } from "./types";
 
-export const SILLYTAVERN_MACRO_GROUPS: MacroGroup[] = [
+export const SILLYTAVERN_NEW_MACRO_GROUPS: MacroGroup[] = [
 ${groups}
 ];
 `;
@@ -234,5 +263,6 @@ ${groups}
 writeFileSync(OUT_PATH, file, "utf8");
 console.log(
   `sillytavern-macros: wrote ${OUT_PATH} - ${reply.macros.length} from the registry of `
-  + `${reply.engine.version}, ${preserved.length} preserved, ${placed.size}/${knownOps.size} ops carried`,
+  + `${reply.engine.version}, ${preserved.length} module-registered preserved, `
+  + `${legacyOnly.length} legacy-only left to sillytavern.ts, ${placed.size}/${knownOps.size} ops carried`,
 );

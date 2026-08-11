@@ -21,6 +21,7 @@ import {
   canTranslate,
   macroGroupsForDialect,
   MACRO_DIALECTS,
+  MACRO_DIALECT_LABELS,
   type MacroDialect,
   type MacroEntry,
   type MacroGroup,
@@ -59,11 +60,26 @@ export const LAB_LENSES: readonly MacroDialect[] = MACRO_DIALECTS;
  */
 export const dialectTranslates = canTranslate;
 
-/** Said on screen wherever a reference-only dialect would otherwise show an empty answer. */
-export const NO_TRANSLATION_NOTE =
-  "Hoplight does not yet model how RisuAI's macros map onto the other engines, so it cannot tell "
-  + "you what this becomes elsewhere. Its catalog carries no operation annotations, and answering "
-  + "from names alone is what makes a macro look portable when it is not.";
+/**
+ * Said on screen wherever a reference-only dialect would otherwise show an empty answer.
+ *
+ * PER DIALECT, because there are two reasons and naming the wrong one is its own false claim. A
+ * catalog with no operation annotations cannot be translated at all; a catalog that mirrors another
+ * engine's macros is perfectly well modelled and simply is not a separate destination - a preset is
+ * authored for SillyTavern, not for one of its two macro engines.
+ */
+export function noTranslationNote(lens: MacroDialect): string {
+  const annotated = macroGroupsForDialect(lens).flatMap((g) => g.macros).some((m) => m.op);
+  if (annotated) {
+    return "This is one of SillyTavern's two macro engines, and a preset is written for "
+      + "SillyTavern rather than for one of them - so there is nothing to convert it into. Switch "
+      + "to SillyTavern to see where a macro travels.";
+  }
+  return `Hoplight does not yet model how ${MACRO_DIALECT_LABELS[lens]}'s macros map onto the `
+    + "other engines, so it cannot tell you what this becomes elsewhere. Its catalog carries no "
+    + "operation annotations, and answering from names alone is what makes a macro look portable "
+    + "when it is not.";
+}
 
 /**
  * What the catalog can say about one token.
@@ -253,8 +269,27 @@ export const VERDICT_LABEL: Record<MacroVerdict, string> = {
  */
 export const OPERATION_LENSES: readonly MacroDialect[] = LAB_LENSES.filter(canTranslate);
 
-/** Dialects offered in the lens strip that the operations table cannot speak for. */
-export const OPERATION_ABSENT: readonly MacroDialect[] = LAB_LENSES.filter((l) => !canTranslate(l));
+/**
+ * Dialects with no column, split by WHY, because the two reasons are not the same fact.
+ *
+ * `unmapped` has no operation annotations at all, so a column would be "none" down every row and
+ * would read as the engine being incapable. `duplicate` is annotated but would repeat another
+ * dialect's column exactly - SillyTavern's two engines share their macros' operations, so a second
+ * identical column teaches nothing and implies a difference that is not there.
+ */
+export const OPERATION_ABSENT: {
+  readonly unmapped: readonly MacroDialect[];
+  readonly duplicate: readonly MacroDialect[];
+} = (() => {
+  const unmapped: MacroDialect[] = [];
+  const duplicate: MacroDialect[] = [];
+  for (const lens of LAB_LENSES) {
+    if (canTranslate(lens)) continue;
+    const annotated = macroGroupsForDialect(lens).flatMap((g) => g.macros).some((m) => m.op);
+    (annotated ? duplicate : unmapped).push(lens);
+  }
+  return { unmapped, duplicate };
+})();
 
 /** One canonical operation, and how each platform spells it. */
 export interface OperationRow {

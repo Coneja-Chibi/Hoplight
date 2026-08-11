@@ -12,7 +12,7 @@ import {
   bibleFor,
   bibleSize,
   dialectTranslates,
-  NO_TRANSLATION_NOTE,
+  noTranslationNote,
   OPERATION_ABSENT,
   OPERATION_LENSES,
   buildResolveAsk,
@@ -197,7 +197,9 @@ describe("LAB_LENSES", () => {
    */
   it("offers no Hoplight lens, because Hoplight runs no macros", () => {
     expect(LAB_LENSES).not.toContain("full");
-    expect(LAB_LENSES).toEqual(["rolecall", "sillytavern", "marinara", "lumiverse", "risu"]);
+    expect(LAB_LENSES).toEqual(
+      ["rolecall", "sillytavern", "sillytavern-new", "marinara", "lumiverse", "risu"],
+    );
   });
 
   it("never routes a travel row through it either", () => {
@@ -329,7 +331,7 @@ describe("the Risu dialect in the lab", () => {
 
   it("is left out of the operations table, and named as left out", () => {
     expect(OPERATION_LENSES).not.toContain("risu");
-    expect(OPERATION_ABSENT).toEqual(["risu"]);
+    expect(OPERATION_ABSENT.unmapped).toEqual(["risu"]);
     for (const row of operationRows()) {
       expect(row.byLens.some((c) => c.lens === "risu")).toBe(false);
     }
@@ -342,7 +344,40 @@ describe("the Risu dialect in the lab", () => {
   });
 
   it("says on screen why, rather than leaving the absence to be inferred", () => {
-    expect(NO_TRANSLATION_NOTE).toContain("RisuAI");
-    expect(NO_TRANSLATION_NOTE).toContain("operation annotations");
+    expect(noTranslationNote("risu")).toContain("RisuAI");
+    expect(noTranslationNote("risu")).toContain("operation annotations");
+    // The other reason, said differently: this engine IS modelled, it just is not a destination.
+    expect(noTranslationNote("sillytavern-new")).toContain("two macro engines");
+    expect(noTranslationNote("sillytavern-new")).not.toContain("RisuAI");
+  });
+});
+
+describe("both SillyTavern engines in the lab", () => {
+  it("offers each as its own platform", () => {
+    expect(LAB_LENSES).toContain("sillytavern");
+    expect(LAB_LENSES).toContain("sillytavern-new");
+    expect(bibleSize("sillytavern-new")).toBeGreaterThan(0);
+    expect(bibleSize("sillytavern-new")).not.toBe(bibleSize("sillytavern"));
+  });
+
+  /**
+   * The two are excluded from the operations table for DIFFERENT reasons, and the screen says
+   * which: Risu has no operation annotations at all, the new SillyTavern has the same ones as the
+   * old. Collapsing those into one message would call a mapped engine unmapped.
+   */
+  it("keeps the two kinds of missing column apart", () => {
+    expect(OPERATION_ABSENT.unmapped).toEqual(["risu"]);
+    expect(OPERATION_ABSENT.duplicate).toEqual(["sillytavern-new"]);
+    expect(OPERATION_LENSES).not.toContain("sillytavern-new");
+  });
+
+  it("reads the new engine's own macros, which the old catalog does not have", () => {
+    expect(readMacros("{{varexists}}", "sillytavern-new").tokens[0]!.verdict).toBe("known");
+    expect(readMacros("{{varexists}}", "sillytavern").tokens[0]!.verdict).toBe("unknown");
+  });
+
+  it("does not offer travel from the new engine, and says why", () => {
+    expect(dialectTranslates("sillytavern-new")).toBe(false);
+    expect(travelFor("{{char}}", "sillytavern-new")).toEqual([]);
   });
 });

@@ -98,12 +98,24 @@ export function OpsPane({ onInsert }: { onInsert: (token: string) => void }): JS
         down every row would assert it cannot do randomness, conditionals or text shaping - all of
         which it plainly can. Left out, and named.
       */}
-      {OPERATION_ABSENT.length > 0 ? (
+      {OPERATION_ABSENT.unmapped.length > 0 ? (
         <p className={styles.quiet}>
-          {`${OPERATION_ABSENT.map((l) => MACRO_DIALECT_LABELS[l]).join(", ")} has no column here `}
-          {"yet. Its macro list is complete in the bible, but Hoplight has not yet mapped which of "}
-          {"these operations each of its macros performs - so a column would show our gap as its "}
-          {"gap. That mapping is read from the engine, one macro at a time."}
+          {`${OPERATION_ABSENT.unmapped.map((l) => MACRO_DIALECT_LABELS[l]).join(", ")} has no `}
+          {"column here yet. Its macro list is complete in the bible, but Hoplight has not yet "}
+          {"mapped which of these operations each of its macros performs - so a column would show "}
+          {"our gap as its gap. That mapping is read from the engine, one macro at a time."}
+        </p>
+      ) : null}
+
+      {/*
+        A different absence, and worth telling apart: this one IS mapped, and its column would be
+        identical to the engine it shares macros with. Repeating it would imply a difference.
+      */}
+      {OPERATION_ABSENT.duplicate.length > 0 ? (
+        <p className={styles.quiet}>
+          {`${OPERATION_ABSENT.duplicate.map((l) => MACRO_DIALECT_LABELS[l]).join(", ")} shares `}
+          {"these operations with the engine above it, so it has no column of its own. The two "}
+          {"differ in which macros they carry, not in what those macros do - see the bible."}
         </p>
       ) : null}
     </section>

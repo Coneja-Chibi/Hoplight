@@ -311,3 +311,68 @@ describe("the Risu dialect", () => {
     expect(annotated).toEqual([]);
   });
 });
+
+/**
+ * SillyTavern is documented twice because it really is two engines, and the pair has to stay
+ * distinguishable: the whole reason for a second catalog is the macros only one of them has.
+ */
+describe("the two SillyTavern engines", () => {
+  test("both are offered, and only the original is a write-for lens", () => {
+    expect(MACRO_DIALECTS).toContain("sillytavern");
+    expect(MACRO_DIALECTS).toContain("sillytavern-new");
+    expect(PRESET_WRITE_FOR_PROFILES as readonly string[]).not.toContain("sillytavern-new");
+    expect(canTranslate("sillytavern")).toBe(true);
+    expect(canTranslate("sillytavern-new")).toBe(false);
+  });
+
+  test("they are different catalogs, not the same one under two names", () => {
+    const legacy = macroGroupsForDialect("sillytavern").flatMap((g) => g.macros);
+    const registry = macroGroupsForDialect("sillytavern-new").flatMap((g) => g.macros);
+    expect(registry.length).toBeGreaterThan(0);
+    expect(registry).not.toEqual(legacy);
+  });
+
+  /**
+   * THE POINT OF THE PAIR. These exist only in the registry engine; a legacy install does not have
+   * them, so answering for one engine out of the other would be wrong in one direction or the other.
+   */
+  test("the new engine carries macros the old one never had", () => {
+    for (const token of ["{{varexists}}", "{{getvarindex}}", "{{maxcontext}}"]) {
+      expect(isMacroSupported("sillytavern-new", token)).toBe(true);
+      expect(isMacroSupported("sillytavern", token)).toBe(false);
+    }
+  });
+
+  /**
+   * NOT A COMPATIBILITY SPLIT. Verified against the real 1.18.0 engine: it resolves both spellings.
+   * So the older catalog's forms are not broken on the newer engine, and this pair must never be
+   * presented as "your macros stop working" - it is a coverage difference, not an incompatibility.
+   */
+  test("the old engine's spellings are still known to the new catalog by name", () => {
+    for (const token of ["{{roll:1d6}}", "{{random:a,b,c}}", "{{reverse:abc}}"]) {
+      expect(isMacroSupported("sillytavern-new", token)).toBe(true);
+    }
+  });
+
+  test("macros registered outside the macro folder survive generation", () => {
+    // {{authorsNote}} is authors-note.js, {{summary}} is extensions/memory: both real on this
+    // engine and both invisible to a dumper that stubs everything it does not stage.
+    for (const token of ["{{authorsNote}}", "{{summary}}", "{{charPrefix}}"]) {
+      expect(isMacroSupported("sillytavern-new", token)).toBe(true);
+    }
+  });
+
+  test("a macro that only ever existed in the regex table stays with the old catalog", () => {
+    expect(isMacroSupported("sillytavern", "{{time_UTC-4}}")).toBe(true);
+    expect(isMacroSupported("sillytavern-new", "{{time_UTC-4}}")).toBe(false);
+  });
+
+  test("every hand-authored operation survived the generation", () => {
+    // The generator refuses to write when one cannot be placed; this pins the count so a future
+    // regeneration cannot quietly shed one.
+    const ops = macroGroupsForDialect("sillytavern-new")
+      .flatMap((g) => g.macros)
+      .filter((m) => m.op);
+    expect(ops.length).toBe(14);
+  });
+});
