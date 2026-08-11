@@ -375,4 +375,12 @@ describe("the two SillyTavern engines", () => {
       .filter((m) => m.op);
     expect(ops.length).toBe(14);
   });
+
+  test("macros registered by other modules are found at their call sites, not only inherited", () => {
+    // These three come from extensions/expressions and were absent until the generator learned to
+    // read registerMacro call sites: the old catalog never listed them, so nothing could carry them.
+    for (const token of ["{{defaultExpression}}", "{{lastExpression}}", "{{availableExpressions}}"]) {
+      expect(isMacroSupported("sillytavern-new", token)).toBe(true);
+    }
+  });
 });

@@ -172,6 +172,15 @@ export const SILLYTAVERN_NEW_MACRO_GROUPS: MacroGroup[] = [
     ],
   },
   {
+    name: "Registered by other modules",
+    description: "Macros other parts of SillyTavern add at startup rather than the macro engine itself - the author's note, bundled extensions. Real, and invisible to a dump of the registry alone.",
+    macros: [
+      { macro: "{{defaultExpression}}", description: "Returns the global fallback expression." },
+      { macro: "{{lastExpression}}", description: "Returns the last expression used." },
+      { macro: "{{availableExpressions}}", description: "Returns a list with all the available expressions provided by the Classifier API." },
+    ],
+  },
+  {
     name: "Formatting",
     description: "SillyTavern's formatting macros.",
     macros: [
