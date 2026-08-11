@@ -9,19 +9,30 @@
  * Replacing them wholesale would silently drop working knowledge to gain generated knowledge, which
  * is a trade nobody asked for.
  *
- * So this reports the three differences that matter and changes nothing:
+ * AND SILLYTAVERN HAS TWO MACRO SURFACES, which is the thing to get right before reading any of
+ * this. `power_user.experimental_macro_engine` - default TRUE in 1.18.0 - chooses between the
+ * registry the dumper reads and the older regex table in public/scripts/macros.js. An earlier
+ * version of this script knew only the registry and reported `{{roll:1d6}}` as a defect; the legacy
+ * pattern is `/{{roll[ : ]([^}]+)}}/`, so that form is one SillyTavern parses and our catalog was
+ * right. Five of six "separator defects" evaporated when the second surface was read. Every bucket
+ * below therefore names which engine it is talking about.
  *
- *   MISSING     - the engine has it, we do not. Reported as literal text, so a person can see it
- *                 will reach the model unexpanded rather than being told a name.
- *   UNKNOWN     - we have it, the engine does not. Either stale, or provided by an extension rather
- *                 than core; the audit cannot tell those apart and does not pretend to.
- *   SEPARATORS  - we and the engine spell the same macro differently. This is the one that bites
- *                 silently: ops.ts reads arity and separator off the FORM string, so a catalog
- *                 saying {{roll:1d6}} where the engine says {{roll::1d20}} computes translation
- *                 against a macro shape that does not exist.
+ * Five buckets, and only one of them is unambiguously ours to fix:
+ *
+ *   MISSING         - in the registry, not in our catalog. Marked [new engine only] where the
+ *                     legacy table has no such name.
+ *   LEGACY ONLY     - in our catalog and in macros.js. Correct, for the older engine.
+ *   UNKNOWN         - in our catalog and in NEITHER surface. Stale, or provided by an extension;
+ *                     the audit cannot tell those apart and does not pretend to.
+ *   BOTH SURFACES   - the two engines spell it differently and ours is the legacy spelling. A
+ *                     choice about which engine the catalog describes, not an error.
+ *   SPELLING DEFECT - the registry disagrees and legacy does not carry the name either. This one
+ *                     bites silently, because ops.ts reads arity and separator off the FORM string.
  *
  * Run: bun run scripts/macro-audit.ts --st-root=<a SillyTavern checkout>
  */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { SILLYTAVERN_MACRO_GROUPS } from "../src/core/preset/macros/sillytavern";
 import { macroName } from "../src/core/preset/macros/support";
 import { separatorOf } from "../src/core/preset/macros/ops";
@@ -67,42 +78,103 @@ for (const m of reply.macros) {
   for (const alias of m.aliases) engineNames.set(alias.toLowerCase(), m);
 }
 
+/**
+ * SILLYTAVERN HAS TWO MACRO SURFACES, and reading only one of them produces confident nonsense.
+ *
+ * `power_user.experimental_macro_engine` (default TRUE in 1.18.0) chooses between the registry the
+ * dumper reads and the older regex table in public/scripts/macros.js. They are not the same list and
+ * they do not spell everything the same way. The legacy patterns are deliberately permissive:
+ *
+ *     /{{roll[ : ]([^}]+)}}/      space OR colon
+ *     /{{random\s?::?([^}]+)}}/   one colon OR two
+ *     /{{banned "(.*)"}}/         a quoted argument
+ *     /{{datetimeformat +...}}/   a space
+ *
+ * while the registry canonicalises on `::`. An audit that knows only the registry therefore reports
+ * `{{roll:1d6}}` as a defect, when it is a form SillyTavern still parses - which is precisely the
+ * false finding this comment exists to stop the next person repeating.
+ *
+ * Scraped, and only ever used to CLASSIFY. There is no registry to ask for the legacy surface, so
+ * this reads its patterns out of the source; that is acceptable for deciding which of three buckets
+ * a name belongs in, and would not be acceptable for generating a catalog.
+ */
+function legacyNames(root: string): Set<string> {
+  const names = new Set<string>();
+  let src = "";
+  try {
+    src = readFileSync(join(root, "public", "scripts", "macros.js"), "utf8");
+  } catch {
+    return names; // an install without the legacy file simply has one surface
+  }
+  for (const m of src.matchAll(/\{\{\\?\/?([A-Za-z_][A-Za-z0-9_]*)/g)) {
+    names.add(m[1]!.toLowerCase());
+  }
+  return names;
+}
+
+const legacy = legacyNames(stRoot);
+
 const ours: MacroEntry[] = SILLYTAVERN_MACRO_GROUPS.flatMap((g) => g.macros);
 const ourNames = new Set(ours.map((m) => macroName(m.macro)).filter(Boolean));
 
 const missing = [...engineNames.keys()].filter((n) => !ourNames.has(n)).sort();
+
+/** In our catalog and in NEITHER surface: the only bucket that is a candidate for stale. */
 const unknown = ours.filter((m) => {
   const n = macroName(m.macro);
-  return n !== "" && !engineNames.has(n);
+  return n !== "" && !engineNames.has(n) && !legacy.has(n);
 });
 
-/** Where our recorded form and the engine's own example disagree about punctuation. */
+/** In our catalog and in the legacy table but not the registry: correct, and only for the old engine. */
+const legacyOnly = ours.filter((m) => {
+  const n = macroName(m.macro);
+  return n !== "" && !engineNames.has(n) && legacy.has(n);
+});
+
+/**
+ * Where our recorded form and the registry's own example disagree about punctuation.
+ *
+ * A DIFFERENCE, NOT A DEFECT, when the legacy table also carries the name - and it usually does.
+ * The legacy patterns accept spellings the registry does not, so our form can be perfectly valid on
+ * one engine and simply not canonical on the other. Split accordingly.
+ */
 const separators: string[] = [];
+const bothSurfaces: string[] = [];
 for (const entry of ours) {
   const name = macroName(entry.macro);
   const engine = name ? engineNames.get(name) : undefined;
   const theirs = engine?.exampleUsage[0];
-  if (!theirs) continue;
-  if (separatorOf(entry.macro) !== separatorOf(theirs)) {
-    separators.push(`${entry.macro}   engine spells it   ${theirs}`);
-  }
+  if (!theirs || !name) continue;
+  if (separatorOf(entry.macro) === separatorOf(theirs)) continue;
+  const row = `${entry.macro}   registry spells it   ${theirs}`;
+  if (legacy.has(name)) bothSurfaces.push(row);
+  else separators.push(row);
 }
 
 const line = (s: string): void => console.log(s);
 line(`macro-audit: sillytavern ${reply.engine.version}`);
-line(`  engine spellings: ${engineNames.size}   our entries: ${ours.length}`);
+line(`  registry spellings: ${engineNames.size}   legacy names: ${legacy.size}   our entries: ${ours.length}`);
 line("");
-line(`MISSING - the engine has these, our catalog does not (${missing.length}):`);
-for (const n of missing) line(`  {{${n}}}`);
+line("SillyTavern has TWO macro surfaces and power_user.experimental_macro_engine (default true in");
+line("1.18.0) picks between them. Every row below says which surface it is about.");
 line("");
-line(`UNKNOWN - our catalog has these, this engine build does not (${unknown.length}):`);
+line(`MISSING - in the registry, not in our catalog (${missing.length}):`);
+for (const n of missing) line(`  {{${n}}}${legacy.has(n) ? "" : "   [new engine only]"}`);
+line("");
+line(`LEGACY ONLY - in our catalog and in macros.js, not in the registry (${legacyOnly.length}):`);
+for (const m of legacyOnly) line(`  ${m.macro}${m.op ? `   [op: ${m.op}]` : ""}`);
+line("");
+line(`UNKNOWN - in our catalog and in NEITHER surface (${unknown.length}):`);
 for (const m of unknown) line(`  ${m.macro}${m.op ? `   [op: ${m.op}]` : ""}`);
 line("");
-line(`SEPARATORS - same macro, different spelling (${separators.length}):`);
+line(`BOTH SURFACES, DIFFERENT SPELLING - ours is legacy-valid, not registry-canonical (${bothSurfaces.length}):`);
+for (const s of bothSurfaces) line(`  ${s}`);
+line("");
+line(`SPELLING DEFECTS - registry disagrees and legacy does not carry the name (${separators.length}):`);
 for (const s of separators) line(`  ${s}`);
 line("");
-line("Nothing was changed. Each row is a judgement: a missing macro may be worth adding, an unknown");
-line("one may be extension-provided rather than stale, and a separator difference must be checked");
-line("against the engine before editing, because ops.ts computes arity from the form string.");
+line("Nothing was changed. Only the last bucket is unambiguously ours to fix; the one above it is a");
+line("choice about which engine the catalog describes, and UNKNOWN needs each row checked against");
+line("extensions before anything is removed.");
 
 // A findings report, not a gate: exit 0 so this can be run for information without failing a build.
