@@ -16,8 +16,9 @@
  * costs most: the whole point is to agree with the SillyTavern somebody actually runs. A copy already
  * in this project's orbit had drifted from the install beside it.
  *
- * RUN-ONCE, NEVER A BUILD STEP. This writes into the user's real checkout while it works and removes
- * the copy on exit. That is acceptable for a tool a person invokes; it is not acceptable on a timer.
+ * RUN-ONCE, NEVER A BUILD STEP. This writes into the user's real checkout while it works, removes
+ * the copy when it finishes, and sweeps any directory an earlier run was killed before removing.
+ * That is acceptable for a tool a person invokes; it is not acceptable on a timer.
  */
 import { cpSync, existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync }
   from "node:fs";
@@ -59,23 +60,56 @@ export function engineVersion(stRoot) {
 }
 
 /**
- * Siblings the engine genuinely needs, resolved for real rather than stubbed.
+ * Leaf module names to resolve for real instead of stubbing. EMPTY, and deliberately so.
  *
- * `lib.js` is SillyTavern's bundled library barrel: the macro parser is built on the packages it
- * re-exports, so a stub here yields an engine that loads and cannot parse. Everything else outside
- * the macro folder is the browser application, which is exactly what must not load.
+ * The seam exists because `lib.js` - SillyTavern's bundled library barrel - was expected to need
+ * real resolution, on the theory that the macro parser is built on packages it re-exports. It turned
+ * out not to: this install's engine loads and parses with everything outside the macro folder
+ * stubbed, which is the safer direction anyway, since each real resolution drags more of the browser
+ * application into the process. Kept as a named seam rather than deleted, because the next build
+ * that genuinely needs one should have somewhere obvious to put it.
  */
 const RESOLVE_FOR_REAL = new Set();
+
+/**
+ * Remove staging directories left by runs that are no longer alive.
+ *
+ * A BELT FOR THE SIGNAL HANDLERS, because they cannot cover a SIGKILL or a power cut, and because
+ * this install may already carry leftovers from before those handlers existed. Nothing else in this
+ * repo ever reclaimed one.
+ *
+ * LIVENESS-CHECKED, NOT AGE-CHECKED. preset_verify and the Macro Lab can both be staging at the
+ * same moment, so deleting by name or by mtime would delete a directory another process is loading
+ * out of. `process.kill(pid, 0)` throws only when no such process exists; a live PID is left alone,
+ * and so is our own. PID reuse can make this skip a genuinely dead directory, which is a leftover
+ * rather than a broken run - the safe way to be wrong.
+ */
+export function sweepStale(scriptsDir) {
+  let entries = [];
+  try {
+    entries = readdirSync(scriptsDir);
+  } catch {
+    return; // not a checkout we can read; staging will fail with its own message
+  }
+  for (const name of entries) {
+    const pid = /^\.hoplight-[a-z]+-(\d+)$/.exec(name)?.[1];
+    if (!pid || Number(pid) === process.pid) continue;
+    try {
+      process.kill(Number(pid), 0);
+      continue; // still running: not ours to remove
+    } catch { /* no such process, so the directory is abandoned */ }
+    try { rmSync(join(scriptsDir, name), { recursive: true, force: true }); } catch { /* leave it */ }
+  }
+}
 
 /**
  * Copy the macro folder into the install, repoint the specifiers that cannot resolve, and hand back
  * the staged entry point. The caller must call the returned cleanup.
  *
  * The scratch copy lives INSIDE the install, one folder over from the real macros, and the position
- * is load-bearing rather than lazy: `lib.js` must resolve for real, which means the copy must sit at
- * the SAME depth as the original or every relative path lands somewhere else. Same depth, same
- * resolution, and the npm packages `lib.js` pulls in are found through the install's own
- * node_modules.
+ * is load-bearing rather than lazy: relative imports between the engine's own files must land where
+ * they would have, so the copy has to sit at the SAME depth as the original. One folder up or down
+ * and every one of them resolves somewhere else.
  */
 export function stageEngine(stRoot, tag = "stage") {
   const macrosDir = join(stRoot, "public", "scripts", "macros");
@@ -87,7 +121,41 @@ export function stageEngine(stRoot, tag = "stage") {
     cleaned = true;
     try { rmSync(stagedMacros, { recursive: true, force: true }); } catch { /* scratch */ }
   };
+
+  /**
+   * TWO MECHANISMS, BECAUSE ONE OF THEM CANNOT WORK ON WINDOWS.
+   *
+   * `process.on("exit")` alone was a leak. Killing is the NORMAL end of this process, not an edge
+   * case: runner.ts calls child.kill() on every timeout, and the budgets are real - 45s for a
+   * scratch render, 180s for preset_verify - plus the host quitting Hoplight mid-render. What
+   * survived was not a stray temp folder but a full copy of SillyTavern's macro tree, with
+   * rewritten imports, inside somebody else's real install under public/scripts/.
+   *
+   * The signal handlers below catch a polite SIGTERM/SIGINT. They do NOT catch what Bun's
+   * child.kill() does on Windows, which is a hard terminate no handler can intercept - measured,
+   * not assumed: a killed render still leaves its directory on this platform. That is what
+   * sweepStale is for, and why the sweep runs at stage time on every run rather than only here.
+   *
+   * Together the residue is bounded to at most one abandoned directory, reclaimed by the next
+   * render, instead of one per incident forever.
+   *
+   * Re-raised rather than swallowed, so the exit code still says the process was killed.
+   */
+  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP", "SIGBREAK"]) {
+    process.on(signal, () => {
+      cleanup();
+      process.kill(process.pid, signal);
+    });
+  }
   process.on("exit", cleanup);
+  // An uncaught throw exits without `exit` in some hosts, and this must not depend on which.
+  process.on("uncaughtException", (e) => {
+    cleanup();
+    process.stderr.write(`${e instanceof Error ? e.stack ?? e.message : String(e)}\n`);
+    process.exit(1);
+  });
+
+  sweepStale(join(stRoot, "public", "scripts"));
 
   try {
     cpSync(macrosDir, stagedMacros, { recursive: true });

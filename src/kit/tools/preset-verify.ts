@@ -10,9 +10,18 @@
  * So this tool asks the engine. It is the one capability no other preset editor has, because nobody
  * else runs the target.
  *
- * READ-ONLY AND OFF-MACHINE. It spawns an adapter that drives an engine already installed here; it
- * writes nothing and touches no studio state, which is why it needs no gate. The engine has to be
- * present, so an absent one is a refusal that names what to install rather than a silent pass.
+ * IT TOUCHES NO STUDIO STATE, which is why it needs no gate: it reads one preset, spawns an adapter
+ * that drives an engine already installed here, and reports. Nothing the user authored is written.
+ *
+ * IT IS NOT WRITE-FREE, though, and this used to say it was. The SillyTavern adapter STAGES: it
+ * copies that engine's macro folder into a scratch directory inside the user's own checkout and
+ * rewrites the copy's imports, because the engine cannot be loaded outside a browser otherwise (see
+ * tools/renderers/sillytavern/stage.mjs). The writes are confined to that directory and it is swept,
+ * but a gating rationale resting on "writes nothing" was false, and a false reason is worse than a
+ * narrower true one.
+ *
+ * The engine has to be present, so an absent one is a refusal that names what to install rather
+ * than a silent pass.
  */
 import { z } from "zod";
 import type { HarnessTool } from "./tool";

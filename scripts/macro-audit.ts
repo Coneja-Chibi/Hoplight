@@ -10,7 +10,7 @@
  * is a trade nobody asked for.
  *
  * AND SILLYTAVERN HAS TWO MACRO SURFACES, which is the thing to get right before reading any of
- * this. `power_user.experimental_macro_engine` - default TRUE in 1.18.0 - chooses between the
+ * this. `power_user.experimental_macro_engine` - default true since 1.17.0 - chooses between the
  * registry the dumper reads and the older regex table in public/scripts/macros.js. An earlier
  * version of this script knew only the registry and reported `{{roll:1d6}}` as a defect; the legacy
  * pattern is `/{{roll[ : ]([^}]+)}}/`, so that form is one SillyTavern parses and our catalog was
@@ -81,7 +81,7 @@ for (const m of reply.macros) {
 /**
  * SILLYTAVERN HAS TWO MACRO SURFACES, and reading only one of them produces confident nonsense.
  *
- * `power_user.experimental_macro_engine` (default TRUE in 1.18.0) chooses between the registry the
+ * `power_user.experimental_macro_engine` (default true since 1.17.0) chooses between the registry the
  * dumper reads and the older regex table in public/scripts/macros.js. They are not the same list and
  * they do not spell everything the same way. The legacy patterns are deliberately permissive:
  *
@@ -155,8 +155,8 @@ const line = (s: string): void => console.log(s);
 line(`macro-audit: sillytavern ${reply.engine.version}`);
 line(`  registry spellings: ${engineNames.size}   legacy names: ${legacy.size}   our entries: ${ours.length}`);
 line("");
-line("SillyTavern has TWO macro surfaces and power_user.experimental_macro_engine (default true in");
-line("1.18.0) picks between them. Every row below says which surface it is about.");
+line("SillyTavern has TWO macro surfaces and power_user.experimental_macro_engine (default true");
+line("since 1.17.0) picks between them. Every row below says which surface it is about.");
 line("");
 line(`MISSING - in the registry, not in our catalog (${missing.length}):`);
 for (const n of missing) line(`  {{${n}}}${legacy.has(n) ? "" : "   [new engine only]"}`);

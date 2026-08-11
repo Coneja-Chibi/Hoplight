@@ -9,9 +9,9 @@
  * reports them as macros the engine does not have.
  *
  * WHAT MAKES THIS POSSIBLE HERE. SillyTavern registers every macro into a real registry -
- * MacroRegistry.registerMacro(name, { category, aliases, unnamedArgs, description, examples }) - and
- * exposes getAllMacros(). The legacy MacrosParser.registerMacro path is deprecated and forwards into
- * the same registry, so there is one source of truth and nothing is left behind by reading it.
+ * MacroRegistry.registerMacro(name, { category, aliases, unnamedArgDefs, description, exampleUsage })
+ * - and exposes getAllMacros(). The legacy MacrosParser.registerMacro path is deprecated and forwards
+ * into the same registry, so there is one source of truth and nothing is left behind by reading it.
  *
  * RUN ONCE, BY A PERSON. Staging writes into the user's own checkout while it works. The OUTPUT is
  * what ships; see scripts/sillytavern-macros.ts.
@@ -64,12 +64,16 @@ const all = registry.getAllMacros({ excludeAliases: true }) ?? [];
 if (all.length === 0) fail("the registry answered with no macros at all");
 
 /**
- * Aliases are their OWN ROWS, pointing back with `aliasOf` - not a list on the macro they alias.
+ * Aliases are read from their OWN ROWS, which point back with `aliasOf`.
  *
- * The definition object has an `aliases` array and it is empty on every entry, which is the trap:
- * reading it exits zero and produces a catalog with no aliases at all, and an engine that resolves
- * `{{bot}}` would then have `{{bot}}` reported as a macro it does not have. The full listing is 124
- * rows against 93 real macros, and that difference is exactly the aliases.
+ * The definition object also carries an `aliases` array - populated on 29 of the 93 entries, holding
+ * `{ alias, visible }` objects rather than strings. Either source can be made to work; this one is
+ * used because it is the same shape for every macro and needs no per-entry unwrapping.
+ *
+ * WHAT DOES NOT WORK is reading `aliases` as an array of STRINGS, which is what this first did: it
+ * exits zero and yields a catalog with no aliases at all, so an engine that resolves `{{bot}}` has
+ * `{{bot}}` reported as a macro it does not have. The full listing is 124 rows against 93 macros,
+ * and that difference is exactly the aliases.
  */
 const aliasesFor = new Map();
 for (const def of registry.getAllMacros() ?? []) {

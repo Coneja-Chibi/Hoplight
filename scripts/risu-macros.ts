@@ -2,9 +2,9 @@
  * Generate src/core/preset/macros/risu.ts from RisuAI's own CBS documentation.
  *
  * WHY A GENERATOR AND NOT A HAND-WRITTEN CATALOG. macros/index.ts is explicit that Risu's catalog
- * must be generated and never hand-copied, and it is right: cbs_docs.cbs is 170 machine-readable
- * rows maintained by the engine's own authors, and a hand transcription of that is 170 chances to
- * invent a macro. Every other catalog here was transcribed by hand from prose sources because those
+ * must be generated and never hand-copied, and it is right: cbs_docs.cbs is a machine-readable CSV
+ * maintained by the engine's own authors - 143 documented rows - and a hand transcription of that is
+ * 143 chances to invent a macro. Every other catalog here was transcribed by hand from prose sources because those
  * engines publish no machine-readable list; Risu does, so it gets read rather than retyped.
  *
  * WHY THE OUTPUT IS COMMITTED. Hoplight ships the macro reference to people who have no RisuAI
@@ -146,7 +146,11 @@ function readRow(f: string[]): Row | null {
     description,
     // `/`-separated, and the list normally repeats the macro's own name. Deduped, and the name
     // itself dropped: MacroEntry.aliases means "as well as", not "including".
-    aliases: aliases.split("/").map((a) => a.trim()).filter((a) => a && a !== name),
+    // Identifier-shaped only. The source's alias column sometimes carries a sentence rather than a
+    // name ("format is a subset of Moment.js time format"), and shipping that as an alias renders it
+    // in the bible as a macro somebody could type.
+    aliases: aliases.split("/").map((a) => a.trim())
+      .filter((a) => a && a !== name && /^[A-Za-z_][A-Za-z0-9_]*$/.test(a)),
     args: args.split("/").map((a) => a.trim()).filter(Boolean),
   };
 }
@@ -223,7 +227,7 @@ const file = `/**
  * TWO HONEST LIMITS, both consequences of what the source carries.
  *
  * NO GROUPS. The CSV has no categories, so everything is one group rather than a hand-invented
- * taxonomy - grouping 170 entries by eye would be organisation this file cannot support, and the
+ * taxonomy - grouping them by eye would be organisation this file cannot support, and the
  * reference is searchable instead.
  *
  * NO OPERATION ANNOTATIONS. MacroEntry.op is what lets the hub compute cross-engine equivalence and

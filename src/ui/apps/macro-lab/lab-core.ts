@@ -273,22 +273,27 @@ export const OPERATION_LENSES: readonly MacroDialect[] = LAB_LENSES.filter(canTr
  * Dialects with no column, split by WHY, because the two reasons are not the same fact.
  *
  * `unmapped` has no operation annotations at all, so a column would be "none" down every row and
- * would read as the engine being incapable. `duplicate` is annotated but would repeat another
- * dialect's column exactly - SillyTavern's two engines share their macros' operations, so a second
- * identical column teaches nothing and implies a difference that is not there.
+ * would read as the engine being incapable.
+ *
+ * `shared` is annotated with the same OPERATIONS as another dialect - SillyTavern's two engines
+ * agree on what their macros do. Their FORMS differ on several ({{roll:1d6}} against
+ * {{roll::1d20}}), so a column would not be identical, and saying it would be was wrong twice over:
+ * this table renders forms as clickable buttons, so a second column would in fact show a real
+ * difference. It is omitted because the difference it would show belongs in the bible, where a
+ * reader is choosing which engine they run - not in a table about which operations exist at all.
  */
 export const OPERATION_ABSENT: {
   readonly unmapped: readonly MacroDialect[];
-  readonly duplicate: readonly MacroDialect[];
+  readonly shared: readonly MacroDialect[];
 } = (() => {
   const unmapped: MacroDialect[] = [];
-  const duplicate: MacroDialect[] = [];
+  const shared: MacroDialect[] = [];
   for (const lens of LAB_LENSES) {
     if (canTranslate(lens)) continue;
     const annotated = macroGroupsForDialect(lens).flatMap((g) => g.macros).some((m) => m.op);
-    (annotated ? duplicate : unmapped).push(lens);
+    (annotated ? shared : unmapped).push(lens);
   }
-  return { unmapped, duplicate };
+  return { unmapped, shared };
 })();
 
 /** One canonical operation, and how each platform spells it. */

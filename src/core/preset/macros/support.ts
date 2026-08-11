@@ -14,8 +14,12 @@
  * Aliases are modeled: supportedMacroNames/findMacro consult MacroEntry.aliases, so heavy aliasing
  * (Lumiverse has ~180 alternate names) never warns as unsupported. Lumi's prefix flag characters
  * ({{!x}}, {{#x}}...) make macroName return "", which fails lenient - flagged tokens are never
- * called dead. The PresetWriteForProfile type is what keeps Risu/Agnai callers out - do not widen
- * it without growing the model. See ./index.ts.
+ * called dead.
+ *
+ * THESE TAKE MacroDialect, NOT PresetWriteForProfile, and the difference is deliberate. This file
+ * used to say the narrow type is what keeps Risu out; it no longer is. Documenting a dialect and
+ * being able to author a preset for one are different questions, and only the second needs the
+ * narrow type - see MacroDialect in ./index.ts.
  */
 import type { PresetWriteForProfile } from "../capabilities";
 import { PRESET_WRITE_FOR_PROFILES } from "../capabilities";

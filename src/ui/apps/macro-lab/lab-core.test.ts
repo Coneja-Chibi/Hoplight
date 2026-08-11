@@ -367,7 +367,7 @@ describe("both SillyTavern engines in the lab", () => {
    */
   it("keeps the two kinds of missing column apart", () => {
     expect(OPERATION_ABSENT.unmapped).toEqual(["risu"]);
-    expect(OPERATION_ABSENT.duplicate).toEqual(["sillytavern-new"]);
+    expect(OPERATION_ABSENT.shared).toEqual(["sillytavern-new"]);
     expect(OPERATION_LENSES).not.toContain("sillytavern-new");
   });
 

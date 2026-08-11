@@ -108,14 +108,15 @@ export function OpsPane({ onInsert }: { onInsert: (token: string) => void }): JS
       ) : null}
 
       {/*
-        A different absence, and worth telling apart: this one IS mapped, and its column would be
-        identical to the engine it shares macros with. Repeating it would imply a difference.
+        A different absence, and worth telling apart: this one IS mapped. Its operations match the
+        engine above it; its FORMS do not, so a column would show a real difference - just not one
+        about which operations exist, which is what this table is for. The bible carries it.
       */}
-      {OPERATION_ABSENT.duplicate.length > 0 ? (
+      {OPERATION_ABSENT.shared.length > 0 ? (
         <p className={styles.quiet}>
-          {`${OPERATION_ABSENT.duplicate.map((l) => MACRO_DIALECT_LABELS[l]).join(", ")} shares `}
-          {"these operations with the engine above it, so it has no column of its own. The two "}
-          {"differ in which macros they carry, not in what those macros do - see the bible."}
+          {`${OPERATION_ABSENT.shared.map((l) => MACRO_DIALECT_LABELS[l]).join(", ")} performs the `}
+          {"same operations as the engine above it, so it has no column of its own. The two differ in "}
+          {"which macros they carry and in how a few are spelled - see the bible for both."}
         </p>
       ) : null}
     </section>

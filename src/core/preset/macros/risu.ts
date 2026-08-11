@@ -4,7 +4,7 @@
  * DO NOT EDIT BY HAND. Regenerate with:
  *   bun run scripts/risu-macros.ts --risu-root=<a RisuAI checkout>
  *
- * Source: src/etc/docs/cbs_docs.cbs at RisuAI 72ce721878d65b09baf4339638dfd221d1788261
+ * Source: src/etc/docs/cbs_docs.cbs at RisuAI 5a524185d2bf9ed0251f33f21b15056cd431ae80
  * Read 142 macros (from 143 documented rows).
  *
  * WHY THIS ONE IS GENERATED AND THE OTHERS ARE NOT. RisuAI publishes a machine-readable CSV of its
@@ -14,7 +14,7 @@
  * TWO HONEST LIMITS, both consequences of what the source carries.
  *
  * NO GROUPS. The CSV has no categories, so everything is one group rather than a hand-invented
- * taxonomy - grouping 170 entries by eye would be organisation this file cannot support, and the
+ * taxonomy - grouping them by eye would be organisation this file cannot support, and the
  * reference is searchable instead.
  *
  * NO OPERATION ANNOTATIONS. MacroEntry.op is what lets the hub compute cross-engine equivalence and
@@ -133,7 +133,7 @@ export const RISU_MACRO_GROUPS: MacroGroup[] = [
       { macro: "{{makearray::item1::item2::...}}", description: "Create array from arguments", aliases: ["array", "a", "make_array"] },
       { macro: "{{makedict::key1=value1::key2=value2::...}}", description: "Create dictionary/object from key=value pairs", aliases: ["dict", "d", "make_dict", "makeobject", "object", "o", "make_object"] },
       { macro: "{{range::start::end::step}}", description: "Create a range array" },
-      { macro: "{{date::format::timestamp}}", description: "Format date/time", aliases: ["time", "datetimeformat", "date_time_format. format is a subset of Moment.js time format"] },
+      { macro: "{{date::format::timestamp}}", description: "Format date/time", aliases: ["time", "datetimeformat"] },
       { macro: "{{module_enabled::namespace}}", description: "Check if module is enabled", aliases: ["moduleenabled"] },
       { macro: "{{module_assetlist::namespace}}", description: "Get asset list from module", aliases: ["moduleassetlist"] },
       { macro: "{{filter::array::type}}", description: "Filter array. Type can be:\n- unique: Remove duplicates\n- nonempty: Remove empty values\n- all: do unique and nonempty" },

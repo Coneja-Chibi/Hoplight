@@ -2,14 +2,19 @@
  * Generate src/core/preset/macros/sillytavern-new.ts from SillyTavern's registry engine.
  *
  * BOTH SURFACES, NOT ONE. SillyTavern carries two macro engines and
- * power_user.experimental_macro_engine - default true in 1.18.0 - picks between them. Rather than
+ * power_user.experimental_macro_engine - default true since 1.17.0 - picks between them. Rather than
  * migrate the catalog and lose the older one, this writes a SECOND catalog: sillytavern.ts keeps
  * describing the regex table, this describes the registry, and MacroDialect offers both.
  *
- * The registry engine accepts the legacy spellings as well as its own - {{roll:1d6}} and
- * {{roll::1d6}} both resolve on 1.18.0, verified through the renderer - so this is not a
- * compatibility split. What it buys is the 28 macros that exist ONLY in the registry: the
- * indexed-variable family, the instruct family, {{maxcontext}}, {{chardescription}}.
+ * THE COMPATIBILITY IS ONE-WAY, and the direction matters. The registry engine accepts the legacy
+ * spellings as well as its own: {{roll:1d6}} and {{roll::1d6}} both resolve on 1.18.0, verified
+ * through the renderer. The reverse is NOT true - the legacy pattern /{{roll[ : ]([^}]+)}}/ matches
+ * {{roll::1d20}} but captures ":1d20", droll rejects it, and the macro resolves to the empty string.
+ * A registry spelling on the old engine rolls no dice and says nothing about it. So this is not a
+ * free choice of spelling, and neither catalog should ever imply it is.
+ *
+ * What the second catalog buys is the macros that exist ONLY in the registry: the indexed-variable
+ * family, the instruct family, {{chardescription}}.
  *
  * A MERGE, NEVER A REPLACEMENT, and there are two separate reasons - both of which cost real macros
  * if ignored.
@@ -17,7 +22,11 @@
  *  1. THE DUMP CANNOT SEE EVERY MACRO. dump.mjs loads the macro folder and stubs everything outside
  *     it, so macros registered by other modules are invisible: {{authorsNote}} comes from
  *     authors-note.js, {{summary}} from extensions/memory, {{charPrefix}} from
- *     extensions/stable-diffusion. They are real and a registry-only rewrite would delete 13 of them.
+ *     extensions/stable-diffusion. Those are verified registrations. The preserved set also carries
+ *     entries this script CANNOT verify either way - {{pipe}} and {{var::name}} are substituted
+ *     inside STscript closures rather than registered, {{bias}} is read off message text - and it
+ *     does not claim they are registry macros. They are kept because dropping a macro somebody can
+ *     type is the worse error, and marked in the generated file as unverified.
  *  2. THE `op` ANNOTATIONS ARE HAND-AUTHORED and are the only thing here that generation cannot
  *     reproduce. They drive every cross-engine answer, and losing one silently turns a detected
  *     collision back into a clean pass. Any annotation this script cannot place is a hard failure.
@@ -114,11 +123,25 @@ const groupName = (category: string): string =>
  */
 const knownOps = new Map<string, { op: string; macro: string }>();
 const opConflicts: string[] = [];
+/**
+ * An annotation on a form that invokes no NAME cannot be carried by a name-keyed merge, and it must
+ * not be skipped quietly.
+ *
+ * THIS WAS A HOLE IN THE GATE BELOW. `if (!name) continue` ran BEFORE knownOps was built, so such an
+ * entry never entered the map and `unplaced` could never report it: the script printed "14/14 ops
+ * carried" and exited zero while dropping one. Not contrived - comment and flag syntax genuinely
+ * differ between engines ({{//}}, {{#}}, Lumiverse's prefix flags), so an op on a nameless form is a
+ * plausible annotation to write.
+ */
+const opsWithoutName: string[] = [];
 for (const group of SILLYTAVERN_MACRO_GROUPS) {
   for (const entry of group.macros) {
     if (!entry.op) continue;
     const name = macroName(entry.macro);
-    if (!name) continue;
+    if (!name) {
+      opsWithoutName.push(`  ${entry.macro} [op: ${entry.op}] invokes no macro name`);
+      continue;
+    }
     const seen = knownOps.get(name);
     if (seen && seen.op !== entry.op) {
       opConflicts.push(`  ${seen.macro} [${seen.op}] vs ${entry.macro} [${entry.op}]`);
@@ -131,6 +154,12 @@ if (opConflicts.length > 0) {
   fail(
     "two entries share a name and carry different operations, which keying by name cannot "
     + `represent:\n${opConflicts.join("\n")}`,
+  );
+}
+if (opsWithoutName.length > 0) {
+  fail(
+    "these operations are annotated on forms that invoke no macro name, so a name-keyed merge "
+    + `cannot carry them and would drop them silently:\n${opsWithoutName.join("\n")}`,
   );
 }
 
@@ -237,7 +266,7 @@ const file = `/**
  * plus ${preserved.length} preserved below.
  *
  * THE NEW ENGINE, DELIBERATELY. SillyTavern carries two macro surfaces and
- * power_user.experimental_macro_engine - default true in 1.18.0 - picks between them. This catalog
+ * power_user.experimental_macro_engine - default true since 1.17.0 - picks between them. This catalog
  * documents the REGISTRY, which is what a default install runs. The older regex table in
  * public/scripts/macros.js spells several macros differently and more permissively
  * ({{roll:1d6}} and {{roll::1d20}} are both parsed by it), so text written for the old engine is

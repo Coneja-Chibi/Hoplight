@@ -31,7 +31,7 @@
  *     macroGroupsForDialect serves it and PresetWriteForProfile does not.
  *
  * SILLYTAVERN IS HERE TWICE, ON PURPOSE, because it really is two engines.
- * `power_user.experimental_macro_engine` - default true since 1.18.0 - chooses between the regex
+ * `power_user.experimental_macro_engine` - default true since 1.17.0 - chooses between the regex
  * table in public/scripts/macros.js and the MacroRegistry in public/scripts/macros/. `sillytavern`
  * documents the first, `sillytavern-new` the second, and both are true at once for different
  * installs.

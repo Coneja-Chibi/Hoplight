@@ -8,7 +8,7 @@
  * plus 13 preserved below.
  *
  * THE NEW ENGINE, DELIBERATELY. SillyTavern carries two macro surfaces and
- * power_user.experimental_macro_engine - default true in 1.18.0 - picks between them. This catalog
+ * power_user.experimental_macro_engine - default true since 1.17.0 - picks between them. This catalog
  * documents the REGISTRY, which is what a default install runs. The older regex table in
  * public/scripts/macros.js spells several macros differently and more permissively
  * ({{roll:1d6}} and {{roll::1d20}} are both parsed by it), so text written for the old engine is

@@ -158,8 +158,14 @@ async function handleResolve(req: Request): Promise<Response> {
       prompt: outcome.prompt,
       unresolved: outcome.unresolved,
       warnings: outcome.warnings,
-      // The install PATH is deliberately not forwarded. The browser needs to know which engine and
-      // which build answered; where it sits on disk is the host's business.
+      // The install PATH is deliberately not forwarded HERE. The browser needs to know which engine
+      // and which build answered; where it sits on disk is the host's business.
+      //
+      // The refusal path above is not equally clean, and saying so beats implying otherwise: an
+      // adapter that cannot find its checkout names the path it tried, that text becomes the child's
+      // stderr, and runner.ts puts stderr into `detail`. Left as it is on purpose - the route is
+      // host-only, so it is the host's own path in the host's own browser, and a person debugging
+      // "engine not found" needs to see which path was tried.
       engine: { name: outcome.engine.name, version: outcome.engine.version },
     });
   } finally {
