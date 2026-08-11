@@ -7,7 +7,18 @@
  * "travels fine", a nested lookup lost inside its container.
  */
 import { describe, expect, it } from "bun:test";
-import { buildResolveAsk, readMacros, travelFor, VERDICT_LABEL } from "./lab-core";
+import { PRESET_WRITE_FOR_PROFILES } from "../../../core/preset/capabilities";
+import {
+  bibleFor,
+  buildResolveAsk,
+  filterBible,
+  insertToken,
+  LAB_LENSES,
+  operationRows,
+  readMacros,
+  travelFor,
+  VERDICT_LABEL,
+} from "./lab-core";
 
 describe("readMacros", () => {
   it("says nothing at all about text with no macros in it", () => {
@@ -170,5 +181,120 @@ describe("buildResolveAsk", () => {
   it("passes the text through exactly, whitespace and all", () => {
     const text = "  {{char}}\n\n  ";
     expect(buildResolveAsk("marinara", text, empty).text).toBe(text);
+  });
+});
+
+describe("LAB_LENSES", () => {
+  /**
+   * The lab shows platforms, and "Hoplight" is not one. `full` is the canonical superset lens whose
+   * catalog IS RoleCall's, so offering it here meant a duplicate column under a name with no engine
+   * behind it - and a verdict reading "in this engine's catalog" about an engine that does not exist.
+   */
+  it("offers no Hoplight lens, because Hoplight runs no macros", () => {
+    expect(LAB_LENSES).not.toContain("full");
+    expect(LAB_LENSES).toEqual(["rolecall", "sillytavern", "marinara", "lumiverse"]);
+  });
+
+  it("never routes a travel row through it either", () => {
+    // The duplicate would otherwise reappear here: `full` and `rolecall` answer identically.
+    expect(travelFor("{{char}}", "sillytavern").some((r) => r.lens === "full")).toBe(false);
+  });
+
+  it("leaves the write-for profiles alone, which the Workbench still needs whole", () => {
+    expect(PRESET_WRITE_FOR_PROFILES).toContain("full");
+  });
+});
+
+describe("insertToken", () => {
+  it("drops the token at the caret", () => {
+    expect(insertToken("ab", "{{char}}", 1, 1)).toEqual({ text: "a{{char}}b", caret: 9 });
+  });
+
+  it("replaces a selection rather than pushing it aside", () => {
+    expect(insertToken("hello world", "{{char}}", 0, 5).text).toBe("{{char}} world");
+  });
+
+  it("handles a backwards selection, which a drag to the left produces", () => {
+    expect(insertToken("hello", "X", 4, 1)).toEqual({ text: "hXo", caret: 2 });
+  });
+
+  it("appends when the box has never been focused", () => {
+    expect(insertToken("abc", "{{x}}", 3, 3).text).toBe("abc{{x}}");
+  });
+
+  /**
+   * A caret index can be stale by the time a click lands - the text may have shrunk under it.
+   * Clamping appends; refusing would throw away the macro somebody just asked for.
+   */
+  it("clamps a stale or nonsense position instead of losing the insert", () => {
+    expect(insertToken("abc", "X", 99, 99).text).toBe("abcX");
+    expect(insertToken("abc", "X", -5, -5).text).toBe("Xabc");
+    expect(insertToken("", "X", 0, 0)).toEqual({ text: "X", caret: 1 });
+  });
+});
+
+describe("operationRows", () => {
+  it("is derived from the catalogs, so every row has at least one real spelling", () => {
+    const rows = operationRows();
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) expect(row.carriedBy).toBeGreaterThan(0);
+  });
+
+  it("gives every lens a cell, present or not, so a gap cannot be mistaken for a missing column", () => {
+    for (const row of operationRows()) {
+      expect(row.byLens.map((c) => c.lens)).toEqual([...LAB_LENSES]);
+    }
+  });
+
+  /** The gaps are the finding, so they sort to where they get read. */
+  it("puts the least portable operations first", () => {
+    const counts = operationRows().map((r) => r.carriedBy);
+    expect([...counts].sort((a, b) => a - b)).toEqual(counts);
+  });
+
+  it("keeps a real known gap: only one platform counts the whole prompt's tokens", () => {
+    const row = operationRows().find((r) => r.op === "prompt.tokencount");
+    expect(row).toBeDefined();
+    const withIt = row!.byLens.filter((c) => c.forms.length > 0).map((c) => c.lens);
+    expect(withIt).toEqual(["rolecall"]);
+  });
+
+  it("carries a collision as two spellings of two different operations, not one row", () => {
+    // {{random::a::b}} is a pick on SillyTavern and a range on RoleCall. If ops collapsed them the
+    // table would show agreement over the exact case that silently breaks.
+    const pick = operationRows().find((r) => r.op === "random.pick");
+    const range = operationRows().find((r) => r.op === "random.range");
+    expect(pick).toBeDefined();
+    expect(range).toBeDefined();
+    expect(range!.byLens.find((c) => c.lens === "sillytavern")!.forms).toEqual([]);
+  });
+});
+
+describe("filterBible", () => {
+  const groups = bibleFor("sillytavern");
+
+  it("returns everything when nothing was asked for", () => {
+    expect(filterBible(groups, "   ")).toEqual(groups);
+  });
+
+  it("matches a macro by name", () => {
+    const hits = filterBible(groups, "char").flatMap((g) => g.macros);
+    expect(hits.length).toBeGreaterThan(0);
+    expect(hits.some((m) => m.macro.includes("char"))).toBe(true);
+  });
+
+  it("matches on meaning, because the name is the part somebody does not know yet", () => {
+    const hits = filterBible(groups, "random").flatMap((g) => g.macros);
+    expect(hits.some((m) => !m.macro.toLowerCase().includes("random"))).toBe(true);
+  });
+
+  it("drops groups it emptied instead of leaving bare headings", () => {
+    for (const group of filterBible(groups, "char")) {
+      expect(group.macros.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("answers nothing for a search nothing matches", () => {
+    expect(filterBible(groups, "zzzz-not-a-macro")).toEqual([]);
   });
 });

@@ -1,0 +1,70 @@
+/**
+ * The operations table, in its own sheet because it is the one thing here shaped like a grid.
+ *
+ * Wide by nature - one column per platform - so it scrolls INSIDE its own container and the room
+ * never scrolls sideways. OpsPane also imports styles.module.css for the shared box chrome and the
+ * insert pill, which it has in common with the bible rather than with a table.
+ */
+
+.tableWrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 2px solid var(--edge);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+
+.table th,
+.table td {
+  padding: 0.4rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 2px solid var(--edge);
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  font-family: var(--font-big);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--face);
+  white-space: nowrap;
+}
+
+.opCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  white-space: nowrap;
+}
+
+.opAction {
+  font-family: var(--font-big);
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.opFamily {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.gap { background: var(--stage-row, transparent); }
+
+.gapWord {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}

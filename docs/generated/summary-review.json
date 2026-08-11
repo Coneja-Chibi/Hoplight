@@ -342,9 +342,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "macro-lab-catalog-refresh-review",
-      "sourceHash": "sha256:3cd9a6004ab75dc9dd90a527a39a4d6b76353a4cfe6f4d4bdf063ea5b4ce3057",
-      "semanticSummaryHash": "sha256:43977de00445155c40986da75a4316ace694e06f1f0ebcac4e67789a9beb091f"
+      "reviewer": "macro-lab-panes-catalog-refresh",
+      "sourceHash": "sha256:dda4179186196dbdb6b5ccdbf73ad73adc7a4a950b8832a717f70a0c2824c6e1",
+      "semanticSummaryHash": "sha256:b010e7c765832ad25d2fd305b8b25562a7e026749b7a9ec362fe335c995b38e9"
     },
     {
       "docId": "reference/concepts/bundles",

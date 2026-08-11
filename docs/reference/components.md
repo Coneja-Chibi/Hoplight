@@ -24,6 +24,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BenchPane | src/ui/apps/workbench/regex/bench-pane.tsx | ({ ctx, rules, initialTab = "try", onClose, onImportPicked, }: BenchPaneProps) |  |  |
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
+| BiblePane | src/ui/apps/macro-lab/bible-pane.tsx | ({ lens, onInsert, }: { lens: PresetWriteForProfile; onInsert: (token: string) => void; }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
 | BlockContent | src/ui/apps/workbench/preset/block-content.tsx | ({ block, onPatch }: BlockContentProps) |  |  |
 | BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, groups = [], collapsedGroups, onToggleGroup, totalBlocks, tab, query, onClearQuery, onShowAll, selectedId,... |  |  |
@@ -136,6 +137,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | NewInDeckButton | src/ui/apps/library/new-in-deck-button.tsx | ({ kind, ctx, onCreated, compact = false }: NewInDeckButtonProps) |  |  |
 | NoMatchNotice | src/ui/apps/library/search-bar.tsx | ({ query, deckPlural, deckTotal, elsewhere, onJump, onClear, }: NoMatchNoticeProps) |  |  |
 | NovelAiBiasBlock | src/ui/apps/workbench/lore/platforms/novelai-bias.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
+| OpsPane | src/ui/apps/macro-lab/ops-pane.tsx | ({ onInsert }: { onInsert: (token: string) => void }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | OptionCards | src/ui/apps/workbench/controls/option-cards.tsx | ({ options, value, onSelect, styles }: OptionCardsProps) |  |  |
 | PackEditor | src/ui/apps/workbench/PackEditor.tsx | ({ entity, revision, ctx, piece, topRight }: PackEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |

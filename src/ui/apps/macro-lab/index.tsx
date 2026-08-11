@@ -12,15 +12,41 @@
  * editor, in a conversion, and on its own with no piece open at all. The last one is the common
  * case and had nowhere to live: every other surface here needs a piece first.
  */
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type JSX,
+} from "react";
 import type { AppContext, HoplightApp, MacroEngineInfo } from "../../app-contract";
 import { apiStatusIs } from "../../_shared/api-fetch";
 import type { PresetWriteForProfile } from "../../../core/preset/capabilities";
 import { PRESET_WRITE_FOR_LABELS } from "../../../core/preset/capabilities";
+import { BiblePane } from "./bible-pane";
 import { EnginePane, IDLE_ENGINE, type EngineState } from "./engine-pane";
-import { buildResolveAsk, LAB_LENSES, type VarRow } from "./lab-core";
+import { buildResolveAsk, insertToken, LAB_LENSES, type VarRow } from "./lab-core";
+import { OpsPane } from "./ops-pane";
 import { ReadingPane } from "./reading-pane";
 import styles from "./styles.module.css";
+
+/**
+ * The reference column's three views.
+ *
+ * TABBED RATHER THAN STACKED. Reading is about the text you wrote; the bible and the operations
+ * table are about the platform. Three of those in one scrolling column would bury the resolved
+ * output, which is the thing somebody pressed a button for - so the engine box keeps its place and
+ * only the reference beneath it changes.
+ */
+const VIEWS = [
+  { id: "reading", label: "Reading" },
+  { id: "bible", label: "Macro bible" },
+  { id: "operations", label: "Operations" },
+] as const;
+
+type ViewId = (typeof VIEWS)[number]["id"];
 
 /** flask-and-braces: the family grammar is flat ink, no gradients, no glow */
 const MARK_SVG =
@@ -41,6 +67,8 @@ export function MacroLab({ ctx }: { ctx: AppContext }): JSX.Element {
   const [char, setChar] = useState("");
   const [vars, setVars] = useState<VarRow[]>([{ key: "", value: "" }]);
   const [engineState, setEngineState] = useState<EngineState>(IDLE_ENGINE);
+  const [view, setView] = useState<ViewId>("reading");
+  const scratch = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +145,30 @@ export function MacroLab({ ctx }: { ctx: AppContext }): JSX.Element {
   const setVar = (index: number, patch: Partial<VarRow>): void =>
     setVars(vars.map((row, i) => (i === index ? { ...row, ...patch } : row)));
 
+  /**
+   * A macro clicked in the bible or the operations table lands at the caret.
+   *
+   * The caret is read off the live element rather than tracked in state, because a controlled
+   * textarea's selection is the DOM's to know and mirroring it would be a second copy that goes
+   * wrong on every re-render. Falling back to the end of the text is the right answer for a box
+   * that has never been focused - which is the common case for somebody who opened the bible first.
+   */
+  const insertAtCaret = useCallback((token: string): void => {
+    const box = scratch.current;
+    const at = box ? box.selectionStart : text.length;
+    const to = box ? box.selectionEnd : text.length;
+    const next = insertToken(text, token, at, to);
+    setText(next.text);
+    // After React has written the new value, put the caret past what was just inserted and give the
+    // box focus - otherwise the next click inserts at the old position and typing goes nowhere.
+    requestAnimationFrame(() => {
+      const el = scratch.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(next.caret, next.caret);
+    });
+  }, [text]);
+
   return (
     <div className={styles.room} style={{ "--a": ACCENT } as CSSProperties}>
       <header className={styles.head}>
@@ -153,6 +205,7 @@ export function MacroLab({ ctx }: { ctx: AppContext }): JSX.Element {
           </div>
 
           <textarea
+            ref={scratch}
             className={styles.source}
             value={text}
             spellCheck={false}
@@ -225,14 +278,32 @@ export function MacroLab({ ctx }: { ctx: AppContext }): JSX.Element {
           </div>
         </section>
 
-        <div className={styles.boxes} style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
+        <div className={styles.stack}>
           <EnginePane
             engine={engine}
             lensLabel={PRESET_WRITE_FOR_LABELS[lens]}
             state={engineState}
             onResolve={() => void resolve()}
           />
-          <ReadingPane text={text} lens={lens} />
+
+          <div className={styles.tabs} role="tablist" aria-label="Reference">
+            {VIEWS.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                role="tab"
+                aria-selected={v.id === view}
+                className={`${styles.tab}${v.id === view ? ` ${styles.tabOn}` : ""}`}
+                onClick={() => setView(v.id)}
+              >
+                {v.label}
+              </button>
+            ))}
+          </div>
+
+          {view === "reading" ? <ReadingPane text={text} lens={lens} /> : null}
+          {view === "bible" ? <BiblePane lens={lens} onInsert={insertAtCaret} /> : null}
+          {view === "operations" ? <OpsPane onInsert={insertAtCaret} /> : null}
         </div>
       </div>
     </div>

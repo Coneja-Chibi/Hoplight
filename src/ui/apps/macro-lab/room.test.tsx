@@ -84,6 +84,23 @@ const bodyText = (): string => host.textContent ?? "";
  * Anything another file in this suite claims, claim back.
  */
 const installGlobals = (): void => {
+  /**
+   * Silence a fallback path that cannot happen in a browser.
+   *
+   * Because react-dom decided at import time that it could not use `input` events (see the file
+   * header), focusing a field sends it down `handleEventsForInputEventPolyfill`, which calls
+   * `attachEvent` - an Internet Explorer API JSDOM rightly does not implement, so it throws a stack
+   * into the test output on every insert. Every browser since IE9 supports `input` events, so this
+   * path is unreachable in the artifact users get.
+   *
+   * No-ops rather than a working shim: the polyfill exists to synthesise change events we are not
+   * asserting on, and pretending to implement it would be inventing behaviour to test against.
+   * This repairs the harness's noise; it does not change what the app does.
+   */
+  const proto = dom.window.HTMLElement.prototype as unknown as Record<string, unknown>;
+  proto["attachEvent"] ??= () => undefined;
+  proto["detachEvent"] ??= () => undefined;
+
   Object.assign(globalThis, {
     window: dom.window,
     document: dom.window.document,
@@ -269,14 +286,65 @@ describe("Macro Lab", () => {
     unmountLab(flushSync);
   });
 
-  test("the canonical lens does not claim an engine it has no runtime for", async () => {
+  test("offers no Hoplight platform, because Hoplight runs no macros", async () => {
     const flushSync = await mountLab();
-    await press(flushSync, byText("Hoplight")!);
+    // It was a button showing RoleCall's macro list under a name with no engine behind it.
+    expect(byText("Hoplight")).toBeUndefined();
+    for (const real of ["RoleCall", "SillyTavern", "Marinara", "Lumiverse"]) {
+      expect(byText(real)).toBeDefined();
+    }
+    unmountLab(flushSync);
+  });
+
+  test("the macro bible lists this platform's own macros and inserts one on click", async () => {
+    const flushSync = await mountLab();
+    await press(flushSync, byText("Macro bible")!);
+
+    const box = host.querySelector("textarea") as HTMLTextAreaElement;
+    const before = box.value;
+    expect(bodyText()).toContain("macros");
+
+    // Open a group, then insert the first macro in it. Clicks are the one interaction this harness
+    // delivers reliably; the caret arithmetic itself is proven in lab-core.test.ts.
+    const group = buttons().find((b) => (b.textContent ?? "").includes("Identity"))
+      ?? buttons().find((b) => b.className.includes("groupHead"));
+    expect(group).toBeDefined();
+    await press(flushSync, group!);
+
+    const pill = buttons().find((b) => (b.textContent ?? "").startsWith("{{"));
+    expect(pill).toBeDefined();
+    await press(flushSync, pill!);
+
+    const box2 = host.querySelector("textarea") as HTMLTextAreaElement;
+    expect(box2.value).not.toBe(before);
+    expect(box2.value).toContain(pill!.textContent!);
+    unmountLab(flushSync);
+  });
+
+  test("the operations table shows the gaps, not only what exists", async () => {
+    const flushSync = await mountLab();
+    await press(flushSync, byText("Operations")!);
+
     const text = bodyText();
-    // "In this engine's catalog" names an engine, and Hoplight is a dialect - see macros/index.ts,
-    // which is explicit that vaud has no runtime and `full` simply mirrors RoleCall's catalog.
-    expect(text).not.toContain("in this engine's catalog");
-    expect(text).toContain("canonical superset dialect");
+    // A blank cell reads as "not filled in yet"; the word is the finding.
+    expect(text).toContain("none");
+    expect(text).toContain("with gaps");
+    // Every platform gets a column, so a gap cannot be mistaken for a missing engine.
+    for (const lens of ["RoleCall", "SillyTavern", "Marinara", "Lumiverse"]) {
+      expect(host.querySelectorAll("th")).not.toHaveLength(0);
+      expect(text).toContain(lens);
+    }
+    unmountLab(flushSync);
+  });
+
+  test("switching platform does not throw the reference away", async () => {
+    const flushSync = await mountLab();
+    await press(flushSync, byText("Macro bible")!);
+    await press(flushSync, byText("Marinara")!);
+    // Still on the bible, now Marinara's. Kicking somebody back to Reading for changing platform
+    // would undo the comparison they are in the middle of making.
+    expect(bodyText()).toContain("Macro bible");
+    expect(bodyText()).toContain("Marinara's own");
     unmountLab(flushSync);
   });
 });

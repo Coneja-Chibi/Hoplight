@@ -11,14 +11,7 @@
 import { useState, type JSX } from "react";
 import type { PresetWriteForProfile } from "../../../core/preset/capabilities";
 import { PRESET_WRITE_FOR_LABELS } from "../../../core/preset/capabilities";
-import {
-  DIALECT_ONLY_NOTE,
-  isDialectOnly,
-  readMacros,
-  travelFor,
-  verdictLabel,
-  type MacroReading,
-} from "./lab-core";
+import { readMacros, travelFor, VERDICT_LABEL, type MacroReading } from "./lab-core";
 import styles from "./styles.module.css";
 
 /** One token, its meaning on this lens, and (on request) where it can travel. */
@@ -39,7 +32,7 @@ function TokenRow({
         <span
           className={`${styles.verdict}${row.verdict === "known" ? ` ${styles.verdictKnown}` : ""}`}
         >
-          {verdictLabel(row.verdict, lens)}
+          {VERDICT_LABEL[row.verdict]}
         </span>
       </div>
 
@@ -77,11 +70,7 @@ function TokenRow({
               <span className={styles.travelLens}>{PRESET_WRITE_FOR_LABELS[t.lens]}</span>
               <span className={t.kind === "same" ? styles.travelSame : styles.travelFlag}>
                 {t.kind === "same"
-                  // "works there" is a claim about a host. The canonical lens is a dialect with no
-                  // engine anywhere, so for it the honest claim is only that the spelling survives.
-                  ? isDialectOnly(t.lens)
-                    ? "carried by the canonical dialect"
-                    : "the same token works there"
+                  ? "the same token works there"
                   : t.becomes
                     ? `${t.becomes} - ${t.why}`
                     : t.why}
@@ -139,11 +128,9 @@ export function ReadingPane({
           </ul>
 
           <p className={styles.quiet}>
-            {isDialectOnly(lens)
-              ? DIALECT_ONLY_NOTE
-              : `Read from our catalog of ${label}, which is transcribed from that engine's own `
-                + "capability source and matches on macro NAME. A name being present is not a "
-                + "promise about its arguments. For that, resolve it."}
+            {`Read from our catalog of , which is transcribed from that engine's own `
+              + "capability source and matches on macro NAME. A name being present is not a promise "
+              + "about its arguments. For that, resolve it."}
           </p>
         </>
       )}

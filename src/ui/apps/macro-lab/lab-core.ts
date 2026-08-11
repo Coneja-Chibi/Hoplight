@@ -18,6 +18,8 @@
  */
 import type { PresetWriteForProfile } from "../../../core/preset/capabilities";
 import { PRESET_WRITE_FOR_PROFILES } from "../../../core/preset/capabilities";
+import { macroGroupsForProfile, type MacroEntry, type MacroGroup } from "../../../core/preset/macros";
+import { opFamily, type MacroOp } from "../../../core/preset/macros/ops";
 import {
   findMacro,
   macroName,
@@ -25,6 +27,23 @@ import {
   supportedMacroNames,
 } from "../../../core/preset/macros/support";
 import { translateText, type MacroChangeKind } from "../../../core/preset/macros/translate";
+
+/**
+ * The platforms this screen offers, which is NOT every write-for lens.
+ *
+ * `full` is deliberately absent. It is the canonical superset lens the Workbench needs so a preset
+ * can be authored without committing to a host - but its catalog IS RoleCall's
+ * (CATALOG_BY_PROFILE.full = ROLECALL_MACRO_GROUPS, because vaud has no runtime of its own and
+ * inventing a dialect nothing executes would be worse). On a macro lab it was therefore a button
+ * labelled "Hoplight" showing RoleCall's macro list, under a verdict reading "in this engine's
+ * catalog" that named an engine which does not exist: a duplicate column and a false claim.
+ *
+ * PRESET_WRITE_FOR_PROFILES itself is untouched. The Workbench's Write-for control still needs
+ * `full`; this is a question about what somebody can be shown a macro REFERENCE for.
+ */
+export const LAB_LENSES: readonly PresetWriteForProfile[] = PRESET_WRITE_FOR_PROFILES.filter(
+  (p) => p !== "full",
+);
 
 /**
  * What the catalog can say about one token.
@@ -117,7 +136,9 @@ export interface TravelRow {
  */
 export function travelFor(token: string, from: PresetWriteForProfile): TravelRow[] {
   const rows: TravelRow[] = [];
-  for (const lens of PRESET_WRITE_FOR_PROFILES) {
+  // LAB_LENSES, not every write-for profile: a "Hoplight" row would repeat RoleCall's answer under
+  // a name with no engine behind it. See LAB_LENSES.
+  for (const lens of LAB_LENSES) {
     if (lens === from) continue;
     const out = translateText(token, from, lens, "lab");
     const change = out.changes[0];
@@ -131,32 +152,6 @@ export function travelFor(token: string, from: PresetWriteForProfile): TravelRow
   return rows;
 }
 
-/** The lenses, in the order the picker shows them. */
-export const LAB_LENSES: readonly PresetWriteForProfile[] = PRESET_WRITE_FOR_PROFILES;
-
-/**
- * The lens that is a DIALECT rather than a host.
- *
- * "Hoplight" is offered because people really do author against the canonical superset - but no
- * Hoplight engine exists. macros/index.ts is explicit: vaud has no runtime of its own, so the `full`
- * catalog IS RoleCall's, chosen to avoid inventing a dialect nothing runs. Everything this screen
- * says about a lens therefore has to be qualified for this one, or the reading half quietly claims a
- * host: "in this engine's catalog" names an engine that does not exist, and a travel row reading
- * "the same token works there" is a portability promise about nowhere.
- *
- * Kept in the picker and labelled, rather than dropped. Someone writing canonical macros needs the
- * reference; what they must not be given is the impression that something will run it.
- */
-export const DIALECT_ONLY_LENS: PresetWriteForProfile = "full";
-
-/** True when this lens describes a dialect nobody executes. */
-export const isDialectOnly = (lens: PresetWriteForProfile): boolean => lens === DIALECT_ONLY_LENS;
-
-/** What the reading half must add when the chosen lens has no engine behind it anywhere. */
-export const DIALECT_ONLY_NOTE =
-  "Hoplight is the canonical superset dialect, not a program that runs macros. Its catalog is "
-  + "RoleCall's, because inventing a dialect nothing executes would be worse. Nothing can resolve "
-  + "text for this lens - pick the platform you are actually writing for to see that.";
 
 /** One pretend variable as the panel holds it: a row that may be half-typed or blank. */
 export interface VarRow {
@@ -221,15 +216,135 @@ export const VERDICT_LABEL: Record<MacroVerdict, string> = {
   "invokes-nothing": "invokes no macro",
 };
 
+/** One canonical operation, and how each platform spells it. */
+export interface OperationRow {
+  readonly op: MacroOp;
+  /** the dotted family, so near neighbours group together */
+  readonly family: string;
+  /** every platform, in lens order; `forms` is empty for one that cannot do this at all */
+  readonly byLens: readonly { lens: PresetWriteForProfile; forms: readonly MacroEntry[] }[];
+  /** how many platforms have it, so the gaps can be sorted to where they get read */
+  readonly carriedBy: number;
+}
+
 /**
- * The verdict as this lens may honestly state it.
+ * The operations table: what each engine calls the same idea, and where nobody has one.
  *
- * "In this engine's catalog" names an engine, and the canonical lens has none - so for that one the
- * same finding has to be worded as what it is, a dialect entry.
+ * DERIVED FROM THE CATALOGS, NEVER WRITTEN DOWN. ops.ts defines the vocabulary and each catalog
+ * annotates its own entries; a hand-kept table of the join would be a second authority that goes
+ * stale the first time a catalog gains an entry, which is the failure this repo's hub-and-spoke
+ * macro model exists to avoid in the first place.
+ *
+ * THE EMPTY CELLS ARE THE POINT. "SillyTavern has no macro for this operation" is the thing that
+ * tells somebody their prompt will not survive the move - a table showing only what exists reads as
+ * universal coverage. Rows are ordered by how many platforms carry them, gaps first, so the
+ * portability problems are at the top rather than buried alphabetically.
+ *
+ * ONLY ANNOTATED ENTRIES APPEAR, and that is honest rather than partial: ops.ts is explicit that
+ * annotation is for divergence, not completeness, so the ~74 names that already agree across engines
+ * carry no op and belong in the macro bible instead. This table answers "where do the engines
+ * disagree", which is a different question from "what macros are there".
  */
-export const verdictLabel = (verdict: MacroVerdict, lens: PresetWriteForProfile): string => {
-  if (!isDialectOnly(lens)) return VERDICT_LABEL[verdict];
-  if (verdict === "known") return "in the canonical dialect";
-  if (verdict === "unknown") return "not in the canonical dialect";
-  return VERDICT_LABEL[verdict];
-};
+export function operationRows(): OperationRow[] {
+  const seen = new Map<MacroOp, Map<PresetWriteForProfile, MacroEntry[]>>();
+  for (const lens of LAB_LENSES) {
+    for (const group of macroGroupsForProfile(lens)) {
+      for (const entry of group.macros) {
+        if (!entry.op) continue;
+        let perLens = seen.get(entry.op);
+        if (!perLens) {
+          perLens = new Map<PresetWriteForProfile, MacroEntry[]>();
+          seen.set(entry.op, perLens);
+        }
+        const forms = perLens.get(lens) ?? [];
+        forms.push(entry);
+        perLens.set(lens, forms);
+      }
+    }
+  }
+
+  const rows: OperationRow[] = [];
+  for (const [op, perLens] of seen) {
+    const byLens = LAB_LENSES.map((lens) => ({ lens, forms: perLens.get(lens) ?? [] }));
+    rows.push({
+      op,
+      family: opFamily(op),
+      byLens,
+      carriedBy: byLens.filter((c) => c.forms.length > 0).length,
+    });
+  }
+  // Gaps first, then families together, so a reader scanning for trouble finds it immediately.
+  return rows.sort((a, b) => a.carriedBy - b.carriedBy || a.op.localeCompare(b.op));
+}
+
+/** Where a token goes when somebody clicks it in the bible, and what the text becomes. */
+export interface Insertion {
+  readonly text: string;
+  /** where the caret belongs afterwards: just past what was inserted */
+  readonly caret: number;
+}
+
+/**
+ * Insert a token into the scratch text at the caret, replacing any selection.
+ *
+ * PURE, BECAUSE THE COMPONENT CANNOT PROVE THIS. Insertion arithmetic is exactly the kind of thing
+ * that is wrong at the edges - caret at 0, caret at the end, a selection spanning the whole box, a
+ * stale caret past the end of a shortened text - and none of it can be exercised through the
+ * component, since react-dom in this suite never delivers onChange for a text field (see
+ * buildResolveAsk).
+ *
+ * Out-of-range positions are clamped rather than refused. A caret index can legitimately be stale by
+ * the time a click lands, and appending is a far better answer to that than throwing away what
+ * somebody just asked for.
+ */
+export function insertToken(
+  text: string,
+  token: string,
+  selectionStart: number,
+  selectionEnd: number,
+): Insertion {
+  const clamp = (n: number): number => Math.max(0, Math.min(text.length, Math.trunc(n) || 0));
+  const lo = Math.min(clamp(selectionStart), clamp(selectionEnd));
+  const hi = Math.max(clamp(selectionStart), clamp(selectionEnd));
+  return {
+    text: `${text.slice(0, lo)}${token}${text.slice(hi)}`,
+    caret: lo + token.length,
+  };
+}
+
+/**
+ * Every macro this platform has, grouped the way its catalog groups them.
+ *
+ * A thin pass-through today, and named anyway: the bible pane should ask "what does this platform
+ * have" rather than reach into core's catalog layout, so a change to how catalogs are organised
+ * lands in one place instead of inside a component.
+ */
+export function bibleFor(lens: PresetWriteForProfile): MacroGroup[] {
+  return macroGroupsForProfile(lens);
+}
+
+/** How many macros a platform publishes, counting aliases as the one macro they alias. */
+export const bibleSize = (lens: PresetWriteForProfile): number =>
+  bibleFor(lens).reduce((n, group) => n + group.macros.length, 0);
+
+/**
+ * The bible narrowed to what somebody is looking for.
+ *
+ * NEEDED, NOT ORNAMENTAL: Lumiverse publishes 238 macros and RoleCall 176, so an unfiltered wall of
+ * pills is a reference nobody reads. Matching covers the token, its description and its aliases,
+ * because "the one that gives me the character's name" is how people actually search - the name is
+ * the thing they do not know yet.
+ *
+ * Groups that end up empty are dropped rather than shown as empty headings.
+ */
+export function filterBible(groups: readonly MacroGroup[], query: string): MacroGroup[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return groups as MacroGroup[];
+  const hit = (entry: MacroEntry): boolean =>
+    entry.macro.toLowerCase().includes(needle)
+    || entry.description.toLowerCase().includes(needle)
+    || (entry.aliases ?? []).some((a) => a.toLowerCase().includes(needle));
+  return groups
+    .map((group) => ({ ...group, macros: group.macros.filter(hit) }))
+    .filter((group) => group.macros.length > 0);
+}
