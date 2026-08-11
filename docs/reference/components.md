@@ -24,7 +24,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BenchPane | src/ui/apps/workbench/regex/bench-pane.tsx | ({ ctx, rules, initialTab = "try", onClose, onImportPicked, }: BenchPaneProps) |  |  |
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
-| BiblePane | src/ui/apps/macro-lab/bible-pane.tsx | ({ lens, onInsert, }: { lens: PresetWriteForProfile; onInsert: (token: string) => void; }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
+| BiblePane | src/ui/apps/macro-lab/bible-pane.tsx | ({ lens, onInsert, }: { lens: MacroDialect; onInsert: (token: string) => void; }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
 | BlockContent | src/ui/apps/workbench/preset/block-content.tsx | ({ block, onPatch }: BlockContentProps) |  |  |
 | BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, groups = [], collapsedGroups, onToggleGroup, totalBlocks, tab, query, onClearQuery, onShowAll, selectedId,... |  |  |
@@ -158,7 +158,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, writeFor, groups, onSetGroup, onClose, onPatch, }: PromptEditPanelProps) |  |  |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
-| ReadingPane | src/ui/apps/macro-lab/reading-pane.tsx | ({ text, lens, }: { text: string; lens: PresetWriteForProfile; }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
+| ReadingPane | src/ui/apps/macro-lab/reading-pane.tsx | ({ text, lens, }: { text: string; lens: MacroDialect; }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, revision, ctx, piece, topRight }: RegexSetEditorProps) |  |  |
 | RegexWorkshopDialog | src/ui/apps/library/regex-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: RegexWorkshopDialogProps) |  |  |

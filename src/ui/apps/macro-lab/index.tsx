@@ -23,8 +23,7 @@ import {
 } from "react";
 import type { AppContext, HoplightApp, MacroEngineInfo } from "../../app-contract";
 import { apiStatusIs } from "../../_shared/api-fetch";
-import type { PresetWriteForProfile } from "../../../core/preset/capabilities";
-import { PRESET_WRITE_FOR_LABELS } from "../../../core/preset/capabilities";
+import { MACRO_DIALECT_LABELS, type MacroDialect } from "../../../core/preset/macros";
 import { BiblePane } from "./bible-pane";
 import { EnginePane, IDLE_ENGINE, type EngineState } from "./engine-pane";
 import { buildResolveAsk, insertToken, LAB_LENSES, type VarRow } from "./lab-core";
@@ -61,7 +60,7 @@ const ACCENT = "#7a5cc4"; // hardcode-ok: app identity accent, not theme chrome
 
 export function MacroLab({ ctx }: { ctx: AppContext }): JSX.Element {
   const [text, setText] = useState(STARTER);
-  const [lens, setLens] = useState<PresetWriteForProfile>("sillytavern");
+  const [lens, setLens] = useState<MacroDialect>("sillytavern");
   const [engines, setEngines] = useState<MacroEngineInfo[]>([]);
   const [user, setUser] = useState("");
   const [char, setChar] = useState("");
@@ -191,7 +190,7 @@ export function MacroLab({ ctx }: { ctx: AppContext }): JSX.Element {
             className={`${styles.lens}${id === lens ? ` ${styles.lensOn}` : ""}`}
             onClick={() => setLens(id)}
           >
-            {PRESET_WRITE_FOR_LABELS[id]}
+            {MACRO_DIALECT_LABELS[id]}
             {engines.some((e) => e.id === id) ? " ·" : ""}
           </button>
         ))}
@@ -281,7 +280,7 @@ export function MacroLab({ ctx }: { ctx: AppContext }): JSX.Element {
         <div className={styles.stack}>
           <EnginePane
             engine={engine}
-            lensLabel={PRESET_WRITE_FOR_LABELS[lens]}
+            lensLabel={MACRO_DIALECT_LABELS[lens]}
             state={engineState}
             onResolve={() => void resolve()}
           />

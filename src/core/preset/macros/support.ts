@@ -20,7 +20,7 @@
 import type { PresetWriteForProfile } from "../capabilities";
 import { PRESET_WRITE_FOR_PROFILES } from "../capabilities";
 import type { MacroEntry } from "./types";
-import { macroGroupsForProfile } from "./index";
+import { macroGroupsForDialect, type MacroDialect } from "./index";
 
 /**
  * Every {{token}} in a chunk of prompt text, in source order, duplicates kept. Nested arguments are
@@ -101,14 +101,14 @@ export function macroName(token: string): string {
   return (/^[A-Za-z_][A-Za-z0-9_]*/.exec(inner)?.[0] ?? "").toLowerCase();
 }
 
-const namesCache = new Map<PresetWriteForProfile, ReadonlySet<string>>();
+const namesCache = new Map<MacroDialect, ReadonlySet<string>>();
 
 /** Every macro name the profile's engine advertises. */
-export function supportedMacroNames(profile: PresetWriteForProfile): ReadonlySet<string> {
+export function supportedMacroNames(profile: MacroDialect): ReadonlySet<string> {
   const hit = namesCache.get(profile);
   if (hit) return hit;
   const names = new Set(
-    macroGroupsForProfile(profile)
+    macroGroupsForDialect(profile)
       .flatMap((g) => g.macros)
       .flatMap((m) => [macroName(m.macro), ...(m.aliases ?? []).map((a) => a.toLowerCase())])
       .filter(Boolean),
@@ -118,17 +118,17 @@ export function supportedMacroNames(profile: PresetWriteForProfile): ReadonlySet
 }
 
 /** Does this engine have a macro by that name? Name-level only - see the file header. */
-export function isMacroSupported(profile: PresetWriteForProfile, token: string): boolean {
+export function isMacroSupported(profile: MacroDialect, token: string): boolean {
   const name = macroName(token);
   if (!name) return true; // comments/shorthands invoke nothing; never flag them as dead
   return supportedMacroNames(profile).has(name);
 }
 
 /** The catalog entry for a token on that engine, so callers can show its REAL form. */
-export function findMacro(profile: PresetWriteForProfile, token: string): MacroEntry | null {
+export function findMacro(profile: MacroDialect, token: string): MacroEntry | null {
   const name = macroName(token);
   if (!name) return null;
-  for (const g of macroGroupsForProfile(profile)) {
+  for (const g of macroGroupsForDialect(profile)) {
     for (const m of g.macros) {
       if (macroName(m.macro) === name) return m;
       if (m.aliases?.some((a) => a.toLowerCase() === name)) return m;
@@ -142,7 +142,7 @@ export function findMacro(profile: PresetWriteForProfile, token: string): MacroE
  * order. These will not resolve on that host. A token's ABSENCE from this list is not a promise it
  * behaves the same there.
  */
-export function unsupportedIn(text: string, profile: PresetWriteForProfile): string[] {
+export function unsupportedIn(text: string, profile: MacroDialect): string[] {
   const seen = new Set<string>();
   const dead: string[] = [];
   for (const tok of scanMacroTokens(text)) {

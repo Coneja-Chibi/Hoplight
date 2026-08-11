@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:dda4179186196dbdb6b5ccdbf73ad73adc7a4a950b8832a717f70a0c2824c6e1",
-  "semanticSummaryHash": "sha256:b010e7c765832ad25d2fd305b8b25562a7e026749b7a9ec362fe335c995b38e9",
+  "sourceHash": "sha256:cb41c95e973e36b6d78328c418d6bca4995b325977f25fa5451a3b7e626c49bb",
+  "semanticSummaryHash": "sha256:2e1dca3bad4510e9e379d3a323e56870ff1fd565bcfc755cd8c6259147d7b6ee",
   "verdict": "APPROVE",
-  "reviewer": "macro-lab-panes-catalog-refresh",
-  "notes": "Generated catalog refresh, verified against the diff: two added rows (BiblePane, OpsPane from src/ui/apps/macro-lab), no removals, no changed signatures on existing entries. The page's prose describes what the generated file is and how to regenerate it, unchanged by adding rows, so the semantic summary and topics still hold without edit.",
-  "reviewedAt": "2026-08-11T05:49:25.302Z"
+  "reviewer": "risu-dialect-catalog-refresh",
+  "notes": "Generated catalog refresh, verified against the diff: no component rows added or removed, only signature text changed where macro-lab panes now take MacroDialect instead of PresetWriteForProfile. The page describes what the generated file is and how to regenerate it, which a type rename does not alter, so the semantic summary and topics stand unedited.",
+  "reviewedAt": "2026-08-11T07:59:50.647Z"
 }

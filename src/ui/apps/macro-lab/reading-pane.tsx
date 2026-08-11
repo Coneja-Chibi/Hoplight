@@ -9,9 +9,15 @@
  * It runs on every keystroke because it is pure and local. The engine box deliberately does not.
  */
 import { useState, type JSX } from "react";
-import type { PresetWriteForProfile } from "../../../core/preset/capabilities";
-import { PRESET_WRITE_FOR_LABELS } from "../../../core/preset/capabilities";
-import { readMacros, travelFor, VERDICT_LABEL, type MacroReading } from "./lab-core";
+import { MACRO_DIALECT_LABELS, type MacroDialect } from "../../../core/preset/macros";
+import {
+  dialectTranslates,
+  NO_TRANSLATION_NOTE,
+  readMacros,
+  travelFor,
+  VERDICT_LABEL,
+  type MacroReading,
+} from "./lab-core";
 import styles from "./styles.module.css";
 
 /** One token, its meaning on this lens, and (on request) where it can travel. */
@@ -20,7 +26,7 @@ function TokenRow({
   lens,
 }: {
   row: MacroReading;
-  lens: PresetWriteForProfile;
+  lens: MacroDialect;
 }): JSX.Element {
   const [open, setOpen] = useState(false);
   const travel = open && row.name ? travelFor(row.token, lens) : [];
@@ -57,7 +63,11 @@ function TokenRow({
         </p>
       ) : null}
 
-      {row.name ? (
+      {/*
+        Offered only where an answer exists. A dialect the translator does not model would open to
+        an empty list, which reads as "it goes nowhere" - the opposite of "we have not checked".
+      */}
+      {row.name && dialectTranslates(lens) ? (
         <button type="button" className={styles.more} onClick={() => setOpen(!open)}>
           {open ? "Hide other platforms" : "Where else does it work"}
         </button>
@@ -67,7 +77,7 @@ function TokenRow({
         <ul className={styles.travel}>
           {travel.map((t) => (
             <li key={t.lens} className={styles.travelRow}>
-              <span className={styles.travelLens}>{PRESET_WRITE_FOR_LABELS[t.lens]}</span>
+              <span className={styles.travelLens}>{MACRO_DIALECT_LABELS[t.lens]}</span>
               <span className={t.kind === "same" ? styles.travelSame : styles.travelFlag}>
                 {t.kind === "same"
                   ? "the same token works there"
@@ -88,10 +98,10 @@ export function ReadingPane({
   lens,
 }: {
   text: string;
-  lens: PresetWriteForProfile;
+  lens: MacroDialect;
 }): JSX.Element {
   const reading = readMacros(text, lens);
-  const label = PRESET_WRITE_FOR_LABELS[lens];
+  const label = MACRO_DIALECT_LABELS[lens];
 
   return (
     <section className={styles.box} aria-label="What the catalog says">
@@ -128,10 +138,15 @@ export function ReadingPane({
           </ul>
 
           <p className={styles.quiet}>
-            {`Read from our catalog of , which is transcribed from that engine's own `
+            {`Read from our catalog of ${label}, which is transcribed from that engine's own `
               + "capability source and matches on macro NAME. A name being present is not a promise "
               + "about its arguments. For that, resolve it."}
           </p>
+
+          {/* Said once at the foot rather than beside every row, where it would be noise. */}
+          {dialectTranslates(lens) ? null : (
+            <p className={styles.quiet}>{NO_TRANSLATION_NOTE}</p>
+          )}
         </>
       )}
     </section>

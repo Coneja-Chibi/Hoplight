@@ -10,6 +10,11 @@ import { describe, expect, it } from "bun:test";
 import { PRESET_WRITE_FOR_PROFILES } from "../../../core/preset/capabilities";
 import {
   bibleFor,
+  bibleSize,
+  dialectTranslates,
+  NO_TRANSLATION_NOTE,
+  OPERATION_ABSENT,
+  OPERATION_LENSES,
   buildResolveAsk,
   filterBible,
   insertToken,
@@ -192,7 +197,7 @@ describe("LAB_LENSES", () => {
    */
   it("offers no Hoplight lens, because Hoplight runs no macros", () => {
     expect(LAB_LENSES).not.toContain("full");
-    expect(LAB_LENSES).toEqual(["rolecall", "sillytavern", "marinara", "lumiverse"]);
+    expect(LAB_LENSES).toEqual(["rolecall", "sillytavern", "marinara", "lumiverse", "risu"]);
   });
 
   it("never routes a travel row through it either", () => {
@@ -240,9 +245,11 @@ describe("operationRows", () => {
     for (const row of rows) expect(row.carriedBy).toBeGreaterThan(0);
   });
 
-  it("gives every lens a cell, present or not, so a gap cannot be mistaken for a missing column", () => {
+  it("gives every column a cell, present or not, so a gap cannot be mistaken for a missing column", () => {
+    // OPERATION_LENSES, not LAB_LENSES: a dialect with no operation annotations has no column at
+    // all rather than a column of "none", which would report our gap as the engine's.
     for (const row of operationRows()) {
-      expect(row.byLens.map((c) => c.lens)).toEqual([...LAB_LENSES]);
+      expect(row.byLens.map((c) => c.lens)).toEqual([...OPERATION_LENSES]);
     }
   });
 
@@ -296,5 +303,46 @@ describe("filterBible", () => {
 
   it("answers nothing for a search nothing matches", () => {
     expect(filterBible(groups, "zzzz-not-a-macro")).toEqual([]);
+  });
+});
+
+describe("the Risu dialect in the lab", () => {
+  it("is offered as a platform, so its macro library is reachable with no checkout", () => {
+    expect(LAB_LENSES).toContain("risu");
+    expect(bibleSize("risu")).toBeGreaterThan(100);
+  });
+
+  it("reads text like any other dialect", () => {
+    const out = readMacros("{{char}} and {{hoplight_not_a_macro}}", "risu");
+    expect(out.tokens.map((t) => t.verdict)).toEqual(["known", "unknown"]);
+  });
+
+  /**
+   * Two absences that must be DELIBERATE, because both would otherwise read as findings about the
+   * engine rather than gaps in our model: an empty travel list says "this macro goes nowhere", and a
+   * column of "none" says "RisuAI cannot do randomness or conditionals". Both are false.
+   */
+  it("offers no travel answers rather than empty ones", () => {
+    expect(dialectTranslates("risu")).toBe(false);
+    expect(travelFor("{{char}}", "risu")).toEqual([]);
+  });
+
+  it("is left out of the operations table, and named as left out", () => {
+    expect(OPERATION_LENSES).not.toContain("risu");
+    expect(OPERATION_ABSENT).toEqual(["risu"]);
+    for (const row of operationRows()) {
+      expect(row.byLens.some((c) => c.lens === "risu")).toBe(false);
+    }
+  });
+
+  it("never becomes a travel TARGET either, for the same reason", () => {
+    // A row reading "RisuAI: the same token works there" would be a portability promise made from
+    // name matching alone - the exact check {{random::a::b}} defeats.
+    expect(travelFor("{{char}}", "sillytavern").some((r) => r.lens === "risu")).toBe(false);
+  });
+
+  it("says on screen why, rather than leaving the absence to be inferred", () => {
+    expect(NO_TRANSLATION_NOTE).toContain("RisuAI");
+    expect(NO_TRANSLATION_NOTE).toContain("operation annotations");
   });
 });

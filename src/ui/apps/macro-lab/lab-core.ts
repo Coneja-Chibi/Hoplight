@@ -16,9 +16,15 @@
  * Nothing here re-implements the lexer. The brace walk lives in core/preset/macros/support.ts and is
  * consumed through scanMacroTree, so a fix to nesting or to unmatched openers reaches this too.
  */
-import type { PresetWriteForProfile } from "../../../core/preset/capabilities";
 import { PRESET_WRITE_FOR_PROFILES } from "../../../core/preset/capabilities";
-import { macroGroupsForProfile, type MacroEntry, type MacroGroup } from "../../../core/preset/macros";
+import {
+  canTranslate,
+  macroGroupsForDialect,
+  MACRO_DIALECTS,
+  type MacroDialect,
+  type MacroEntry,
+  type MacroGroup,
+} from "../../../core/preset/macros";
 import { opFamily, type MacroOp } from "../../../core/preset/macros/ops";
 import {
   findMacro,
@@ -29,21 +35,35 @@ import {
 import { translateText, type MacroChangeKind } from "../../../core/preset/macros/translate";
 
 /**
- * The platforms this screen offers, which is NOT every write-for lens.
+ * The platforms this screen offers: every engine whose macro dialect we can document.
  *
- * `full` is deliberately absent. It is the canonical superset lens the Workbench needs so a preset
- * can be authored without committing to a host - but its catalog IS RoleCall's
- * (CATALOG_BY_PROFILE.full = ROLECALL_MACRO_GROUPS, because vaud has no runtime of its own and
- * inventing a dialect nothing executes would be worse). On a macro lab it was therefore a button
- * labelled "Hoplight" showing RoleCall's macro list, under a verdict reading "in this engine's
- * catalog" that named an engine which does not exist: a duplicate column and a false claim.
+ * A DIFFERENT AXIS FROM THE WRITE-FOR LENSES, in both directions.
  *
- * PRESET_WRITE_FOR_PROFILES itself is untouched. The Workbench's Write-for control still needs
- * `full`; this is a question about what somebody can be shown a macro REFERENCE for.
+ * `full` is absent. It is the canonical superset lens the Workbench needs so a preset can be
+ * authored without committing to a host - but its catalog IS RoleCall's, because vaud has no runtime
+ * and inventing a dialect nothing executes would be worse. Here it was a button labelled "Hoplight"
+ * showing RoleCall's macro list under a verdict naming an engine that does not exist.
+ *
+ * RisuAI is present, and is not a write-for lens. A person can read Risu's macro reference without
+ * Hoplight claiming it can author a preset for Risu - see MacroDialect.
  */
-export const LAB_LENSES: readonly PresetWriteForProfile[] = PRESET_WRITE_FOR_PROFILES.filter(
-  (p) => p !== "full",
-);
+export const LAB_LENSES: readonly MacroDialect[] = MACRO_DIALECTS;
+
+/**
+ * Can this dialect answer "what does my token become over there"?
+ *
+ * Only the ones the translator models. Risu's generated catalog carries no operation annotations, so
+ * every cross-engine answer for it would come from name matching alone - which is precisely the
+ * check that calls {{random::a::b}} portable between engines that disagree about what it means.
+ * Re-exported here so the panes ask one question rather than testing for a string.
+ */
+export const dialectTranslates = canTranslate;
+
+/** Said on screen wherever a reference-only dialect would otherwise show an empty answer. */
+export const NO_TRANSLATION_NOTE =
+  "Hoplight does not yet model how RisuAI's macros map onto the other engines, so it cannot tell "
+  + "you what this becomes elsewhere. Its catalog carries no operation annotations, and answering "
+  + "from names alone is what makes a macro look portable when it is not.";
 
 /**
  * What the catalog can say about one token.
@@ -84,7 +104,7 @@ export interface LabReading {
 }
 
 /** Read a piece of text through one lens's catalog. */
-export function readMacros(text: string, lens: PresetWriteForProfile): LabReading {
+export function readMacros(text: string, lens: MacroDialect): LabReading {
   const scanned = scanMacroTree(text);
   const known = supportedMacroNames(lens);
   const tokens: MacroReading[] = [];
@@ -118,7 +138,7 @@ export function readMacros(text: string, lens: PresetWriteForProfile): LabReadin
 
 /** What one token becomes on another lens. */
 export interface TravelRow {
-  readonly lens: PresetWriteForProfile;
+  readonly lens: MacroDialect;
   /** the token as that engine would need it written, or null when nothing carries it across */
   readonly becomes: string | null;
   /** the translator's own reason, in its words */
@@ -134,12 +154,15 @@ export interface TravelRow {
  * range on RoleCall, and the translator is the only thing here that models the difference. Answering
  * from name-presence alone would print "travels fine" over the exact case that silently does not.
  */
-export function travelFor(token: string, from: PresetWriteForProfile): TravelRow[] {
+export function travelFor(token: string, from: MacroDialect): TravelRow[] {
+  // A dialect the translator does not model can neither be a source nor a target: see
+  // NO_TRANSLATION_NOTE, which the pane shows in place of an empty list.
+  if (!canTranslate(from)) return [];
   const rows: TravelRow[] = [];
   // LAB_LENSES, not every write-for profile: a "Hoplight" row would repeat RoleCall's answer under
   // a name with no engine behind it. See LAB_LENSES.
   for (const lens of LAB_LENSES) {
-    if (lens === from) continue;
+    if (lens === from || !canTranslate(lens)) continue;
     const out = translateText(token, from, lens, "lab");
     const change = out.changes[0];
     if (!change) {
@@ -216,13 +239,30 @@ export const VERDICT_LABEL: Record<MacroVerdict, string> = {
   "invokes-nothing": "invokes no macro",
 };
 
+/**
+ * The columns the operations table can honestly carry.
+ *
+ * A DIALECT WITH NO OPERATION ANNOTATIONS CANNOT APPEAR HERE, and adding it anyway would be the
+ * loudest possible false claim: RisuAI plainly has randomness, conditionals and text shaping, so a
+ * RisuAI column reading "none" down all 21 rows would assert it can do none of them. The absence of
+ * an annotation is a gap in OUR model, and a table that renders our gaps as the engine's is worse
+ * than a table that leaves the engine out and says so.
+ *
+ * The way in is to annotate Risu's divergences by reading its parser, per entry - the same pass
+ * every other catalog had. Until then the bible carries Risu and this does not.
+ */
+export const OPERATION_LENSES: readonly MacroDialect[] = LAB_LENSES.filter(canTranslate);
+
+/** Dialects offered in the lens strip that the operations table cannot speak for. */
+export const OPERATION_ABSENT: readonly MacroDialect[] = LAB_LENSES.filter((l) => !canTranslate(l));
+
 /** One canonical operation, and how each platform spells it. */
 export interface OperationRow {
   readonly op: MacroOp;
   /** the dotted family, so near neighbours group together */
   readonly family: string;
   /** every platform, in lens order; `forms` is empty for one that cannot do this at all */
-  readonly byLens: readonly { lens: PresetWriteForProfile; forms: readonly MacroEntry[] }[];
+  readonly byLens: readonly { lens: MacroDialect; forms: readonly MacroEntry[] }[];
   /** how many platforms have it, so the gaps can be sorted to where they get read */
   readonly carriedBy: number;
 }
@@ -246,14 +286,14 @@ export interface OperationRow {
  * disagree", which is a different question from "what macros are there".
  */
 export function operationRows(): OperationRow[] {
-  const seen = new Map<MacroOp, Map<PresetWriteForProfile, MacroEntry[]>>();
-  for (const lens of LAB_LENSES) {
-    for (const group of macroGroupsForProfile(lens)) {
+  const seen = new Map<MacroOp, Map<MacroDialect, MacroEntry[]>>();
+  for (const lens of OPERATION_LENSES) {
+    for (const group of macroGroupsForDialect(lens)) {
       for (const entry of group.macros) {
         if (!entry.op) continue;
         let perLens = seen.get(entry.op);
         if (!perLens) {
-          perLens = new Map<PresetWriteForProfile, MacroEntry[]>();
+          perLens = new Map<MacroDialect, MacroEntry[]>();
           seen.set(entry.op, perLens);
         }
         const forms = perLens.get(lens) ?? [];
@@ -265,7 +305,7 @@ export function operationRows(): OperationRow[] {
 
   const rows: OperationRow[] = [];
   for (const [op, perLens] of seen) {
-    const byLens = LAB_LENSES.map((lens) => ({ lens, forms: perLens.get(lens) ?? [] }));
+    const byLens = OPERATION_LENSES.map((lens) => ({ lens, forms: perLens.get(lens) ?? [] }));
     rows.push({
       op,
       family: opFamily(op),
@@ -319,12 +359,12 @@ export function insertToken(
  * have" rather than reach into core's catalog layout, so a change to how catalogs are organised
  * lands in one place instead of inside a component.
  */
-export function bibleFor(lens: PresetWriteForProfile): MacroGroup[] {
-  return macroGroupsForProfile(lens);
+export function bibleFor(lens: MacroDialect): MacroGroup[] {
+  return macroGroupsForDialect(lens);
 }
 
 /** How many macros a platform publishes, counting aliases as the one macro they alias. */
-export const bibleSize = (lens: PresetWriteForProfile): number =>
+export const bibleSize = (lens: MacroDialect): number =>
   bibleFor(lens).reduce((n, group) => n + group.macros.length, 0);
 
 /**

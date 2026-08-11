@@ -13,8 +13,7 @@
  * paraphrases an engine's own words, because a paraphrase is a claim we would then have to defend.
  */
 import { useMemo, useState, type JSX } from "react";
-import type { PresetWriteForProfile } from "../../../core/preset/capabilities";
-import { PRESET_WRITE_FOR_LABELS } from "../../../core/preset/capabilities";
+import { MACRO_DIALECT_LABELS, type MacroDialect } from "../../../core/preset/macros";
 import { bibleFor, bibleSize, filterBible } from "./lab-core";
 import styles from "./styles.module.css";
 
@@ -22,7 +21,7 @@ export function BiblePane({
   lens,
   onInsert,
 }: {
-  lens: PresetWriteForProfile;
+  lens: MacroDialect;
   /** hand a token to the scratch box; the caret arithmetic belongs to the caller */
   onInsert: (token: string) => void;
 }): JSX.Element {
@@ -62,12 +61,12 @@ export function BiblePane({
       />
 
       <p className={styles.quiet}>
-        {`Click any macro to drop it into your text. Words and meanings are ${PRESET_WRITE_FOR_LABELS[lens]}'s own.`}
+        {`Click any macro to drop it into your text. Words and meanings are ${MACRO_DIALECT_LABELS[lens]}'s own.`}
       </p>
 
       {shown.length === 0 ? (
         <p className={styles.quiet}>
-          {`Nothing in ${PRESET_WRITE_FOR_LABELS[lens]}'s catalog matches that. It may exist on `}
+          {`Nothing in ${MACRO_DIALECT_LABELS[lens]}'s catalog matches that. It may exist on `}
           {"another platform - try one of the others above."}
         </p>
       ) : (

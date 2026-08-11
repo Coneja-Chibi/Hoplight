@@ -347,4 +347,35 @@ describe("Macro Lab", () => {
     expect(bodyText()).toContain("Marinara's own");
     unmountLab(flushSync);
   });
+
+  test("RisuAI is on the strip, and its bible works with no checkout of anything", async () => {
+    engines = [];
+    const flushSync = await mountLab();
+    await press(flushSync, byText("RisuAI")!);
+    await press(flushSync, byText("Macro bible")!);
+    // The whole point of a library: it answers on a machine with no engines installed at all.
+    expect(bodyText()).toContain("macros");
+    expect(bodyText()).toContain("RisuAI's own");
+    unmountLab(flushSync);
+  });
+
+  test("RisuAI cannot be resolved, and the reading says why it cannot travel either", async () => {
+    const flushSync = await mountLab();
+    await press(flushSync, byText("RisuAI")!);
+
+    // No engine adapter for it, so the button is off with a reason - same as any lens without one.
+    expect(byText("Resolve for real")!.disabled).toBe(true);
+    // And the absence of travel answers is explained rather than shown as an empty list.
+    expect(bodyText()).toContain("operation annotations");
+    expect(byText("Where else does it work")).toBeUndefined();
+    unmountLab(flushSync);
+  });
+
+  test("the operations table names the platform it has no column for", async () => {
+    const flushSync = await mountLab();
+    await press(flushSync, byText("Operations")!);
+    // Silently omitting RisuAI would read as "that platform has nothing to say here".
+    expect(bodyText()).toContain("RisuAI has no column here");
+    unmountLab(flushSync);
+  });
 });

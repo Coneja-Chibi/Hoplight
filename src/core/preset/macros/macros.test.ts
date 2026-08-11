@@ -7,14 +7,22 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 import {
+  canTranslate,
   LUMIVERSE_MACRO_GROUPS,
+  macroGroupsForDialect,
   macroGroupsForProfile,
+  MACRO_DIALECTS,
   MARINARA_MACRO_GROUPS,
   ROLECALL_MACRO_GROUPS,
   SILLYTAVERN_MACRO_GROUPS,
 } from "./index";
+import { findMacro, isMacroSupported, scanMacroTokens } from "./support";
 import type { MacroGroup } from "./types";
 import { PRESET_WRITE_FOR_PROFILES } from "../capabilities";
+
+/** Does our scanner see any macro at all in this text, read through that dialect? */
+const readText = (text: string, dialect: Parameters<typeof isMacroSupported>[0]): boolean =>
+  scanMacroTokens(text).length > 0 && isMacroSupported(dialect, scanMacroTokens(text)[0]!);
 
 const CATALOGS: Array<[string, MacroGroup[]]> = [
   ["rolecall", ROLECALL_MACRO_GROUPS],
@@ -234,5 +242,72 @@ describe("regression: real macros the old filtered catalog hid", () => {
       "{{trimStart}}", "{{uppercase}}...{{/uppercase}}", "{{NAME}}"]) {
       expect(has(MARINARA_MACRO_GROUPS, t)).toBe(true);
     }
+  });
+});
+
+/**
+ * Risu joins as a REFERENCE dialect, not as a write-for lens.
+ *
+ * The distinction is the whole point of MacroDialect: somebody can read RisuAI's macro list without
+ * Hoplight claiming it can author a preset for Risu or translate one into it. These pin both halves,
+ * because the tempting shortcut - adding "risu" to PRESET_WRITE_FOR_PROFILES - would make every
+ * assertion below pass except the ones that matter.
+ */
+describe("the Risu dialect", () => {
+  test("is a documented dialect and NOT a write-for profile", () => {
+    expect(MACRO_DIALECTS).toContain("risu");
+    expect(PRESET_WRITE_FOR_PROFILES as readonly string[]).not.toContain("risu");
+  });
+
+  test("publishes a catalog generated from RisuAI's own documentation", () => {
+    const groups = macroGroupsForDialect("risu");
+    const macros = groups.flatMap((g) => g.macros);
+    expect(macros.length).toBeGreaterThan(100);
+    // Every entry carries the engine's own words; a blank description means a parse went wrong.
+    for (const m of macros) expect(m.description.length).toBeGreaterThan(0);
+  });
+
+  /**
+   * THE SYNTAX CORRECTION, pinned. This file's header used to claim Risu's dialect is [[name]] and
+   * that our scanner is blind to it. RisuAI's parser dispatches on `{` followed by `{`, and its own
+   * tests are written in {{...}}; the doc file uses [[ ]] only so it is not parsed as it renders.
+   */
+  test("uses the same {{...}} shape every other catalog does, so the scanner sees it", () => {
+    for (const m of macroGroupsForDialect("risu").flatMap((g) => g.macros)) {
+      expect(m.macro.startsWith("{{")).toBe(true);
+      expect(m.macro.endsWith("}}")).toBe(true);
+    }
+    expect(readText("Hi {{char}}", "risu")).toBe(true);
+  });
+
+  test("answers support questions like any other dialect", () => {
+    expect(isMacroSupported("risu", "{{char}}")).toBe(true);
+    expect(isMacroSupported("risu", "{{hoplight_not_a_macro}}")).toBe(false);
+    expect(findMacro("risu", "{{char}}")?.description).toBeTruthy();
+  });
+
+  test("honours the aliases its source declares", () => {
+    // cbs_docs.cbs lists bot as an alias of char; a reader of somebody else's Risu preset will meet
+    // whichever the author chose, and neither should warn as unsupported.
+    expect(isMacroSupported("risu", "{{bot}}")).toBe(true);
+  });
+
+  /**
+   * THE GUARD THAT MATTERS MOST. Risu's catalog is generated from a source with no operation
+   * vocabulary, so every cross-engine answer for it would come from name matching alone - which is
+   * exactly the check that calls {{random::a::b}} portable between engines that disagree about it.
+   */
+  test("cannot be a translation target until its operations are annotated", () => {
+    expect(canTranslate("risu")).toBe(false);
+    for (const profile of PRESET_WRITE_FOR_PROFILES) expect(canTranslate(profile)).toBe(true);
+  });
+
+  test("carries no operation annotations, which is why the above holds", () => {
+    const annotated = macroGroupsForDialect("risu")
+      .flatMap((g) => g.macros)
+      .filter((m) => m.op);
+    // When somebody does that annotation pass, this test is the one to update - deliberately, and
+    // together with canTranslate.
+    expect(annotated).toEqual([]);
   });
 });

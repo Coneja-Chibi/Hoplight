@@ -16,8 +16,8 @@
  * engines disagree", which is a smaller and more useful question than "what macros exist".
  */
 import { type JSX } from "react";
-import { PRESET_WRITE_FOR_LABELS } from "../../../core/preset/capabilities";
-import { LAB_LENSES, operationRows } from "./lab-core";
+import { MACRO_DIALECT_LABELS } from "../../../core/preset/macros";
+import { OPERATION_ABSENT, OPERATION_LENSES, operationRows } from "./lab-core";
 // Two sheets on purpose: the box chrome and the insert pill are shared with the bible, the grid is
 // this pane's alone. See ops.module.css.
 import grid from "./ops.module.css";
@@ -28,7 +28,7 @@ const actionOf = (op: string): string => op.slice(op.indexOf(".") + 1).replace(/
 
 export function OpsPane({ onInsert }: { onInsert: (token: string) => void }): JSX.Element {
   const rows = operationRows();
-  const gaps = rows.filter((r) => r.carriedBy < LAB_LENSES.length).length;
+  const gaps = rows.filter((r) => r.carriedBy < OPERATION_LENSES.length).length;
 
   return (
     <section className={styles.box} aria-label="What each platform calls the same operation">
@@ -48,8 +48,8 @@ export function OpsPane({ onInsert }: { onInsert: (token: string) => void }): JS
           <thead>
             <tr>
               <th scope="col">Operation</th>
-              {LAB_LENSES.map((lens) => (
-                <th key={lens} scope="col">{PRESET_WRITE_FOR_LABELS[lens]}</th>
+              {OPERATION_LENSES.map((lens) => (
+                <th key={lens} scope="col">{MACRO_DIALECT_LABELS[lens]}</th>
               ))}
             </tr>
           </thead>
@@ -91,6 +91,21 @@ export function OpsPane({ onInsert }: { onInsert: (token: string) => void }): JS
         Only operations where the engines DISAGREE appear here. A macro name that already means the
         same thing everywhere carries no operation annotation and lives in the bible instead.
       </p>
+
+      {/*
+        A platform with no column is a platform we have not finished modelling, and saying so is the
+        difference between a gap in Hoplight and a gap in the engine. A RisuAI column reading "none"
+        down every row would assert it cannot do randomness, conditionals or text shaping - all of
+        which it plainly can. Left out, and named.
+      */}
+      {OPERATION_ABSENT.length > 0 ? (
+        <p className={styles.quiet}>
+          {`${OPERATION_ABSENT.map((l) => MACRO_DIALECT_LABELS[l]).join(", ")} has no column here `}
+          {"yet. Its macro list is complete in the bible, but Hoplight has not yet mapped which of "}
+          {"these operations each of its macros performs - so a column would show our gap as its "}
+          {"gap. That mapping is read from the engine, one macro at a time."}
+        </p>
+      ) : null}
     </section>
   );
 }
