@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:4457925e1dde1d4e2d3a921e89e69f8a40876edaaa3f6e58dc90a3f192f629be",
-  "semanticSummaryHash": "sha256:4c659ea1cf5df0ad1d58a4c41ee3892e8cdb2acbd77c17584486e366c888237b",
+  "sourceHash": "sha256:3cd9a6004ab75dc9dd90a527a39a4d6b76353a4cfe6f4d4bdf063ea5b4ce3057",
+  "semanticSummaryHash": "sha256:43977de00445155c40986da75a4316ace694e06f1f0ebcac4e67789a9beb091f",
   "verdict": "APPROVE",
-  "reviewer": "chi",
-  "notes": "Adds EditorConflict, the workbench bar an editor shows when its file changed on disk. Generated row matches the source.",
-  "reviewedAt": "2026-08-08T21:17:02.629Z"
+  "reviewer": "macro-lab-catalog-refresh-review",
+  "notes": "Generated catalog refresh, verified against the diff rather than the intent: exactly three added rows (EnginePane, MacroLab, ReadingPane from src/ui/apps/macro-lab), no removals, no changed signatures on existing entries. The page's own prose describes what the generated file IS and how to regenerate it, which is unchanged by adding rows, so the semantic summary and topics still hold with no edit. Confirmed the three entries match their sources and that catalog:check passes against the committed markdown.",
+  "reviewedAt": "2026-08-11T04:08:24.170Z"
 }

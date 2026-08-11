@@ -15,38 +15,13 @@
  * present, so an absent one is a refusal that names what to install rather than a silent pass.
  */
 import { z } from "zod";
-import { join } from "node:path";
 import type { HarnessTool } from "./tool";
-import { checkGrantReal, grantFolder } from "./_shared/grants";
-
-/**
- * Engines with an adapter in tools/renderers, and the env var naming each install.
- *
- * ONLY ENGINES A USER CAN ACTUALLY HAVE. A RoleCall entry shipped here for a while and was wrong in
- * two ways: it could never resolve for anyone without that closed checkout, so the tool advertised a
- * capability it could not deliver, and its marker named an internal path of a closed codebase in a
- * public repository. An engine belongs here when somebody who downloaded Hoplight can point at a
- * real install of it.
- */
-const ENGINES = {
-  sillytavern: {
-    root: "HOPLIGHT_ST_ROOT",
-    command: "node",
-    args: ["tools/renderers/sillytavern/render.mjs"],
-    flag: "--st-root",
-    /** A path that exists only inside a real install, so a wrong folder fails with a reason. */
-    marker: join("public", "scripts", "macros", "macro-system.js"),
-    install: "a SillyTavern checkout",
-  },
-  marinara: {
-    root: "HOPLIGHT_MARINARA_ROOT",
-    command: "bun",
-    args: ["tools/renderers/marinara/render.ts"],
-    flag: "--marinara-root",
-    marker: join("packages", "shared", "src", "utils", "macro-engine.ts"),
-    install: "a Marinara-Engine checkout",
-  },
-} as const;
+import {
+  availableEngines,
+  installRoot,
+  rendererCommand,
+  RENDER_ENGINES,
+} from "../../core/preset/render/engines";
 
 const input = z.strictObject({
   engine: z.enum(["sillytavern", "marinara"])
@@ -56,14 +31,6 @@ const input = z.strictObject({
   state: z.record(z.string(), z.string()).optional()
     .describe("variables or choices to pre-set, in the engine's own naming"),
 });
-
-/** Where the engine lives, or null when nothing on this machine says. */
-async function installRoot(engine: keyof typeof ENGINES): Promise<string | null> {
-  const spec = ENGINES[engine];
-  const root = process.env[spec.root];
-  if (!root) return null;
-  return (await Bun.file(join(root, spec.marker)).exists()) ? root : null;
-}
 
 const presetVerify: HarnessTool<z.infer<typeof input>> = {
   name: "preset_verify",
@@ -78,8 +45,7 @@ const presetVerify: HarnessTool<z.infer<typeof input>> = {
    * OFFERED ONLY WHERE AN ENGINE LIVES. Without a checkout this can verify nothing, and being in
    * the belt anyway cost a step to discover - after several more spent guessing a path.
    */
-  available: async () => (await installRoot("sillytavern")) !== null
-    || (await installRoot("marinara")) !== null,
+  available: async () => (await availableEngines()).length > 0,
   effect: "read",
   input,
   // One engine at a time: each render spawns a process, and two of the same engine gains nothing.
@@ -112,12 +78,12 @@ const presetVerify: HarnessTool<z.infer<typeof input>> = {
     // The engine comes last, because it is the only check whose answer depends on this machine rather
     // than on the request. Asking it first let an out-of-bounds path return "engine not available"
     // and never reach the boundary at all.
-    const spec = ENGINES[args.engine];
+    const spec = RENDER_ENGINES[args.engine];
     const root = await installRoot(args.engine);
     if (!root) {
       return {
         summary: `preset_verify ${args.engine}: engine not available`,
-        output: `No ${args.engine} engine on this machine. Set ${spec.root} to ${spec.install} and `
+        output: `No ${args.engine} engine on this machine. Set ${spec.rootVar} to ${spec.install} and `
           + "try again. Nothing was checked, so do not treat this as a pass.",
       };
     }
@@ -141,7 +107,7 @@ const presetVerify: HarnessTool<z.infer<typeof input>> = {
     const { unresolvedCount } = await import("../../core/preset/render/contract");
     try {
       const outcome = await runRenderer(
-        { command: spec.command, args: [...spec.args, `${spec.flag}=${root}`] },
+        rendererCommand(args.engine, root),
         { preset: exported.path, ...(args.state ? { state: args.state } : {}) },
         { timeoutMs: 180_000 },
       );

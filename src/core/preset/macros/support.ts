@@ -39,20 +39,38 @@ import { macroGroupsForProfile } from "./index";
  * than throwing. This scans and slices only. It never evaluates anything.
  */
 export function scanMacroTokens(text: string): string[] {
-  const tokens: string[] = [];
+  return scanMacroTree(text).map((t) => t.token);
+}
+
+/** A token and how deeply it was nested: 0 for a token in the text, 1 inside one argument, and so on. */
+export interface ScannedMacro {
+  readonly token: string;
+  readonly depth: number;
+}
+
+/**
+ * The same walk, keeping the nesting it already knew.
+ *
+ * ONE WALK, TWO VIEWS. Depth matters to a reader - `{{if::{{getvar::x}}::a::b}}` is a condition and
+ * a lookup, and a flat list of two rows says nothing about which contains which - but it is noise to
+ * every compatibility check, which cares only that both names must exist on the target. Rather than
+ * a second scanner drifting from this one on the next lexer fix, the walk lives here once and
+ * `scanMacroTokens` is the flat view of it.
+ */
+export function scanMacroTree(text: string, depth = 0): ScannedMacro[] {
+  const found: ScannedMacro[] = [];
   let index = 0;
   while (index < text.length) {
     const open = text.indexOf("{{", index);
     if (open === -1) break;
     const close = matchingClose(text, open);
     if (close === -1) break; // unmatched opener: the remainder is literal text
-    const token = text.slice(open, close + 2);
-    tokens.push(token);
+    found.push({ token: text.slice(open, close + 2), depth });
     // Recurse into the argument text so a nested macro is reported as well as its container.
-    tokens.push(...scanMacroTokens(text.slice(open + 2, close)));
+    found.push(...scanMacroTree(text.slice(open + 2, close), depth + 1));
     index = close + 2;
   }
-  return tokens;
+  return found;
 }
 
 /** Index of the `}}` closing the `{{` at `open`, or -1 when the text never closes it. */

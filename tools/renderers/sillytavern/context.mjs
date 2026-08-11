@@ -82,6 +82,18 @@ class VarStore {
 
 export const variables = { local: new VarStore(), global: new VarStore() };
 
+/**
+ * The two speakers, as anything reading the context will see them.
+ *
+ * NOT WHAT `{{user}}` AND `{{char}}` ACTUALLY RESOLVE FROM, and that was worth finding out the hard
+ * way. MacroEnvBuilder reads `ctx.name1Override ?? name1`, where name1 comes from script.js - a
+ * module outside the macro folder, so staging redirects it to the stub. Setting these and expecting
+ * the macros to follow produced a render that still said "Character"; render.mjs passes the engine's
+ * own override fields instead. This mirror exists so the context object cannot disagree with the
+ * override for anything else that consults it.
+ */
+const identity = { name1: "User", name2: "Character" };
+
 export function getContext() {
   return {
     variables,
@@ -89,13 +101,20 @@ export function getContext() {
     chatId: "hoplight-render",
     characterId: 0,
     groupId: null,
-    name1: "User",
-    name2: "Character",
+    name1: identity.name1,
+    name2: identity.name2,
   };
 }
 
-/** Mounted where the engine looks for it, before any engine module evaluates. */
-export function installContext() {
+/**
+ * Mounted where the engine looks for it, before any engine module evaluates.
+ *
+ * Identity is applied to the module-level record rather than baked into a returned object, because
+ * `getContext` is called by the engine on every macro that needs it and must see the current values.
+ */
+export function installContext(who = {}) {
+  if (typeof who.user === "string" && who.user) identity.name1 = who.user;
+  if (typeof who.char === "string" && who.char) identity.name2 = who.char;
   globalThis.SillyTavern ??= { getContext };
   return variables;
 }

@@ -214,7 +214,9 @@ globalThis.localStorage ??= { getItem: () => null, setItem() {}, removeItem() {}
 
 // The variable store is the substance, not scaffolding: setvar writes here and getvar reads back.
 const { installContext } = await import(pathToFileURL(join(HERE, "context.mjs")).href);
-const vars = installContext();
+// Identity before the engine loads: {{char}} and {{user}} read the context, not the variable store,
+// so a caller who means someone in particular has no other way to say so.
+const vars = installContext(request.identity ?? {});
 for (const [k, v] of Object.entries(request.state ?? {})) vars.local.set(k, v);
 
 // ---- engine -------------------------------------------------------------------------------------
@@ -232,6 +234,21 @@ if (!macros?.engine?.evaluate || !macros?.envBuilder?.buildFromRawEnv) {
 const preset = JSON.parse(readFileSync(request.preset, "utf8"));
 const state = request.state ?? {};
 const warnings = [];
+
+/**
+ * The two speakers, through the engine's OWN override fields.
+ *
+ * MacroEnvBuilder resolves `{{user}}`/`{{char}}` as `ctx.name1Override ?? name1`, where name1 is
+ * imported from script.js - a module outside the macro folder, so staging redirects it to the stub
+ * and it is fixed at "User"/"Character" for anyone who does not override. Editing the stub would
+ * have worked and been wrong: the override is the path this engine documents for exactly this, and
+ * a caller who names nobody still lands on the stub's defaults.
+ */
+const named = request.identity ?? {};
+const overrides = {
+  ...(typeof named.user === "string" && named.user ? { name1Override: named.user } : {}),
+  ...(typeof named.char === "string" && named.char ? { name2Override: named.char } : {}),
+};
 
 /**
  * Only prompts named in prompt_order and enabled are assembled, because that is the surface
@@ -253,7 +270,7 @@ for (const entryRef of ordered) {
   const content = typeof block.content === "string" ? block.content : "";
   if (!content.trim()) continue;
   try {
-    const env = macros.envBuilder.buildFromRawEnv({ content, ...state });
+    const env = macros.envBuilder.buildFromRawEnv({ content, ...state, ...overrides });
     parts.push(macros.engine.evaluate(content, env));
   } catch (e) {
     warnings.push(`"${block.name ?? entryRef.identifier}" threw while evaluating: ${e.message}`);

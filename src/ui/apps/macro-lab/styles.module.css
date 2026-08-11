@@ -1,0 +1,350 @@
+/**
+ * Macro Lab: write macro text on the left, read what it means and what it resolves to on the right.
+ * House flat-ink skin - 3px ink edges, hard offset shadow in the app accent, mono for anything that
+ * is a token rather than prose. Theme tokens only; every class name lives in exactly this module.
+ */
+.room {
+  container-type: inline-size;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: clamp(0.9rem, 2.4vw, 1.8rem);
+  overflow-y: auto;
+}
+
+.head { max-width: 54rem; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.title {
+  margin: 0.25rem 0 0.4rem;
+  font-family: var(--font-big);
+  font-size: var(--text-title);
+  line-height: 1;
+  color: var(--text);
+}
+
+.lede {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+
+/* -- the lens strip ------------------------------------------------------------------------- */
+
+.lenses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.lens {
+  font-family: var(--font-big);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.7rem;
+  color: var(--text-soft);
+  background: var(--face);
+  border: 3px solid var(--edge);
+  cursor: pointer;
+}
+
+.lensOn {
+  color: var(--stage-ink);
+  background: var(--a);
+  box-shadow: 3px 3px 0 0 var(--edge);
+}
+
+/* -- the two boxes -------------------------------------------------------------------------- */
+
+.boxes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+@container (max-width: 52rem) {
+  .boxes { grid-template-columns: minmax(0, 1fr); }
+}
+
+.box {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 5px 5px 0 0 var(--a);
+}
+
+.boxHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.boxTitle {
+  margin: 0;
+  font-family: var(--font-big);
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.boxNote {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.source {
+  width: 100%;
+  min-height: 11rem;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  padding: 0.6rem;
+  color: var(--text);
+  background: var(--stage-row, var(--face));
+  border: 3px solid var(--edge);
+}
+
+/* -- pretend context ------------------------------------------------------------------------ */
+
+.who {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.4rem 0.6rem;
+  align-items: center;
+}
+
+.whoLabel {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.field {
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.45rem;
+  color: var(--text);
+  background: var(--stage-row, var(--face));
+  border: 2px solid var(--edge);
+}
+
+.vars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.varRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.drop {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0.3rem 0.5rem;
+  color: var(--text-dim);
+  background: transparent;
+  border: 2px solid var(--edge);
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.why {
+  flex: 1;
+  min-width: 12rem;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+/* -- output --------------------------------------------------------------------------------- */
+
+.resolved {
+  margin: 0;
+  min-height: 4rem;
+  max-height: 22rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  padding: 0.6rem;
+  color: var(--text);
+  background: var(--stage-row, var(--face));
+  border: 3px solid var(--edge);
+}
+
+.stamp {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.quiet {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.problem {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text);
+  padding: 0.5rem 0.6rem;
+  background: var(--stage-row, var(--face));
+  border-left: 4px solid var(--edge);
+}
+
+/* -- the reading ---------------------------------------------------------------------------- */
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 26rem;
+  overflow-y: auto;
+}
+
+.row {
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border: 2px solid var(--edge);
+  background: var(--stage-row, var(--face));
+}
+
+.rowNested { margin-left: 1.1rem; border-left-width: 5px; }
+
+.rowHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.token {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.verdict {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.35rem;
+  border: 2px solid var(--edge);
+  color: var(--text-soft);
+}
+
+.verdictKnown { color: var(--stage-ink); background: var(--a); }
+
+.meaning {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-soft);
+}
+
+.example {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+
+.travel {
+  margin: 0.4rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.travelRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
+.travelLens {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-soft);
+  min-width: 6rem;
+}
+
+.travelSame { color: var(--text-dim); }
+
+.travelFlag { color: var(--text); font-weight: 600; }
+
+.more {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.4rem;
+  color: var(--text-dim);
+  background: transparent;
+  border: 2px solid var(--edge);
+  cursor: pointer;
+}
+
+.tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.deadToken {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  padding: 0.15rem 0.4rem;
+  color: var(--text);
+  border: 2px solid var(--edge);
+  overflow-wrap: anywhere;
+}

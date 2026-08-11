@@ -64,6 +64,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, setSpritesOpen, setSpritesFocusL... |  |  |
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
+| EnginePane | src/ui/apps/macro-lab/engine-pane.tsx | ({ engine, lensLabel, state, onResolve, }: { engine: MacroEngineInfo \| null; lensLabel: string; state: EngineState; o... |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | EntryTocItem | src/ui/apps/workbench/lore/entry-toc-item.tsx | ({ entry, writeFor, styles, categories, onPatch, onOpen, onDuplicate, onDelete, onOpenBeside, }: EntryTocItemProps) |  |  |
 | EntryWhenWhere | src/ui/apps/workbench/lore/entry-when-where.tsx | ({ entry, writeFor, styles, onPatch, folds, onFoldToggle, }: EntryWhenWhereProps) |  |  |
 | ErrorRow | src/ui/agent/kit-bands.tsx | ({ text, onNotice, }: { text: string; onNotice?: (message: string) => void; }) | A failure, as a band rather than as a loose paragraph. |  |
@@ -119,6 +120,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LoreSpecialTriggers | src/ui/components/lore-special-triggers/index.tsx | ({ triggers, onChange, advanced = false, }: LoreSpecialTriggersProps) |  | .wrap .trigger .triggerOn .menu .section .note .item .itemLabel ... |
 | LoreWorkshopDialog | src/ui/apps/library/lore-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: LoreWorkshopDialogProps) |  |  |
 | MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
+| MacroLab | src/ui/apps/macro-lab/index.tsx | ({ ctx }: { ctx: AppContext }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | MacroReference | src/ui/apps/workbench/preset/macro-reference.tsx | ({ groups }: MacroReferenceProps) |  |  |
 | MarinaraFolderToc | src/ui/apps/workbench/lore/folder-toc.tsx | ({ entries, categories, edges, focusedId, selectedFolderId, collapsed, writeFor, styles, bookName, onSelectEntry, onS... |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
@@ -154,6 +156,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, writeFor, groups, onSetGroup, onClose, onPatch, }: PromptEditPanelProps) |  |  |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
+| ReadingPane | src/ui/apps/macro-lab/reading-pane.tsx | ({ text, lens, }: { text: string; lens: PresetWriteForProfile; }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, revision, ctx, piece, topRight }: RegexSetEditorProps) |  |  |
 | RegexWorkshopDialog | src/ui/apps/library/regex-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: RegexWorkshopDialogProps) |  |  |

@@ -20,6 +20,7 @@ import { entityRevision } from "../entities/canonical-revision";
 import { openStudio } from "../foreign-reader";
 import { handleAgentRoutes } from "./agent/routes";
 import { handleCollectionsRoutes } from "./server-collections";
+import { handleMacroLabRoutes } from "./server-macro-lab";
 import type { StudioStoreLike, SettingsStoreLike } from "../studio/contracts";
 import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
@@ -283,6 +284,11 @@ export function createHandler(
     // The person's own groupings of pieces. See server-collections.ts.
     const collectionsRoute = await handleCollectionsRoutes(p, req, () => store.studioPath());
     if (collectionsRoute) return collectionsRoute;
+
+    // The Macro Lab's engines: what can run here, and run this text through it. Host-only above,
+    // because it is the one route that starts somebody else's application. See server-macro-lab.ts.
+    const macroLabRoute = await handleMacroLabRoutes(p, req);
+    if (macroLabRoute) return macroLabRoute;
 
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
     if (p === "/api/inspect-archive" && req.method === "POST") return handleInspectArchive(req);

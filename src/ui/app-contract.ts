@@ -98,6 +98,17 @@ export interface AppContext {
     exportEntity(entity: unknown, targetId: string, extension?: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
     /**
+     * The Macro Lab's two engine calls (host-only; see server-macro-lab.ts).
+     *
+     * `macroEngines` is a question about THIS MACHINE, not about what Hoplight models: the macro
+     * catalogs describe five dialects and only the engines listed here can actually run one. A
+     * surface that lets someone pick a lens with no runtime behind it and then press Resolve is
+     * promising an answer nobody can give.
+     */
+    macroEngines(): Promise<{ engines: MacroEngineInfo[] }>;
+    /** Resolve one scrap of text through a real engine. Button-press only; one at a time per engine. */
+    macroResolve(ask: MacroResolveAsk): Promise<MacroResolveResult>;
+    /**
      * The person's own groupings of pieces, and the five edits that change them.
      *
      * Every edit returns the WHOLE file as the server stored it, rather than an acknowledgement.
@@ -396,6 +407,44 @@ export interface FormatInfo {
   /** the generic reader of a family: its cards chip as "Default", not a platform name */
   generic: boolean;
 }
+
+/** A macro engine installed on THIS machine and drivable from here (served by /api/macro-lab/engines).
+ * The install path is deliberately absent: which build answered is the browser's business, where it
+ * sits on the host's disk is not. */
+export interface MacroEngineInfo {
+  /** "sillytavern" | "marinara" - the ids in src/core/preset/render/engines.ts */
+  id: string;
+  label: string;
+}
+
+export interface MacroResolveAsk {
+  engine: string;
+  text: string;
+  /** variables to pre-set, in the engine's own naming */
+  state?: Record<string, string>;
+  /** who {{user}} and {{char}} are; omitted leaves each engine's own default */
+  identity?: { user?: string; char?: string };
+}
+
+/**
+ * What an engine said.
+ *
+ * A REFUSAL IS A VALUE, not an exception, and the discriminant is why. "The engine says nothing was
+ * unresolved" and "nobody managed to ask the engine" are the two answers this surface exists to tell
+ * apart, and a screen that renders a failed render as an empty result claims the first while meaning
+ * the second.
+ */
+export type MacroResolveResult =
+  | {
+    ok: true;
+    /** the assembled text, exactly as the engine would send it */
+    prompt: string;
+    /** macros still wearing braces after the engine finished */
+    unresolved: { token: string; count: number; where?: string }[];
+    warnings: string[];
+    engine: { name: string; version: string };
+  }
+  | { ok: false; reason: string; detail: string };
 
 /** One platform's coverage claims (served by /api/coverage; declared in src/formats/<id>/coverage.ts).
  * The editor lens computes every dim/tag from these - the editor itself knows zero platforms. */

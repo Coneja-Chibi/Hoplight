@@ -93,12 +93,33 @@ export const refuse = (reason: RenderFailure, detail: string): RenderRefusal => 
   detail,
 });
 
+/**
+ * Who the two speakers are, for the macros that name them.
+ *
+ * SEPARATE FROM `state`, because the engines are. A variable store is one thing both adapters expose
+ * and `state` fills; identity is read from somewhere else entirely - SillyTavern's context object,
+ * Marinara's resolve context - so a caller cannot reach it by naming a variable "char". Without this
+ * field the most-typed macro of all, `{{char}}`, always answered "Character" no matter who the
+ * caller meant, which is fine for a conversion check and useless for anyone asking what their text
+ * actually says.
+ *
+ * Absent means the adapter's own default, so every existing caller keeps the behaviour it had.
+ */
+export interface RenderIdentity {
+  /** who `{{user}}` is */
+  readonly user?: string;
+  /** who `{{char}}` is */
+  readonly char?: string;
+}
+
 /** What a renderer is asked. Serialized to its stdin as one JSON object. */
 export interface RenderRequest {
   /** absolute path to the preset file, in the platform's own wire format */
   readonly preset: string;
   /** variables to pre-set before assembly; the engine's own naming, passed through untouched */
   readonly state?: Readonly<Record<string, string>>;
+  /** the two speakers, when the caller has someone in mind; the adapter's default otherwise */
+  readonly identity?: RenderIdentity;
 }
 
 /** The reply shape, before validation. Kept separate so the parser can say precisely what was wrong. */

@@ -51,7 +51,11 @@ function engineVersion(): string {
 // ---- request ------------------------------------------------------------------------------------
 
 const raw = await new Response(Bun.stdin.stream()).text();
-let request: { preset?: unknown; state?: Record<string, string> };
+let request: {
+  preset?: unknown;
+  state?: Record<string, string>;
+  identity?: { user?: string; char?: string };
+};
 try {
   request = JSON.parse(raw || "{}");
 } catch {
@@ -88,10 +92,16 @@ if (!Array.isArray(sections) || sections.length === 0) {
   warnings.push("preset carries no sections, so nothing was assembled");
 }
 
+// The two speakers, when the caller named them. Marinara reads these straight off the context, so
+// unlike variables they cannot be reached through `state` - see RenderIdentity in the contract.
+const who = request!.identity ?? {};
+const userName = typeof who.user === "string" && who.user ? who.user : "User";
+const charName = typeof who.char === "string" && who.char ? who.char : "Character";
+
 const ctx = {
-  user: "User",
-  char: "Character",
-  characters: ["Character"],
+  user: userName,
+  char: charName,
+  characters: [charName],
   // The state the caller asked for. Marinara's engine reads variables straight off the context, so
   // this is the whole of what {{getvar}}-style macros will see.
   variables: { ...(request!.state ?? {}) },

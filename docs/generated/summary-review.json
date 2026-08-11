@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-10",
+  "generated": "2026-08-11",
   "count": 112,
   "pages": [
     {
@@ -342,9 +342,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "chi",
-      "sourceHash": "sha256:4457925e1dde1d4e2d3a921e89e69f8a40876edaaa3f6e58dc90a3f192f629be",
-      "semanticSummaryHash": "sha256:4c659ea1cf5df0ad1d58a4c41ee3892e8cdb2acbd77c17584486e366c888237b"
+      "reviewer": "macro-lab-catalog-refresh-review",
+      "sourceHash": "sha256:3cd9a6004ab75dc9dd90a527a39a4d6b76353a4cfe6f4d4bdf063ea5b4ce3057",
+      "semanticSummaryHash": "sha256:43977de00445155c40986da75a4316ace694e06f1f0ebcac4e67789a9beb091f"
     },
     {
       "docId": "reference/concepts/bundles",

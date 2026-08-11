@@ -419,5 +419,44 @@ describe("untrusted remote handler gates every path (not just /api)", () => {
       expect((await asTailedIn(proxied)).status).toBe(403);
     });
   });
+
+  test("a guest device cannot make the host run somebody else's macro engine", async () => {
+    // The Macro Lab spawns node or bun against a checkout on the HOST's disk, and SillyTavern's
+    // adapter stages a copy inside that checkout to do it. Reading a shared studio does not carry
+    // the right to start processes on the machine sharing it. The availability GET is refused for
+    // the same reason: it answers a question about the host's filesystem.
+    await withDir(async (dir) => {
+      const sec = filledSec();
+      const asGuest = createHandler(
+        new StudioStore(dir),
+        new SettingsStore(dir),
+        undefined,
+        sec,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        true, // lanApproved: an approved LAN device
+      );
+      const resolve = apiReq("/api/macro-lab/resolve", {
+        method: "POST",
+        token: sec.token,
+        contentType: "application/json",
+        body: JSON.stringify({ engine: "sillytavern", text: "{{char}}" }),
+      });
+      expect((await asGuest(resolve)).status).toBe(403);
+      expect((await asGuest(apiReq("/api/macro-lab/engines"))).status).toBe(403);
+
+      const asTailedIn = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+      const proxied = apiReq("/api/macro-lab/resolve", {
+        method: "POST",
+        token: sec.token,
+        contentType: "application/json",
+        body: JSON.stringify({ engine: "sillytavern", text: "{{char}}" }),
+      });
+      proxied.headers.set("x-hoplight-sidecar-secret", SECRET);
+      expect((await asTailedIn(proxied)).status).toBe(403);
+    });
+  });
 });
 

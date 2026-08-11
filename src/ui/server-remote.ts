@@ -78,6 +78,14 @@ export function isHostOnlyRoute(p: string, method: string): boolean {
      * The GitHub ping above is host-only and costs nothing. This costs money.
      */
     p.startsWith("/api/agent/") ||
+    /**
+     * THE MACRO LAB'S ENGINE, which is the only route that starts somebody else's application on
+     * the host's machine. A guest who may read a shared studio has not been handed the ability to
+     * spawn node against the owner's disk - and SillyTavern's adapter writes a staging copy inside
+     * the owner's own checkout to do its work, which settles it. Even the availability GET is
+     * host-only: it answers questions about the host's filesystem.
+     */
+    p.startsWith("/api/macro-lab/") ||
     p === "/api/open" ||
     p === "/api/shutdown" ||
     p === "/api/restart" ||

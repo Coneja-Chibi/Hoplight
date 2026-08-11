@@ -100,6 +100,13 @@ export const api: AppContext["api"] = {
       body: JSON.stringify(edit),
     }),
   formats: async () => apiFetchJson("/api/formats", { requireToken: false }),
+  macroEngines: async () => apiFetchJson("/api/macro-lab/engines", { requireToken: false }),
+  macroResolve: async (ask) =>
+    apiFetchJson("/api/macro-lab/resolve", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(ask),
+    }),
   version: async () => apiFetchJson("/api/version", { requireToken: false }),
   updateCheck: async () => apiFetchJson("/api/update-check", { requireToken: false }),
   updatesReleases: async (page = 1) =>
