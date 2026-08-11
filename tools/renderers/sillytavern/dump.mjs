@@ -9,8 +9,9 @@
  * reports them as macros the engine does not have.
  *
  * WHAT MAKES THIS POSSIBLE HERE. SillyTavern registers every macro into a real registry -
- * MacroRegistry.registerMacro(name, { category, aliases, unnamedArgDefs, description, exampleUsage })
- * - and exposes getAllMacros(). The legacy MacrosParser.registerMacro path is deprecated and forwards
+ * MacroRegistry.registerMacro(name, { category, aliases, unnamedArgs, description, exampleUsage })
+ * - and exposes getAllMacros(). Those are the OPTIONS; the built definition renames unnamedArgs to
+ * unnamedArgDefs, which is what this reads back off it. The legacy MacrosParser.registerMacro path is deprecated and forwards
  * into the same registry, so there is one source of truth and nothing is left behind by reading it.
  *
  * RUN ONCE, BY A PERSON. Staging writes into the user's own checkout while it works. The OUTPUT is

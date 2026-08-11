@@ -64,9 +64,9 @@ export function engineVersion(stRoot) {
  *
  * The seam exists because `lib.js` - SillyTavern's bundled library barrel - was expected to need
  * real resolution, on the theory that the macro parser is built on packages it re-exports. It turned
- * out not to: this install's engine loads and parses with everything outside the macro folder
- * stubbed, which is the safer direction anyway, since each real resolution drags more of the browser
- * application into the process. Kept as a named seam rather than deleted, because the next build
+ * out not to, because stub.mjs imports the four packages the engine actually needs - chevrotain,
+ * moment, seedrandom, droll - directly rather than through the barrel. chevrotain is load-bearing
+ * for parsing; the barrel is not. Do not read this as "nothing outside the folder is needed". Kept as a named seam rather than deleted, because the next build
  * that genuinely needs one should have somewhere obvious to put it.
  */
 const RESOLVE_FOR_REAL = new Set();
@@ -97,7 +97,12 @@ export function sweepStale(scriptsDir) {
     try {
       process.kill(Number(pid), 0);
       continue; // still running: not ours to remove
-    } catch { /* no such process, so the directory is abandoned */ }
+    } catch (e) {
+      // ESRCH means no such process, so the directory is abandoned. EPERM means the process EXISTS
+      // and belongs to somebody else - a live run in a shared checkout - and deleting its staging
+      // out from under it would break a render rather than tidy after one. Only ESRCH sweeps.
+      if (e?.code !== "ESRCH") continue;
+    }
     try { rmSync(join(scriptsDir, name), { recursive: true, force: true }); } catch { /* leave it */ }
   }
 }
@@ -139,10 +144,14 @@ export function stageEngine(stRoot, tag = "stage") {
    * Together the residue is bounded to at most one abandoned directory, reclaimed by the next
    * render, instead of one per incident forever.
    *
-   * Re-raised rather than swallowed, so the exit code still says the process was killed.
+   * Re-raised rather than swallowed so the process still dies of the signal it was sent. On Windows
+   * there are no real signals and process.kill terminates with exit 1 regardless, which is the
+   * platform's answer rather than this code's.
    */
+  // ONCE, not on: a re-raised signal re-enters a still-installed handler, which on POSIX is an
+  // infinite loop where Ctrl+C never exits.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP", "SIGBREAK"]) {
-    process.on(signal, () => {
+    process.once(signal, () => {
       cleanup();
       process.kill(process.pid, signal);
     });
