@@ -23,10 +23,10 @@
  *     it, so macros registered by other modules are invisible: {{authorsNote}} comes from
  *     authors-note.js, {{summary}} from extensions/memory, {{charPrefix}} from
  *     extensions/stable-diffusion. Those are verified registrations. The preserved set also carries
- *     entries this script CANNOT verify either way - {{pipe}} and {{var::name}} are substituted
- *     inside STscript closures rather than registered, {{bias}} is read off message text - and it
- *     does not claim they are registry macros. They are kept because dropping a macro somebody can
- *     type is the worse error, and marked in the generated file as unverified.
+ *     entries this script CANNOT verify either way - {{var::name}} is substituted inside STscript
+ *     closures rather than registered, {{bias}} is read off message text - and it does not claim
+ *     they are registry macros. They are kept because dropping a macro somebody can type is the
+ *     worse error. Four remain, down from seven once both registration spellings were read.
  *  2. THE `op` ANNOTATIONS ARE HAND-AUTHORED and are the only thing here that generation cannot
  *     reproduce. They drive every cross-engine answer, and losing one silently turns a detected
  *     collision back into a clean pass. Any annotation this script cannot place is a hard failure.
@@ -194,6 +194,44 @@ for (const m of reply.macros) {
 interface ScannedRegistration { name: string; description: string; source: string }
 
 /**
+ * Drop `unnamedArgs: [...]` / `namedArgs: [...]` so an ARGUMENT's description cannot be read as the
+ * macro's.
+ *
+ * Those arrays declare what each argument means, and they come FIRST in the options object - so a
+ * search for `description:` found {{lastExpression}}'s argument and gave it the meaning "The name of
+ * the target character". True about the argument, false about the macro, and exactly the kind of
+ * plausible wrong sentence that survives review.
+ *
+ * Bracket-matched rather than regex-terminated: these arrays contain objects with their own braces
+ * and strings, so "up to the next ]" cuts them in the wrong place.
+ */
+function withoutArgDefs(body: string): string {
+  let out = "";
+  let i = 0;
+  for (;;) {
+    const at = body.slice(i).search(/\b(?:unnamedArgs|namedArgs|unnamedArgDefs)\s*:\s*\[/);
+    if (at === -1) return out + body.slice(i);
+    const start = i + at;
+    out += body.slice(i, start);
+    let depth = 0;
+    let j = body.indexOf("[", start);
+    let quote = "";
+    for (; j < body.length; j += 1) {
+      const ch = body[j]!;
+      if (quote) {
+        if (ch === "\\") { j += 1; continue; }
+        if (ch === quote) quote = "";
+        continue;
+      }
+      if (ch === "'" || ch === '"' || ch === "`") { quote = ch; continue; }
+      if (ch === "[") depth += 1;
+      else if (ch === "]") { depth -= 1; if (depth === 0) break; }
+    }
+    i = j + 1;
+  }
+}
+
+/**
  * The rest of a call, from just after its opening arguments to the paren that closes it.
  *
  * String-aware, because a handler can contain parens and quotes of its own. Bounded so a malformed
@@ -227,7 +265,19 @@ function scanModuleRegistrations(root: string): ScannedRegistration[] {
     if (posix.includes("/scripts/macros/")) continue;
     let src = "";
     try { src = readFileSync(join(root, rel), "utf8"); } catch { continue; }
-    for (const m of src.matchAll(/MacrosParser\.registerMacro\(\s*['"]([A-Za-z_][\w]*)['"]/g)) {
+    /**
+     * BOTH SPELLINGS, because matching only the deprecated one made this scan a false promise.
+     *
+     * `MacrosParser.registerMacro` is the old API and every deprecation notice in SillyTavern
+     * points new code at `macros.register` - a bind of MacroRegistry.registerMacro exported from
+     * macro-system.js. Matching only the first was live-disproven with a planted module: the
+     * MacrosParser registration was found and the macros.register one was silently absent, exit 0.
+     * It was never hypothetical - reasoning.js registers {{reasoningPrefix}} and its two siblings
+     * only that way, and they survived here purely because the old hand catalog listed them, which
+     * is the exact failure this scan exists to end.
+     */
+    const calls = /(?:MacrosParser\.registerMacro|macros\.register|registry\.registerMacro)\(\s*['"]([A-Za-z_][\w]*)['"]/g;
+    for (const m of src.matchAll(calls)) {
       const name = m[1]!;
       // Read forward to the call's end and take the last string literal in it: the signature is
       // (key, value, description), and the description is the only literal after the handler.
@@ -256,8 +306,22 @@ function scanModuleRegistrations(root: string): ScannedRegistration[] {
       // multi-line handler in half at its own `console.error(error);`. Depth is the only reading
       // that handles both, and both occur in this one file.
       const body = callBody(src, m.index + m[0].length);
+      /**
+       * TWO CALL SHAPES, because the two APIs take their description differently.
+       *
+       * The deprecated MacrosParser.registerMacro(name, handler, description) puts it LAST. The
+       * current macros.register(name, { category, description, ... }) puts it in an OPTIONS OBJECT,
+       * and that is the spelling extensions/expressions uses - so reading only the positional form
+       * found those three macros and then refused on every one of them.
+       *
+       * The object's own `description` wins where both could match, because it is the new engine's
+       * wording for a catalog whose whole claim is that it describes the new engine.
+       */
+      const object = /\bdescription\s*:\s*t?\s*(['"`])((?:\\.|(?!\1)[\s\S])*)\1/.exec(
+        withoutArgDefs(body),
+      );
       const last = /,\s*t?\s*(['"`])((?:\\.|(?!\1)[\s\S])*)\1\s*,?\s*$/.exec(body.trimEnd());
-      const description = last?.[2]?.replace(/\s+/g, " ").trim() ?? "";
+      const description = (object?.[2] ?? last?.[2] ?? "").replace(/\s+/g, " ").trim();
       if (description.length < 4 || /[{};]|\breturn\b/.test(description)) {
         unreadable.push(`${name} (${posix})`);
         continue;

@@ -176,7 +176,7 @@ export const SILLYTAVERN_NEW_MACRO_GROUPS: MacroGroup[] = [
     description: "Macros other parts of SillyTavern add at startup rather than the macro engine itself - the author's note, bundled extensions. Real, and invisible to a dump of the registry alone.",
     macros: [
       { macro: "{{defaultExpression}}", description: "Returns the global fallback expression." },
-      { macro: "{{lastExpression}}", description: "Returns the last expression used." },
+      { macro: "{{lastExpression}}", description: "Returns the last expression used by the selected character. The currently active character is used if no character name is provided." },
       { macro: "{{availableExpressions}}", description: "Returns a list with all the available expressions provided by the Classifier API." },
     ],
   },
