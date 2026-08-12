@@ -195,4 +195,32 @@ describe("stampSemanticSummary", () => {
     expect(result.ok).toBe(true);
     expect(hashSemanticSummary(stamped.summary)).toMatch(/^sha256:[a-f0-9]{64}$/);
   });
+
+  /**
+   * THE MID-PAGE INSERTION, which is the failure this refusal exists for.
+   *
+   * The section lookup falls back to POSITION when no slug matches, and stamping used to overwrite
+   * slug and title from the document - so inserting one heading rebranded every later summary onto
+   * its neighbour, and `check` then passed because stamp had already made the titles agree. A
+   * real page shipped with one section carrying another section's text.
+   */
+  test("refuses to stamp a summary onto a heading it was not written for", () => {
+    const filled = validSummary(sample);
+    const inserted = sample.replace("## Beta", "## Inserted\n\nNew body.\n\n## Beta");
+    expect(() => stampSemanticSummary(record, inserted, filled))
+      .toThrow(/refuse to restamp/);
+  });
+
+  test("names both titles, so a rename and a shift can be told apart", () => {
+    const filled = validSummary(sample);
+    const renamed = sample.replace("## Beta", "## Beta renamed");
+    try {
+      stampSemanticSummary(record, renamed, filled);
+      throw new Error("expected a refusal");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      expect(msg).toContain("Beta");
+      expect(msg).toContain("Beta renamed");
+    }
+  });
 });

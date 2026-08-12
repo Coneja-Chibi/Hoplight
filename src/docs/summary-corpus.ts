@@ -236,6 +236,28 @@ export function stampSemanticSummary(
     if (!current.summary.trim()) {
       throw new Error(`summary-corpus: refuse stamp with empty summary at ${path}`);
     }
+    /**
+     * A SUMMARY MUST NOT BE REBRANDED ONTO A HEADING IT WAS NOT WRITTEN FOR.
+     *
+     * The lookup below falls back to POSITION when no slug matches, and this function then
+     * overwrote slug and title from the document. Insert one section mid-page and every later
+     * summary silently became its neighbour's: the Macro Lab shipped carrying Settings' text, and
+     * `check` passed afterwards because stamp had already made the titles agree. The freshness gate
+     * was erasing the very mismatch it exists to catch.
+     *
+     * Stamp cannot tell a RENAMED heading from a SHIFTED one - both look like "different title at
+     * this index" - so it refuses and lets a person say which. Renaming a heading then costs one
+     * deliberate edit to the sidecar's title, which is the correct price for changing what a
+     * summary is about.
+     */
+    if (current.title && current.title !== expected.title) {
+      throw new Error(
+        `summary-corpus: refuse to restamp ${path} in ${record.id}: the sidecar section is titled `
+        + `"${current.title}" but the document has "${expected.title}" here. If the heading was `
+        + "renamed, rename it in the sidecar too. If a section was inserted or moved, place the "
+        + "records in document order first - stamping would attach this summary to another section.",
+      );
+    }
     const nextHash = hashSectionSource(expected);
     if (current.sourceHash !== nextHash) changed.push(path);
     const childMap = new Map(current.children.map((c) => [c.slug, c]));
