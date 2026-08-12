@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:0be28880127c44d97a099cbcff2ae7dab1772e7b7dfb078f85bbc020fa3d9cee",
-  "semanticSummaryHash": "sha256:6e4964df2a9b92df940e210a3691b40891f3c08f410704a4342e7e4667b9b140",
+  "sourceHash": "sha256:bbd4aa01e9870e6fe6e209ef867a50c33a36d57f5ea73ca6c0d5c99d7ae6ceee",
+  "semanticSummaryHash": "sha256:4ecd154bdd4acd434708602ff83fc3686fef8426090481f65c6f864f39be61f7",
   "verdict": "APPROVE",
-  "reviewer": "chi",
-  "notes": "png export: the character codec writes png as well as json, and the export route takes an extension.",
-  "reviewedAt": "2026-08-10T22:12:20.224Z"
+  "reviewer": "ui-new-app-sections-review",
+  "notes": "Two sections added for the two new catalog-only apps, Macro Lab and HTML View, inserted in document order before Settings. Checked that every OTHER section summary still sits under its own heading: an earlier attempt appended rather than spliced and shifted every later summary onto the wrong section, which the shape checks did not catch. Claims verified against source - the host-only route, the one-render-per-engine guard, SealedHtmlPreview shared by three surfaces, and catalogOnly on both manifests.",
+  "reviewedAt": "2026-08-12T16:48:55.441Z"
 }

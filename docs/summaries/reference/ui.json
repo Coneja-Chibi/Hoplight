@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:0be28880127c44d97a099cbcff2ae7dab1772e7b7dfb078f85bbc020fa3d9cee",
+  "sourceHash": "sha256:bbd4aa01e9870e6fe6e209ef867a50c33a36d57f5ea73ca6c0d5c99d7ae6ceee",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -236,6 +236,39 @@
         "deferred press features"
       ],
       "children": []
+    },
+    {
+      "slug": "the-macro-lab-catalog-only---what-a-macro-actually-does",
+      "title": "The Macro Lab (catalog-only - what a macro actually does)",
+      "level": 2,
+      "sourceHash": "sha256:8a4eb661ae78a7a438bbccf4d4c0dd26fab714a037f665594a5dcbfe38760ead",
+      "summary": "A scratch pad for macro text and the only surface that needs no piece open to be useful. It keeps two answers apart on purpose. Reading is pure and local: each token is broken out against the chosen platform catalog, nested tokens report under their container, and where else does it work asks the translator rather than two catalogs, so a shared name meaning different things is a flagged collision instead of a clean trip. A token invoking no name is called that rather than supported, because isMacroSupported fails lenient by design. Resolving runs the text through the platform real engine as a one-block preset behind a host-only route, needs a local checkout, and refuses by name when absent. The bible lists every macro with click-to-insert, and the operations table derives from the catalogs with gaps sorted first.",
+      "topics": [
+        "two answers kept apart",
+        "catalog reading is pure",
+        "real engine resolving",
+        "macro bible click to insert",
+        "operations table gaps first",
+        "MacroDialect wider than lenses"
+      ],
+      "children": [],
+      "shortSource": ""
+    },
+    {
+      "slug": "html-view-catalog-only---a-drawing-at-full-size",
+      "title": "HTML View (catalog-only - a drawing at full size)",
+      "level": 2,
+      "sourceHash": "sha256:e8e69b2ce423d5681141abe126ba9c03c5a05ecb73fd6f915c949dc2a8ce06f7",
+      "summary": "A catalog-only app that draws one htmldoc piece as a whole tab. It is reached three ways: opened by id from the Library, handed a piece by another surface, or handed the raw text of a fenced html block from an agent reply. A piece travels by ID and is re-read from the studio, so the tab shows what the drawing says now rather than when it was opened and a reload costs nothing; only an unsaved reply has to be carried whole, and the room says so rather than showing an empty frame. Everything drawn passes through SealedHtmlPreview, the same component behind the transcript inline preview and the Workbench editor live pane, so one boundary serves three sizes with no second renderer to drift. All CSS renders while JavaScript never runs and no remote image or webfont loads.",
+      "topics": [
+        "catalog-only app",
+        "opened by id or handoff",
+        "piece re-read not carried",
+        "one seal three surfaces",
+        "CSS renders scripts do not"
+      ],
+      "children": [],
+      "shortSource": ""
     },
     {
       "slug": "settings-drop-in-sections",

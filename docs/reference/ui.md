@@ -454,6 +454,43 @@ room works only its staged queue - no studio browser inside. The queue is shell-
 - Deferred, stated: delivery ledger + saved jobs, drag reorder, rehearse-bytes drawer, offer-rail
   readiness dots.
 
+## The Macro Lab (catalog-only - what a macro actually does)
+A scratch pad for macro text, and the only surface here that needs no piece open to be useful. Two
+halves, kept apart on purpose because one of them is our model and the other is an engine.
+- **Reading** (`lab-core.ts`, pure): each `{{token}}` broken out against the chosen platform's catalog,
+  nested tokens reported under their container, and a per-token "where else does it work" that asks the
+  TRANSLATOR rather than two catalogs - so a name that exists on both ends but means something else is
+  a flagged collision, not a clean trip. A token invoking no name is called that, never "supported":
+  `isMacroSupported` fails lenient by design so a compatibility check never calls a comment dead, and
+  carrying that leniency onto a screen would print a tick beside `{{// note}}`.
+- **Resolving** (`/api/macro-lab/*`, host-only): the text is wrapped as a one-block preset and run
+  through the platform's REAL engine, so the answer is the engine's rather than ours. Requires a
+  checkout (`HOPLIGHT_ST_ROOT`, `HOPLIGHT_MARINARA_ROOT`); an absent one is a named refusal, never a
+  clean pass. Button-press only, one render per engine at a time - SillyTavern's adapter stages a copy
+  inside the user's own install, so a mashed button would leave a tree copy per press.
+- **Macro bible** - every macro the platform publishes, its own groups and wording, searchable by name,
+  meaning or alias, and clicking one INSERTS it at the caret rather than copying it.
+- **Operations** - one row per canonical operation, one column per platform, derived from the catalogs
+  rather than written down. The EMPTY cells are the content; rows sort gaps-first. A dialect with no
+  operation annotations gets no column and is named as absent, because a column of "none" would report
+  our gap as the engine's.
+- Platforms are `MacroDialect`, which is wider than the write-for lenses: RisuAI and SillyTavern's
+  second (registry) engine are reference dialects. `full` is deliberately absent - its catalog IS
+  RoleCall's, so it was a duplicate column under a name with no engine behind it.
+
+## HTML View (catalog-only - a drawing at full size)
+Draws one `htmldoc` piece as a whole tab. Reached three ways: opened by id from the Library, handed a
+piece by another surface, or handed the raw text of an ```html block from an agent reply. A piece is
+carried BY ID and re-read from the studio, so the tab shows what the drawing says now and a reload
+costs nothing; only an unsaved reply is carried whole, and the room says so rather than showing an
+empty frame.
+
+Everything it draws goes through `SealedHtmlPreview` - `sandbox=""`, `script-src 'none'`,
+`connect-src 'none'`, `img-src data: blob:`, DOMPurify. The same component draws the transcript's
+inline preview and the Workbench editor's live pane: one boundary at three sizes, so there is no
+second renderer to drift. All CSS works; JavaScript never runs and no remote image or webfont loads.
+See [entities/htmldoc.md](entities/htmldoc.md).
+
 ## Settings (drop-in sections)
 Settings is built from section modules: one file in `src/ui/apps/settings/sections/` exporting a
 `SettingsSection` (id, label, order, `Component: (props: { ctx }) => JSX.Element`);

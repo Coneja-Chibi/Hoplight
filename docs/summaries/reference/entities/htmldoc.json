@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/htmldoc",
+  "sourcePath": "docs/reference/entities/htmldoc.md",
+  "sourceHash": "sha256:01e894b4875c03d44dc0e918d8efb9da04ba504c4fa6395be2db3f99a6a8c7d7",
+  "summary": "A drawing (htmldoc) is an HTML document kept as a canonical studio piece under studio/htmldoc/<id>.json, so the existing create, read, save, delete, duplicate, collection and Library tools act on it without new verbs. The html field is model output and is stored VERBATIM and unsanitised on purpose: cleaning at rest would make the file differ from what was authored and would add a second sanitiser that could drift from the one that renders. The seal is at the point of drawing - a srcdoc iframe with sandbox=\"\", a CSP of script-src none, connect-src none, img-src data: blob:, over DOMPurify-cleaned markup - so all CSS renders while JavaScript never runs and no remote image, font or fetch resolves. Three surfaces draw a piece through that one component: the agent transcript inline, the HTML View tab, and the Workbench editor pane. HTMLDOC_CAP is 200,000 characters, matching the preview ceiling, and a longer document is refused rather than stored and drawn part-way.",
+  "topics": [
+    "htmldoc canonical entity",
+    "drawing as a studio piece",
+    "stored verbatim not sanitised",
+    "sealed iframe CSP",
+    "one seal three surfaces",
+    "200k cap refused not truncated"
+  ],
+  "sections": [
+    {
+      "slug": "why-it-is-an-entity-at-all",
+      "title": "Why it is an entity at all",
+      "level": 2,
+      "sourceHash": "sha256:93404153e7ea305a4dd7999d6929f0d26936284c74539dc6aa5ccc94b47b3708",
+      "summary": "A wireframe living in a chat reply cannot be renamed, filed, reopened or edited, because every one of those verbs in this app acts on a piece. Making the drawing a kind means it inherits create, read, save, delete, duplicate, collections and the Library with no new tool beyond studio_htmldoc_create; the alternative was seven bespoke tools over a transient value that loses its content on reload.",
+      "topics": [
+        "piece inherits every verb",
+        "no bespoke tool per verb",
+        "transient value loses content"
+      ],
+      "children": []
+    },
+    {
+      "slug": "it-is-untrusted-content-and-storing-it-changes-nothing",
+      "title": "It is untrusted content, and storing it changes nothing",
+      "level": 2,
+      "sourceHash": "sha256:d357c8d1c2ad801be7285306b9d33317c496b59001292fee0099ad791ba381ca",
+      "summary": "The html field is model output and nothing in the repo ever evaluates it. It is stored unsanitised because cleaning at rest is the wrong boundary twice: the stored file would differ from what was written, and a second sanitiser could drift from the one that renders. Enforcement lives at the point of drawing - sandbox=\"\" iframe, script-src none, connect-src none, img-src data: blob:, DOMPurify with script/iframe/object/embed/form/input/button/textarea/select/link/meta/base forbidden - which makes it a static drawing surface by construction.",
+      "topics": [
+        "model output never evaluated",
+        "stored verbatim not sanitised",
+        "seal at draw time",
+        "forbidden tag list"
+      ],
+      "children": []
+    },
+    {
+      "slug": "where-it-is-used",
+      "title": "Where it is used",
+      "level": 2,
+      "sourceHash": "sha256:632f24e4490ff1d9887d8561a74be08e1f22ec6c5ec47c522a3afd1a864b8914",
+      "summary": "The Workbench edits one with source and live drawing side by side, autosaving like any piece. HTML View is a catalog-only app that draws one at full size, opened by id from the Library or handed text from a reply. Kit composes one with studio_htmldoc_create as a preview-only draft that the Gate turns into a file.",
+      "topics": [
+        "Workbench editor",
+        "HTML View tab",
+        "studio_htmldoc_create draft"
+      ],
+      "children": []
+    },
+    {
+      "slug": "size-ceiling",
+      "title": "Size ceiling",
+      "level": 2,
+      "sourceHash": "sha256:11872ca06963980c2f20401ccbaf975f2941e6dab6764f7d5e8cee8c2b173f4f",
+      "summary": "HTMLDOC_CAP is 200,000 characters and matches the sealed preview own ceiling, so a longer document is one whose end could never be drawn. The decoder refuses it rather than storing something that renders three quarters of the way and stops, and the editor says so while the text is still editable rather than as a failed save.",
+      "topics": [
+        "HTMLDOC_CAP 200k",
+        "matches preview ceiling",
+        "refused not truncated"
+      ],
+      "children": []
+    },
+    {
+      "slug": "fields",
+      "title": "Fields",
+      "level": 2,
+      "sourceHash": "sha256:73a601e57c0cdb9fa5e54b77a844e2755423aa92458372b95a7c240cd4ecbc5e",
+      "summary": "The field table on this page is generated from src/entities/htmldoc/schema.ts by scripts/docs-fields.ts and pasted verbatim, so a cell is improved by editing the schema doc comment and regenerating rather than by hand. HtmlDocBody carries five fields. Name is what the drawing is called, because every canonical kind titles itself from its body rather than its envelope. Html is the document as authored, kept exactly as written. Summary is one optional line describing what the page draws, so a shelf of drawings reads as something other than a wall of filenames. Tags are optional free-form labels for grouping without a folder, and notes is the same author-notes field every other entity carries. Producers are dashes throughout because this kind is canonical-only: no foreign format writes one.",
+      "topics": [
+        "generated field table",
+        "schema is source of truth"
+      ],
+      "children": [
+        {
+          "slug": "htmldocbody",
+          "title": "`HtmlDocBody`",
+          "level": 3,
+          "sourceHash": "sha256:479ad16897ebe8a1311aad66cf1318288ffa556f1049f00f0b74911d2610c7e6",
+          "summary": "The generated field table for HtmlDocBody: name, html, and the optional summary, tags and notes, each with its type and the schema doc comment explaining what it means. Generated by scripts/docs-fields.ts and pasted verbatim, so a cell is improved by editing the schema comment and regenerating.",
+          "topics": [
+            "name and html fields",
+            "optional summary tags notes"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "see-also",
+      "title": "See also",
+      "level": 2,
+      "sourceHash": "sha256:2f4fb0a6d23799282038d93bfacc4c0510322abc689c367f74ab0c1f81c1cb7f",
+      "summary": "Pointers out of this page to the three documents that carry the rest of the picture. Architecture.md holds the canonical model, the entity envelope shared by every kind, and the hub-and-spoke shape this entity follows in storing under studio/htmldoc by id. Ui.md documents the surfaces a person actually meets: the Workbench editor with source and live drawing side by side, the catalog-only HTML View tab that draws one at full size, and the agent transcript preview that offers a fenced html block as a drawing. Security/safe-rendering.md holds the seal itself, which is the load-bearing part of this kind and the reason storing untrusted markup verbatim is safe rather than reckless.",
+      "topics": [
+        "architecture canonical model",
+        "ui surfaces",
+        "safe rendering seal"
+      ],
+      "children": []
+    }
+  ]
+}

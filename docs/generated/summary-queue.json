@@ -1,8 +1,8 @@
 {
   "generated": "2026-08-12",
   "targetChars": 90000,
-  "totalPages": 112,
-  "totalSourceChars": 1017510,
+  "totalPages": 113,
+  "totalSourceChars": 1025702,
   "batches": [
     {
       "id": "batch-001",
@@ -430,7 +430,7 @@
     },
     {
       "id": "batch-005",
-      "sourceChars": 71251,
+      "sourceChars": 76405,
       "pages": [
         {
           "docId": "reference/concepts/regex-engine",
@@ -462,6 +462,14 @@
           "sidecarPath": "docs/summaries/reference/entities/character.json",
           "sectionCount": 26,
           "sourceChars": 21870,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/entities/htmldoc",
+          "sourcePath": "docs/reference/entities/htmldoc.md",
+          "sidecarPath": "docs/summaries/reference/entities/htmldoc.json",
+          "sectionCount": 7,
+          "sourceChars": 5154,
           "status": "APPROVED"
         },
         {
@@ -950,14 +958,14 @@
     },
     {
       "id": "batch-013",
-      "sourceChars": 48614,
+      "sourceChars": 51652,
       "pages": [
         {
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
-          "sectionCount": 16,
-          "sourceChars": 40547,
+          "sectionCount": 18,
+          "sourceChars": 43585,
           "status": "APPROVED"
         },
         {

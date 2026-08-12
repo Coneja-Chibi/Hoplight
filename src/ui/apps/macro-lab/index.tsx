@@ -317,6 +317,14 @@ const app: HoplightApp = {
     accent: ACCENT,
     order: 55,
     subtitle: "app · macros",
+    /**
+     * NOT ON THE EVERYDAY DOCK until somebody adds it from the Apps catalog.
+     *
+     * The Dock is the set of rooms a person lives in, and a specialist tool that earns a permanent
+     * slot by existing crowds it for everybody who never opens one. This shipped without the flag
+     * and simply appeared on the Dock, which is not how a new app is supposed to arrive.
+     */
+    catalogOnly: true,
     agentSurface: {
       describe:
         "The Macro Lab: a scratch pad for macro text. The reading half explains each token against "

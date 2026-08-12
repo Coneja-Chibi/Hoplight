@@ -1,6 +1,6 @@
 {
   "generated": "2026-08-12",
-  "count": 112,
+  "count": 113,
   "pages": [
     {
       "docId": "01-VISION",
@@ -433,6 +433,14 @@
       "reviewer": "independent-reviewer-1",
       "sourceHash": "sha256:c5902ada0d8026f625b89b86931f2e1c7c65ca9665c406a446f9af6789f7c5a5",
       "semanticSummaryHash": "sha256:2b3ef43c3a66c210254127e5620e28858bf37c98c183fb53f0e669fde0276f1a"
+    },
+    {
+      "docId": "reference/entities/htmldoc",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "htmldoc-entity-doc-review",
+      "sourceHash": "sha256:01e894b4875c03d44dc0e918d8efb9da04ba504c4fa6395be2db3f99a6a8c7d7",
+      "semanticSummaryHash": "sha256:648a46a2a5eb6bddbcdc7972fd5c7d459905237b6f118376b768b2cbfd0ce841"
     },
     {
       "docId": "reference/entities/lorebook",
@@ -878,9 +886,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "chi",
-      "sourceHash": "sha256:0be28880127c44d97a099cbcff2ae7dab1772e7b7dfb078f85bbc020fa3d9cee",
-      "semanticSummaryHash": "sha256:6e4964df2a9b92df940e210a3691b40891f3c08f410704a4342e7e4667b9b140"
+      "reviewer": "ui-new-app-sections-review",
+      "sourceHash": "sha256:bbd4aa01e9870e6fe6e209ef867a50c33a36d57f5ea73ca6c0d5c99d7ae6ceee",
+      "semanticSummaryHash": "sha256:4ecd154bdd4acd434708602ff83fc3686fef8426090481f65c6f864f39be61f7"
     },
     {
       "docId": "reference/updates",

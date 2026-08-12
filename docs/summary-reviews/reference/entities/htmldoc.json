@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/htmldoc",
+  "sourcePath": "docs/reference/entities/htmldoc.md",
+  "sourceHash": "sha256:01e894b4875c03d44dc0e918d8efb9da04ba504c4fa6395be2db3f99a6a8c7d7",
+  "semanticSummaryHash": "sha256:648a46a2a5eb6bddbcdc7972fd5c7d459905237b6f118376b768b2cbfd0ce841",
+  "verdict": "APPROVE",
+  "reviewer": "htmldoc-entity-doc-review",
+  "notes": "New page for a new kind, checked against src/entities/htmldoc/schema.ts and runtime-schema.ts: five fields as documented, HTMLDOC_CAP is 200000 and refuses rather than truncates, and the CSP and forbid list quoted match SealedHtmlPreview's actual constants. The claim that three surfaces share one component is true - transcript, HTML View and the Workbench editor all import SealedHtmlPreview.",
+  "reviewedAt": "2026-08-12T16:47:07.574Z"
+}
