@@ -171,11 +171,43 @@
   flex: 1;
   min-height: 8rem;
   display: flex;
+  position: relative; /* the Close button in fullscreen anchors here */
   background: var(--face);
   border: 3px solid var(--edge);
 }
 
 .frame > * { flex: 1; min-height: 0; }
+
+/*
+ * Fullscreen, and the fallback for a shell that will not give it. Fixed to the viewport rather than
+ * to the pane, so the drawing covers the app rather than the column it was sitting in. When the
+ * engine DOES grant real fullscreen this element is the fullscreen one anyway and the fixed
+ * position is simply the whole screen.
+ */
+.big {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  border-width: 0;
+  background: var(--face);
+}
+
+.close {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--face);
+  border: 2px solid var(--edge);
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
 
 .empty {
   margin: auto;

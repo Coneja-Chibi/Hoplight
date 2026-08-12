@@ -19,6 +19,13 @@ export interface SealedHtmlPreviewProps {
   css?: string;
   /** Accessible name for the iframe. */
   title?: string;
+  /**
+   * Take the whole of the room rather than stopping at the inline ceiling.
+   *
+   * Set by the surfaces whose entire job is the drawing - the editor's pane and the HTML View tab.
+   * Left off in a transcript, where a tall drawing must not push the conversation off the screen.
+   */
+  fill?: boolean;
 }
 
 /** Cap on untrusted HTML characters accepted into the sealed srcdoc. */
@@ -121,11 +128,12 @@ export function SealedHtmlPreview({
   html,
   css = "",
   title = "Backdrop preview",
+  fill = false,
 }: SealedHtmlPreviewProps): JSX.Element {
   const srcDoc = useMemo(() => buildBackdropSrcDoc(html, css), [html, css]);
   return (
     <iframe
-      className={styles.frame}
+      className={fill ? `${styles.frame} ${styles.fill}` : styles.frame}
       title={title}
       sandbox=""
       srcDoc={srcDoc}

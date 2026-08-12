@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:990edac7c27e8cfda070b07291b088a698512fe095ffd115923572fe6fcb7adc",
-  "semanticSummaryHash": "sha256:4d54dce0546e070542b49229fd8e09c8f808231d4b1562d31f80f95167b57b31",
+  "sourceHash": "sha256:f30eba2f305a4252a6daafe60e682b93f1fe4d4cf0117294ace8772231c24f79",
+  "semanticSummaryHash": "sha256:968ac9edffd6dbef8adc4ee0faf3010c2de1fce2da03a91e3e4c58f67ef9f2b6",
   "verdict": "APPROVE",
-  "reviewer": "sealed-style-hoist-review",
-  "notes": "Two changes: Settings > Studio engine folders, and the sealed preview keeping a document's head styles. The render claim is measured, not asserted: with the old pipeline Chi's three saved drawings carried 0 characters of CSS through DOMPurify (head dropped with the body-only return); with the hoist they carry 5346, 4775 and 4968, markup intact, no remote origin in the style element. The form-control sentence is checked against FORBID_TAGS, which still lists form/input/button/textarea/select. Not an independent pass: written and approved in one turn.",
-  "reviewedAt": "2026-08-12T19:20:58.731Z"
+  "reviewer": "fullscreen-fill-review",
+  "notes": "The drawing surfaces fill their room and can go fullscreen. Checked against source: SealedHtmlPreview's 28rem ceiling still applies without fill and is why the editor pane had dead space under it; the fill class is passed only by the editor and HTML View, not by the transcript; the element that goes fullscreen is the container div, not the sandboxed iframe. The overlay fallback is proven by test - JSDOM has no requestFullscreen, which is the same case as a shell that refuses, and the class still goes on and comes off with Escape. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T20:31:03.336Z"
 }

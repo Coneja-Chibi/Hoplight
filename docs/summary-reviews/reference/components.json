@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:885e7e4707844049b48d86d70a8d35a1af444995743b1fb54bc292ed32e6f963",
-  "semanticSummaryHash": "sha256:5a34eb0598d6666099e2624017200f1c47a3a259eab1c15098af82f8ed3681d7",
+  "sourceHash": "sha256:bf7da77ec86e621a7b157ba3b5b5988a20fbf9be246c4da44adc887b11b7e5b4",
+  "semanticSummaryHash": "sha256:c796244b381de89e2a51063a58917f489d575b5713aa58da6ba365a2b4389f8e",
   "verdict": "APPROVE",
-  "reviewer": "engine-roots-review",
-  "notes": "Regenerated catalog: one new row, EngineRoots in src/ui/apps/settings/sections/engines.tsx. Checked the row against the file - the component takes no props and its summary line is the one above the export. The page summary makes no claim this row changes. Not an independent pass: written and approved in one turn.",
-  "reviewedAt": "2026-08-12T18:43:17.620Z"
+  "reviewer": "fullscreen-fill-review",
+  "notes": "Regenerated catalog only: SealedHtmlPreview's signature gains fill, HtmlView's class list gains the fullscreen classes. Both read against the files. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T20:31:03.849Z"
 }

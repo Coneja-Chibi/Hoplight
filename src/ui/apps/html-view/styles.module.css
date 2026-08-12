@@ -48,9 +48,43 @@
   flex: 1;
   min-height: 0;
   display: flex;
+  position: relative;
   background: var(--face);
   border: 3px solid var(--edge);
   box-shadow: 5px 5px 0 0 var(--a);
 }
 
 .frame > * { flex: 1; min-height: 0; }
+
+/*
+ * Fullscreen, plus the fallback for a shell that refuses it. Fixed to the viewport rather than the
+ * tab, so the drawing covers the app rather than the column it sat in; when the engine does grant
+ * real fullscreen this is the fullscreen element anyway and the fixed box is the whole screen.
+ */
+.big {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  border-width: 0;
+  box-shadow: none;
+  background: var(--face);
+}
+
+.expand {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--face);
+  border: 2px solid var(--edge);
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.expand:hover { color: var(--text); }

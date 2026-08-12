@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/entities/htmldoc",
   "sourcePath": "docs/reference/entities/htmldoc.md",
-  "sourceHash": "sha256:d01042dce7c34f6c8369a8499cca75c547f4bd2f0af315a30b5dfebcad004480",
+  "sourceHash": "sha256:57b7f65e6e1fd26cb2b9be35077a3e9e8ce919182c6ca88fbaeca398e99a9764",
   "summary": "A drawing (htmldoc) is an HTML document kept as a canonical studio piece under studio/htmldoc/<id>.json, so the existing create, read, save, delete, duplicate, collection and Library tools act on it without new verbs. The html field is model output and is stored VERBATIM and unsanitised on purpose: cleaning at rest would make the file differ from what was authored and would add a second sanitiser that could drift from the one that renders. The seal is at the point of drawing - a srcdoc iframe with sandbox=\"\", a CSP of script-src none, connect-src none, img-src data: blob:, over DOMPurify-cleaned markup - so all CSS renders while JavaScript never runs and no remote image, font or fetch resolves. Three surfaces draw a piece through that one component: the agent transcript inline, the HTML View tab, and the Workbench editor pane. HTMLDOC_CAP is 200,000 characters, matching the preview ceiling, and a longer document is refused rather than stored and drawn part-way.",
   "topics": [
     "htmldoc canonical entity",
@@ -44,8 +44,8 @@
       "slug": "where-it-is-used",
       "title": "Where it is used",
       "level": 2,
-      "sourceHash": "sha256:e85bb819eed3fc2e1de71dcceab43e9c8b9e1481e4b63861bfbd8999ef907331",
-      "summary": "The Workbench edits one with source and live drawing side by side, autosaving like any piece; the divider between them drags with pointer or keyboard and the source hides outright, both remembered in settings, since a drawing being looked at should not spend half the room on markup. HTML View is a catalog-only app that draws one at full size, opened by id from the Library or handed text from a reply. Kit composes one with studio_htmldoc_create as a preview-only draft that the Gate turns into a file, and regex_from_drawing turns a saved drawing into the replacement half of a regex rule so the rich thing is designed once and rendered from compact model output.",
+      "sourceHash": "sha256:660d84cf931cf04db7ef5307a91248ffbe965dacc1cce15abbef491415b45d52",
+      "summary": "The Workbench edits one with source and live drawing side by side, autosaving like any piece; the divider between them drags with pointer or keyboard and the source hides outright, both remembered in settings, since a drawing being looked at should not spend half the room on markup. HTML View is a catalog-only app that draws one at full size, opened by id from the Library or handed text from a reply; it and the editor pane both fill their room rather than stopping at the inline ceiling, and both go fullscreen - the browser's own where the engine grants it, an overlay over the app where it does not, Escape leaving either. Kit composes one with studio_htmldoc_create as a preview-only draft that the Gate turns into a file, and regex_from_drawing turns a saved drawing into the replacement half of a regex rule so the rich thing is designed once and rendered from compact model output.",
       "topics": [
         "Workbench editor",
         "HTML View tab",

@@ -95,7 +95,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | HelperInstalledLine | src/ui/apps/settings/sections/helper-card.tsx | ({ h }: { h: HelperControls }) | Shown on the `off` card: which helper is installed, and a way to fetch it again. |  |
 | HelperMissingCard | src/ui/apps/settings/sections/helper-card.tsx | ({ detail, h }: { detail?: string; h: HelperControls }) | The `unavailable` card. NOT an error card and it never offers "Try again": the helper is absent from |  |
 | HtmlDocEditor | src/ui/apps/workbench/htmldoc-editor.tsx | ({ entity, revision, ctx, piece, topRight }: HtmlDocEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
-| HtmlView | src/ui/apps/html-view/index.tsx | ({ ctx }: { ctx: AppContext }) |  | .room .head .eyebrow .title .lede .quiet .frame |
+| HtmlView | src/ui/apps/html-view/index.tsx | ({ ctx }: { ctx: AppContext }) |  | .room .head .eyebrow .title .lede .quiet .frame .big ... |
 | Icon | src/ui/apps/library/icon.tsx | ({ svg }: { svg: string }) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | IdentityCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Identity: tagline + pronouns/height/age + the BRIEF with its never-injected honesty line. |  |
@@ -177,7 +177,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | RuleRail | src/ui/apps/workbench/regex/rule-rail.tsx | ({ rule, styles, onOpenBench, findings, onOpenHealth }: RuleRailProps) |  |  |
 | RuleToc | src/ui/apps/workbench/regex/rule-toc.tsx | ({ rules, focusedId, styles, onSelect, onAdd, slowIds }: RuleTocProps) |  |  |
 | SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |
-| SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame |
+| SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", fill = false, }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame .fill |
 | SealedMedia | src/ui/components/sealed-media/index.tsx | ({ kind, src, name }: SealedMediaProps) |  | .box .img .audio .video .none |
 | SearchBox | src/ui/apps/library/search-bar.tsx | ({ value, onChange, hint }: SearchBoxProps) |  |  |
 | Searchlight | src/ui/agent/kit-widgets.tsx | ({ on }: { on: boolean }) | The searchlight: a rose beam gliding along the composer's top edge while a turn runs. |  |

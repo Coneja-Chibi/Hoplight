@@ -342,9 +342,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "engine-roots-review",
-      "sourceHash": "sha256:885e7e4707844049b48d86d70a8d35a1af444995743b1fb54bc292ed32e6f963",
-      "semanticSummaryHash": "sha256:5a34eb0598d6666099e2624017200f1c47a3a259eab1c15098af82f8ed3681d7"
+      "reviewer": "fullscreen-fill-review",
+      "sourceHash": "sha256:bf7da77ec86e621a7b157ba3b5b5988a20fbf9be246c4da44adc887b11b7e5b4",
+      "semanticSummaryHash": "sha256:c796244b381de89e2a51063a58917f489d575b5713aa58da6ba365a2b4389f8e"
     },
     {
       "docId": "reference/concepts/bundles",
@@ -438,9 +438,9 @@
       "docId": "reference/entities/htmldoc",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "drawing-to-regex-review",
-      "sourceHash": "sha256:d01042dce7c34f6c8369a8499cca75c547f4bd2f0af315a30b5dfebcad004480",
-      "semanticSummaryHash": "sha256:5566c5ec513e205b721b8adc3399fd19a3d94a1a883d557db0027d4d9ac41bf1"
+      "reviewer": "fullscreen-fill-review",
+      "sourceHash": "sha256:57b7f65e6e1fd26cb2b9be35077a3e9e8ce919182c6ca88fbaeca398e99a9764",
+      "semanticSummaryHash": "sha256:1dee33db4dcc9802e7051390acb90b4db76e0b4f627f78d316637d4e7293c272"
     },
     {
       "docId": "reference/entities/lorebook",
@@ -886,9 +886,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "sealed-style-hoist-review",
-      "sourceHash": "sha256:990edac7c27e8cfda070b07291b088a698512fe095ffd115923572fe6fcb7adc",
-      "semanticSummaryHash": "sha256:4d54dce0546e070542b49229fd8e09c8f808231d4b1562d31f80f95167b57b31"
+      "reviewer": "fullscreen-fill-review",
+      "sourceHash": "sha256:f30eba2f305a4252a6daafe60e682b93f1fe4d4cf0117294ace8772231c24f79",
+      "semanticSummaryHash": "sha256:968ac9edffd6dbef8adc4ee0faf3010c2de1fce2da03a91e3e4c58f67ef9f2b6"
     },
     {
       "docId": "reference/updates",

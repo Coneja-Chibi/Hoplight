@@ -123,6 +123,33 @@ describe("the drawing editor's source pane", () => {
     expect(css).toMatch(/\.pane\[hidden\]\s*\{[^}]*display:\s*none/);
   });
 
+  /**
+   * FULLSCREEN MUST DO SOMETHING even where the engine gives nothing. JSDOM has no
+   * requestFullscreen at all, which is exactly the shell case: the overlay class is what makes the
+   * press mean anything there, and Escape has to leave by the same key that leaves real fullscreen.
+   */
+  test("Fullscreen covers the app even with no fullscreen API, and Escape comes back", async () => {
+    const flushSync = await mountEditor();
+    const frame = host.querySelector("textarea")?.closest("div")?.parentElement
+      ?.querySelector("iframe")?.parentElement as HTMLElement | null;
+    expect(frame).not.toBeNull();
+    expect(frame!.className).not.toContain("big");
+
+    flushSync(() => byText("Fullscreen")!.click());
+    await new Promise((r) => setTimeout(r, 10));
+    flushSync(() => undefined);
+    expect(frame!.className).toContain("big");
+
+    flushSync(() => {
+      dom.window.document.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape" }));
+    });
+    await new Promise((r) => setTimeout(r, 10));
+    flushSync(() => undefined);
+    expect(frame!.className).not.toContain("big");
+    flushSync(() => root.unmount());
+    host.remove();
+  });
+
   test("the divider is a separator a keyboard can reach and move", async () => {
     const flushSync = await mountEditor();
     const grip = host.querySelector("[role=\"separator\"]") as HTMLElement | null;

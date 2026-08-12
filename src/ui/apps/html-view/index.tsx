@@ -15,9 +15,10 @@
  * CSS renders faithfully; JavaScript never runs and no external image or webfont is fetched. Static
  * wireframes and mockups are what this is for.
  */
-import { useEffect, useState, type CSSProperties, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type JSX } from "react";
 import type { AppContext, HoplightApp } from "../../app-contract";
 import { SealedHtmlPreview } from "../../components/sealed-html-preview";
+import { exitFullscreen, fullscreenElement, requestFullscreen } from "../../_shared/fullscreen";
 import { onHtmlHandoff, takeHandedHtml } from "../../agent/html-handoff";
 import styles from "./styles.module.css";
 
@@ -38,6 +39,32 @@ interface Drawing {
 export function HtmlView({ ctx }: { ctx: AppContext }): JSX.Element {
   const [drawing, setDrawing] = useState<Drawing | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+
+  /** Real fullscreen where the engine gives it, an overlay over the app where it does not. */
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [big, setBig] = useState(false);
+  const goBig = useCallback(async (): Promise<void> => {
+    setBig(true);
+    await requestFullscreen(frameRef.current);
+  }, []);
+  const comeBack = useCallback(async (): Promise<void> => {
+    setBig(false);
+    await exitFullscreen();
+  }, []);
+
+  useEffect(() => {
+    if (!big) return undefined;
+    // Escape leaves both paths, and an engine that drops out of fullscreen by itself takes the
+    // overlay class with it - otherwise the tab stays covered by something nobody asked for.
+    const onKey = (e: KeyboardEvent): void => { if (e.key === "Escape") void comeBack(); };
+    const onChange = (): void => { if (!fullscreenElement()) setBig(false); };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("fullscreenchange", onChange);
+    };
+  }, [big, comeBack]);
   const [handoff, setHandoff] = useState(() => takeHandedHtml());
 
   // Re-read when something else is handed over while this tab is already open, so a second ask
@@ -102,8 +129,17 @@ export function HtmlView({ ctx }: { ctx: AppContext }): JSX.Element {
       </header>
 
       {html ? (
-        <div className={styles.frame}>
-          <SealedHtmlPreview html={html} title="The page the agent wrote" />
+        // Fullscreen is asked of this container, never of the sealed iframe: the seal is unchanged
+        // by being large, and the sandboxed frame is deliberately not given that permission.
+        <div className={big ? `${styles.frame} ${styles.big}` : styles.frame} ref={frameRef}>
+          <button
+            type="button"
+            className={styles.expand}
+            onClick={() => { void (big ? comeBack() : goBig()); }}
+          >
+            {big ? "Close (Esc)" : "Fullscreen"}
+          </button>
+          <SealedHtmlPreview html={html} title="The page the agent wrote" fill />
         </div>
       ) : (
         /*

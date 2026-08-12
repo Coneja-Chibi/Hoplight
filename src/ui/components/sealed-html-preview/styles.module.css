@@ -7,3 +7,17 @@
   background: var(--stage-panel); /* --bg was never defined; content-pane fill, matches code-editor's convention */
   box-sizing: border-box;
 }
+
+/*
+ * A preview that OWNS its room, rather than one sitting inside a transcript.
+ *
+ * The 28rem ceiling above is right for an inline preview in a reply, where a long drawing must not
+ * push the conversation off the screen. In the editor and the HTML View tab it was simply wrong: the
+ * pane stretched to the window and the drawing stopped a third of the way down, leaving dead space
+ * under it. Same component, two rooms - so the room says which it is.
+ */
+.fill {
+  max-height: none;
+  height: 100%;
+  min-height: 0;
+}

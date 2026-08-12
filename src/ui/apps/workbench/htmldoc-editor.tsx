@@ -18,12 +18,13 @@
  * drawing is being LOOKED at rather than written, so the divider drags and the source hides
  * outright. Both are remembered in settings, because that is a working habit, not a per-file one.
  */
-import { useCallback, useMemo, useRef, useState, type JSX, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type JSX, type ReactNode } from "react";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
 import type { HtmlDocBody } from "../../../entities/htmldoc/schema";
 import { HTMLDOC_CAP } from "../../../entities/htmldoc/runtime-schema";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
 import { SealedHtmlPreview } from "../../components/sealed-html-preview";
+import { exitFullscreen, fullscreenElement, requestFullscreen } from "../../_shared/fullscreen";
 import { useEditorGuards } from "./use-editor-guards";
 import { readSplit, splitFromKey, splitFromPointer } from "./htmldoc-split";
 import styles from "./htmldoc.module.css";
@@ -83,6 +84,39 @@ export function HtmlDocEditor({ entity, revision, ctx, piece, topRight }: HtmlDo
     if (!room) return;
     moveSplit(splitFromPointer(clientX, room.left, room.width, split));
   }, [moveSplit, split]);
+
+  /**
+   * Fullscreen. Real fullscreen where the engine gives it, an overlay over the app where it does
+   * not - a button that does nothing when pressed is worse than one that does something smaller.
+   */
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [big, setBig] = useState(false);
+
+  const goBig = useCallback(async (): Promise<void> => {
+    setBig(true);
+    await requestFullscreen(frameRef.current);
+  }, []);
+
+  const comeBack = useCallback(async (): Promise<void> => {
+    setBig(false);
+    await exitFullscreen();
+  }, []);
+
+  // Escape leaves the overlay too, because Escape is what leaves real fullscreen and the two must
+  // not need different keys. The listener only exists while it is up.
+  useEffect(() => {
+    if (!big) return undefined;
+    const onKey = (e: KeyboardEvent): void => { if (e.key === "Escape") void comeBack(); };
+    // And when the engine leaves fullscreen on its own (Escape, F11, a window change), the class
+    // has to come off with it or the pane stays covered by an overlay nobody asked for.
+    const onChange = (): void => { if (!fullscreenElement()) setBig(false); };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("fullscreenchange", onChange);
+    };
+  }, [big, comeBack]);
 
   const dirty = !same(body, baseline);
   const overCap = body.html.length > HTMLDOC_CAP;
@@ -232,10 +266,28 @@ export function HtmlDocEditor({ entity, revision, ctx, piece, topRight }: HtmlDo
           <div className={styles.paneHead}>
             <span className={styles.paneTitle}>Drawing</span>
             <span className={styles.count}>scripts and network off</span>
+            <button
+              type="button"
+              className={styles.paneAct}
+              onClick={() => { void goBig(); }}
+              disabled={!body.html.trim()}
+            >
+              {"Fullscreen"}
+            </button>
           </div>
-          <div className={styles.frame}>
+          {/*
+            The element that goes fullscreen is this container, never the iframe: the seal inside it
+            is unchanged by being large, and asking the sandboxed frame itself would need a
+            permission it is deliberately not given.
+          */}
+          <div className={big ? `${styles.frame} ${styles.big}` : styles.frame} ref={frameRef}>
+            {big && (
+              <button type="button" className={styles.close} onClick={() => { void comeBack(); }}>
+                {"Close (Esc)"}
+              </button>
+            )}
             {body.html.trim()
-              ? <SealedHtmlPreview html={body.html} title="This drawing" />
+              ? <SealedHtmlPreview html={body.html} title="This drawing" fill />
               : <p className={styles.empty}>Write some HTML and it draws here as you type.</p>}
           </div>
         </div>

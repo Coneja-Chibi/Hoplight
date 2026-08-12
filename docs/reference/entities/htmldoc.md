@@ -66,7 +66,9 @@ three sizes, nothing to drift.
   a regex rule, so the rich thing is designed once here and rendered from compact model output by a
   script. See [kit/tools.md](../kit/tools.md).
 - **HTML View** - a `catalogOnly` app that draws one at full size. Opened by id from the Library, or by
-  handoff from an ```html block in a reply.
+  handoff from an ```html block in a reply. Both it and the editor pane can go fullscreen (the
+  browser's own where the engine grants it, an overlay over the app where it does not; Escape leaves
+  either), and both pass `fill` so the drawing takes the whole room rather than the inline ceiling.
 - **Kit** - `studio_htmldoc_create` composes one as a preview-only draft; the Gate turns it into a file.
 
 ## Size ceiling

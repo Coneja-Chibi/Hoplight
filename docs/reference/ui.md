@@ -518,7 +518,12 @@ empty frame.
 Everything it draws goes through `SealedHtmlPreview` - `sandbox=""`, `script-src 'none'`,
 `connect-src 'none'`, `img-src data: blob:`, DOMPurify. The same component draws the transcript's
 inline preview and the Workbench editor's live pane: one boundary at three sizes, so there is no
-second renderer to drift. All CSS works, including a whole document's `<head>` styles - those are
+second renderer to drift. The tab and the editor pane pass `fill`, so the drawing takes the whole
+room; the 28rem ceiling on the shared component is for the transcript, where a tall drawing must not
+push the conversation off the screen. Either surface goes **Fullscreen**: the browser's own where the
+engine grants it, an overlay covering the app where it does not, and Escape leaves both. What goes
+fullscreen is the container, never the sealed iframe - being large changes nothing about the seal.
+All CSS works, including a whole document's `<head>` styles - those are
 lifted out and re-injected, because sanitizing returns the body alone and the head would otherwise
 be thrown away with them. JavaScript never runs and no remote image or webfont loads. Form controls
 (`button`, `input`, `select`, `textarea`) are stripped: the same component draws untrusted card

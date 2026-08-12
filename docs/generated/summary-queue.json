@@ -2,7 +2,7 @@
   "generated": "2026-08-12",
   "targetChars": 90000,
   "totalPages": 113,
-  "totalSourceChars": 1033897,
+  "totalSourceChars": 1034651,
   "batches": [
     {
       "id": "batch-001",
@@ -360,14 +360,14 @@
     },
     {
       "id": "batch-004",
-      "sourceChars": 89314,
+      "sourceChars": 89343,
       "pages": [
         {
           "docId": "reference/components",
           "sourcePath": "docs/reference/components.md",
           "sidecarPath": "docs/summaries/reference/components.json",
           "sectionCount": 2,
-          "sourceChars": 39568,
+          "sourceChars": 39597,
           "status": "APPROVED"
         },
         {
@@ -430,7 +430,7 @@
     },
     {
       "id": "batch-005",
-      "sourceChars": 77498,
+      "sourceChars": 77750,
       "pages": [
         {
           "docId": "reference/concepts/regex-engine",
@@ -469,7 +469,7 @@
           "sourcePath": "docs/reference/entities/htmldoc.md",
           "sidecarPath": "docs/summaries/reference/entities/htmldoc.json",
           "sectionCount": 7,
-          "sourceChars": 6247,
+          "sourceChars": 6499,
           "status": "APPROVED"
         },
         {
@@ -958,14 +958,14 @@
     },
     {
       "id": "batch-013",
-      "sourceChars": 55701,
+      "sourceChars": 56174,
       "pages": [
         {
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 21,
-          "sourceChars": 47634,
+          "sourceChars": 48107,
           "status": "APPROVED"
         },
         {
