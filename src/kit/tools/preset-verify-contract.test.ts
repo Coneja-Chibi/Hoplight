@@ -9,6 +9,13 @@
  * that a machine without one never gets this far.
  */
 import { describe, expect, test } from "bun:test";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { applyEngineRoots, RENDER_ENGINES } from "../../core/preset/render/engines";
+import { saveEngineRoot } from "../../studio/engine-roots";
+import { createBridge } from "../bridge";
+import { createSession } from "../session";
 import presetVerify from "./preset-verify";
 
 const shape = presetVerify.input as unknown as {
@@ -53,6 +60,9 @@ describe("when it is offered", () => {
     const before = { st: process.env["HOPLIGHT_ST_ROOT"], mar: process.env["HOPLIGHT_MARINARA_ROOT"] };
     delete process.env["HOPLIGHT_ST_ROOT"];
     delete process.env["HOPLIGHT_MARINARA_ROOT"];
+    // Clearing the variables is no longer the whole of "no engine": a saved folder applied by
+    // another file in this run would answer too, and the failure would read as this tool's bug.
+    applyEngineRoots({});
     try {
       expect(await presetVerify.available!()).toBe(false);
     } finally {
@@ -60,6 +70,41 @@ describe("when it is offered", () => {
       if (before.mar !== undefined) process.env["HOPLIGHT_MARINARA_ROOT"] = before.mar;
     }
   });
+
+  /**
+   * ONE SETTING, TWO PROGRAMS - through Kit's own front door rather than by reading the source.
+   *
+   * The window's Settings screen writes engines.json into the studio folder; createSession hands it
+   * to core before it asks any tool whether it can run here. Without that call this tool stays out
+   * of the terminal's belt no matter what the person set in the window, which is exactly the split
+   * this change exists to close - and "shared with Kit" would be a sentence written from intent.
+   */
+  test("a folder set in the window puts the tool in the terminal's belt", async () => {
+    const before = { st: process.env["HOPLIGHT_ST_ROOT"], mar: process.env["HOPLIGHT_MARINARA_ROOT"] };
+    delete process.env["HOPLIGHT_ST_ROOT"];
+    delete process.env["HOPLIGHT_MARINARA_ROOT"];
+    const studio = await mkdtemp(join(tmpdir(), "hoplight-kit-engines-"));
+    try {
+      const session = await createSession(createBridge(studio));
+      expect(session.contextSnapshot?.().tools.map((t) => t.name)).not.toContain("preset_verify");
+
+      const marker = join(studio, "SillyTavern", RENDER_ENGINES.sillytavern.marker);
+      await mkdir(dirname(marker), { recursive: true });
+      await writeFile(marker, "// recognisable, not runnable\n");
+      // Written the way the settings route writes it, so this cannot pass against a shape the
+      // window does not produce.
+      await saveEngineRoot(studio, "sillytavern", join(studio, "SillyTavern"));
+      applyEngineRoots({});
+
+      const after = await createSession(createBridge(studio));
+      expect(after.contextSnapshot?.().tools.map((t) => t.name)).toContain("preset_verify");
+    } finally {
+      applyEngineRoots({});
+      await rm(studio, { recursive: true, force: true });
+      if (before.st !== undefined) process.env["HOPLIGHT_ST_ROOT"] = before.st;
+      if (before.mar !== undefined) process.env["HOPLIGHT_MARINARA_ROOT"] = before.mar;
+    }
+  }, 30_000);
 
   test("a root pointing at nothing is not an engine", async () => {
     // The marker check: a wrong folder must fail as loudly as a missing one.

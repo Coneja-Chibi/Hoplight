@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/security/safe-rendering",
   "sourcePath": "docs/reference/security/safe-rendering.md",
-  "sourceHash": "sha256:3f55785152dab0f7d3f0154b4041c9312232e4c6af8c329d549b12447a80b0f1",
-  "semanticSummaryHash": "sha256:e0cb958ef9b008837cdd6775256090734678b218a2a1a8ea10b7bf57b270af42",
+  "sourceHash": "sha256:71d889dffa9832a8ebce4bf495bb71a164170585c455403d4c76b065da508337",
+  "semanticSummaryHash": "sha256:2ac3c7367a3d32b4a1e47e5a098f5d841e5cfd338b06ea71753276f7b3341460",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
-  "reviewedAt": "2026-07-25T15:30:50.503Z"
+  "reviewer": "sealed-style-hoist-review",
+  "notes": "Records the hoist in the sanitizer spec of record. Verified: DOMPurify returns body markup so a head style block was dropped (reproduced against dompurify+jsdom directly); hoisted text now runs through sanitizeBackdropCss, the same function the css prop uses, so @import and remote url() are still stripped; a </style> in a DOCUMENT ends the element where the parser would, and what follows is markup the CSP stops, which is stated rather than claimed as sanitizer work. Line citation for the sanitize call updated to 83-87. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T19:20:59.016Z"
 }

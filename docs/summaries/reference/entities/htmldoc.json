@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/entities/htmldoc",
   "sourcePath": "docs/reference/entities/htmldoc.md",
-  "sourceHash": "sha256:01e894b4875c03d44dc0e918d8efb9da04ba504c4fa6395be2db3f99a6a8c7d7",
+  "sourceHash": "sha256:d01042dce7c34f6c8369a8499cca75c547f4bd2f0af315a30b5dfebcad004480",
   "summary": "A drawing (htmldoc) is an HTML document kept as a canonical studio piece under studio/htmldoc/<id>.json, so the existing create, read, save, delete, duplicate, collection and Library tools act on it without new verbs. The html field is model output and is stored VERBATIM and unsanitised on purpose: cleaning at rest would make the file differ from what was authored and would add a second sanitiser that could drift from the one that renders. The seal is at the point of drawing - a srcdoc iframe with sandbox=\"\", a CSP of script-src none, connect-src none, img-src data: blob:, over DOMPurify-cleaned markup - so all CSS renders while JavaScript never runs and no remote image, font or fetch resolves. Three surfaces draw a piece through that one component: the agent transcript inline, the HTML View tab, and the Workbench editor pane. HTMLDOC_CAP is 200,000 characters, matching the preview ceiling, and a longer document is refused rather than stored and drawn part-way.",
   "topics": [
     "htmldoc canonical entity",
@@ -30,8 +30,8 @@
       "slug": "it-is-untrusted-content-and-storing-it-changes-nothing",
       "title": "It is untrusted content, and storing it changes nothing",
       "level": 2,
-      "sourceHash": "sha256:d357c8d1c2ad801be7285306b9d33317c496b59001292fee0099ad791ba381ca",
-      "summary": "The html field is model output and nothing in the repo ever evaluates it. It is stored unsanitised because cleaning at rest is the wrong boundary twice: the stored file would differ from what was written, and a second sanitiser could drift from the one that renders. Enforcement lives at the point of drawing - sandbox=\"\" iframe, script-src none, connect-src none, img-src data: blob:, DOMPurify with script/iframe/object/embed/form/input/button/textarea/select/link/meta/base forbidden - which makes it a static drawing surface by construction.",
+      "sourceHash": "sha256:de9d7faa3c365b4cef96a9e3f5d44c758a48ee4143ac172ae438469cfbf2f717",
+      "summary": "The html field is model output and nothing in the repo ever evaluates it. It is stored unsanitised because cleaning at rest is the wrong boundary twice: the stored file would differ from what was written, and a second sanitiser could drift from the one that renders. Enforcement lives at the point of drawing - sandbox=\"\" iframe, script-src none, connect-src none, img-src data: blob:, DOMPurify with script/iframe/object/embed/form/input/button/textarea/select/link/meta/base forbidden, that tag list held in core/render/seal-policy.ts so Kit can read the same policy without a DOM - which makes it a static drawing surface by construction. A whole document keeps its design because every style block is hoisted before sanitizing, which returns the body alone; form controls are the one thing an author designs around, so a button is drawn as a styled div rather than used.",
       "topics": [
         "model output never evaluated",
         "stored verbatim not sanitised",
@@ -44,8 +44,8 @@
       "slug": "where-it-is-used",
       "title": "Where it is used",
       "level": 2,
-      "sourceHash": "sha256:632f24e4490ff1d9887d8561a74be08e1f22ec6c5ec47c522a3afd1a864b8914",
-      "summary": "The Workbench edits one with source and live drawing side by side, autosaving like any piece. HTML View is a catalog-only app that draws one at full size, opened by id from the Library or handed text from a reply. Kit composes one with studio_htmldoc_create as a preview-only draft that the Gate turns into a file.",
+      "sourceHash": "sha256:e85bb819eed3fc2e1de71dcceab43e9c8b9e1481e4b63861bfbd8999ef907331",
+      "summary": "The Workbench edits one with source and live drawing side by side, autosaving like any piece; the divider between them drags with pointer or keyboard and the source hides outright, both remembered in settings, since a drawing being looked at should not spend half the room on markup. HTML View is a catalog-only app that draws one at full size, opened by id from the Library or handed text from a reply. Kit composes one with studio_htmldoc_create as a preview-only draft that the Gate turns into a file, and regex_from_drawing turns a saved drawing into the replacement half of a regex rule so the rich thing is designed once and rendered from compact model output.",
       "topics": [
         "Workbench editor",
         "HTML View tab",

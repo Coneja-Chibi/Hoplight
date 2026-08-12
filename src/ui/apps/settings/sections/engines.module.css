@@ -1,0 +1,79 @@
+/*
+ * Settings > Studio: the engine-checkout fields.
+ *
+ * Tokens only. A path is data, so it is mono and it wraps rather than scrolling out of sight - the
+ * end of a Windows path is the part that says which checkout it is.
+ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 18rem;
+  max-width: 30rem;
+  flex: 1;
+}
+
+.path {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text);
+  background: var(--face);
+  border: 3px solid var(--edge);
+  padding: 0.45rem 0.6rem;
+  width: 100%;
+}
+
+.path:disabled {
+  color: var(--text-dim);
+  background: transparent;
+  border-style: dashed;
+}
+
+.acts {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.acts button {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 3px 3px 0 0 var(--edge);
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+
+.acts button:disabled {
+  cursor: default;
+  box-shadow: none;
+  opacity: 0.55;
+}
+
+.note,
+.good,
+.said {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.note {
+  color: var(--text-dim);
+}
+
+/* The one place colour is spent here: an engine that answered is the whole point of the row. */
+.good {
+  color: var(--accent);
+}
+
+.said {
+  color: var(--text-soft, var(--text-dim));
+}

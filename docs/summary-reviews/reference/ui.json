@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:c37a76c540921b649e592ed17e3cd423cf182e68f226a7b4292acc311890487b",
-  "semanticSummaryHash": "sha256:f45fd8b00a44b5617cf33b92c25f9c8ba233123384ab8e2105287688f117f1ed",
+  "sourceHash": "sha256:990edac7c27e8cfda070b07291b088a698512fe095ffd115923572fe6fcb7adc",
+  "semanticSummaryHash": "sha256:4d54dce0546e070542b49229fd8e09c8f808231d4b1562d31f80f95167b57b31",
   "verdict": "APPROVE",
-  "reviewer": "ui-app-sections-review",
-  "notes": "Three sections added for apps that had none: the Agent window, CSS Workshop and Help/Docs, found by the new apps:documented gate rather than by eye. The sidecar was REBUILT keyed by heading title in document order, then verified section-by-section against the file's H2 list - the previous attempt spliced by index and shifted later summaries onto the wrong headings while the shape checks passed. Claims checked against source: the agent window owns no provider, the brief truncates at 300/200, Docs reads docs-index.json.",
-  "reviewedAt": "2026-08-12T17:17:07.765Z"
+  "reviewer": "sealed-style-hoist-review",
+  "notes": "Two changes: Settings > Studio engine folders, and the sealed preview keeping a document's head styles. The render claim is measured, not asserted: with the old pipeline Chi's three saved drawings carried 0 characters of CSS through DOMPurify (head dropped with the body-only return); with the hoist they carry 5346, 4775 and 4968, markup intact, no remote origin in the style element. The form-control sentence is checked against FORBID_TAGS, which still lists form/input/button/textarea/select. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T19:20:58.731Z"
 }

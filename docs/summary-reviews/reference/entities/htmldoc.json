@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/entities/htmldoc",
   "sourcePath": "docs/reference/entities/htmldoc.md",
-  "sourceHash": "sha256:01e894b4875c03d44dc0e918d8efb9da04ba504c4fa6395be2db3f99a6a8c7d7",
-  "semanticSummaryHash": "sha256:648a46a2a5eb6bddbcdc7972fd5c7d459905237b6f118376b768b2cbfd0ce841",
+  "sourceHash": "sha256:d01042dce7c34f6c8369a8499cca75c547f4bd2f0af315a30b5dfebcad004480",
+  "semanticSummaryHash": "sha256:5566c5ec513e205b721b8adc3399fd19a3d94a1a883d557db0027d4d9ac41bf1",
   "verdict": "APPROVE",
-  "reviewer": "htmldoc-entity-doc-review",
-  "notes": "New page for a new kind, checked against src/entities/htmldoc/schema.ts and runtime-schema.ts: five fields as documented, HTMLDOC_CAP is 200000 and refuses rather than truncates, and the CSP and forbid list quoted match SealedHtmlPreview's actual constants. The claim that three surfaces share one component is true - transcript, HTML View and the Workbench editor all import SealedHtmlPreview.",
-  "reviewedAt": "2026-08-12T16:47:07.574Z"
+  "reviewer": "drawing-to-regex-review",
+  "notes": "Records the style hoist, the seal-policy move to core, the resizable/hideable source pane and regex_from_drawing as a consumer of a drawing. Each claim checked against the file it describes: the tag list is now imported by the preview from core/render/seal-policy.ts, the hoist is proven by sealed-html-preview.test.ts, and the divider's bounds and keys are proven in htmldoc-split.test.ts. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T19:48:18.849Z"
 }

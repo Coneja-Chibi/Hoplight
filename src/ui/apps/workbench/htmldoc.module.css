@@ -39,17 +39,73 @@
   border: 2px solid var(--edge);
 }
 
+/* Columns come from the editor when the source is open (source % / grip / drawing); with the
+   source hidden the drawing takes the room and the reveal button rides above it. */
 .split {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0.7rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  position: relative;
 }
 
 @media (max-width: 60rem) {
-  .split { grid-template-columns: minmax(0, 1fr); }
+  /* Stacked: a dragged column split means nothing when the panes are one above the other. */
+  .split { grid-template-columns: minmax(0, 1fr) !important; }
+  .grip { display: none; }
 }
+
+/* The divider. Wide enough to grab, quiet until it is under the pointer or focused. */
+.grip {
+  align-self: stretch;
+  cursor: col-resize;
+  background: var(--seam, var(--edge));
+  border: none;
+  padding: 0;
+  touch-action: none;
+}
+
+.grip:hover,
+.grip:focus-visible {
+  background: var(--accent);
+  outline: none;
+}
+
+/* Sits over the drawing's top-left corner, so the way back is where the pane used to be. */
+.reveal {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--face);
+  border: 2px solid var(--edge);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.reveal:hover { color: var(--text); }
+
+.paneAct {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: transparent;
+  border: 2px solid var(--edge);
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+}
+
+.paneAct:hover { color: var(--text); }
 
 .pane {
   min-width: 0;
@@ -57,6 +113,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+}
+
+/* An author's `display` beats the browser's own [hidden] rule, so hiding the source pane needs
+   saying here. Without this the "Hide" button hid nothing and the panes simply stacked. */
+.pane[hidden] {
+  display: none;
 }
 
 .paneHead {

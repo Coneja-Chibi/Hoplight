@@ -38,11 +38,19 @@ shows a drawing uses the same `SealedHtmlPreview`:
 - a `srcdoc` iframe with `sandbox=""` - no scripts, never `allow-same-origin`
 - a CSP of `default-src 'none'; script-src 'none'; connect-src 'none'; img-src data: blob:; style-src 'unsafe-inline'`
 - DOMPurify over the markup, with `script`, `iframe`, `object`, `embed`, `form`, `input`, `button`,
-  `textarea`, `select`, `link`, `meta` and `base` forbidden
+  `textarea`, `select`, `link`, `meta` and `base` forbidden - the list lives in
+  `core/render/seal-policy.ts` so Kit can read the same policy without a DOM
 
 So: **all CSS renders**, images work as `data:` URIs, and JavaScript never runs while no http(s) image,
 font, stylesheet or fetch ever resolves. That is a static-drawing surface by construction. See
 [security/safe-rendering.md](../security/safe-rendering.md).
+
+A whole document keeps its design: sanitizing returns the parsed BODY, so a `<head><style>` block
+would go into the bin with the head. Every style block is lifted out first and re-injected into the
+frame's own `<style>`, wherever in the document it was written. Form controls are the one thing an
+author has to design around - a `<button>` keeps its label as bare text and loses its shape, so draw
+one as a styled `div` or `span`. `html_will_draw` answers that question about any markup before it
+is saved.
 
 Three surfaces draw a piece and all three are that one component at different sizes - the agent
 transcript's inline preview, the HTML View tab, and the Workbench editor's live pane. One boundary,
@@ -51,7 +59,12 @@ three sizes, nothing to drift.
 ## Where it is used
 
 - **Workbench** - the editor: source on the left, the drawing on the right, live as you type. Autosave
-  and the conflict bar behave as they do for any piece.
+  and the conflict bar behave as they do for any piece. The divider between them drags (arrow keys and
+  Home/End work on it, double-click recentres) and the source hides outright, since a drawing being
+  looked at does not need half the room spent on markup; both are remembered in settings.
+- **Kit, as a design source** - `regex_from_drawing` turns a saved drawing into the replacement half of
+  a regex rule, so the rich thing is designed once here and rendered from compact model output by a
+  script. See [kit/tools.md](../kit/tools.md).
 - **HTML View** - a `catalogOnly` app that draws one at full size. Opened by id from the Library, or by
   handoff from an ```html block in a reply.
 - **Kit** - `studio_htmldoc_create` composes one as a preview-only draft; the Gate turns it into a file.

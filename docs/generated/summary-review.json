@@ -342,9 +342,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "htmldoc-editor-catalog-refresh",
-      "sourceHash": "sha256:aaf755c1f50e6dca2619a3af125ba7c7d57d9130bfa901497be72baf6be16f4b",
-      "semanticSummaryHash": "sha256:e2a5a60253e4bd16ed93b501038e1d48c9d3d4ac8e24347bc66d0f0dc26a36f4"
+      "reviewer": "engine-roots-review",
+      "sourceHash": "sha256:885e7e4707844049b48d86d70a8d35a1af444995743b1fb54bc292ed32e6f963",
+      "semanticSummaryHash": "sha256:5a34eb0598d6666099e2624017200f1c47a3a259eab1c15098af82f8ed3681d7"
     },
     {
       "docId": "reference/concepts/bundles",
@@ -438,9 +438,9 @@
       "docId": "reference/entities/htmldoc",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "htmldoc-entity-doc-review",
-      "sourceHash": "sha256:01e894b4875c03d44dc0e918d8efb9da04ba504c4fa6395be2db3f99a6a8c7d7",
-      "semanticSummaryHash": "sha256:648a46a2a5eb6bddbcdc7972fd5c7d459905237b6f118376b768b2cbfd0ce841"
+      "reviewer": "drawing-to-regex-review",
+      "sourceHash": "sha256:d01042dce7c34f6c8369a8499cca75c547f4bd2f0af315a30b5dfebcad004480",
+      "semanticSummaryHash": "sha256:5566c5ec513e205b721b8adc3399fd19a3d94a1a883d557db0027d4d9ac41bf1"
     },
     {
       "docId": "reference/entities/lorebook",
@@ -606,9 +606,9 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "chi",
-      "sourceHash": "sha256:1d56352d923a9cc47609ce346e026b0a4a688a1c02e5588458ee23f97cc866a8",
-      "semanticSummaryHash": "sha256:387c3f5cb0b29a6a35574041a9d945a943652889fe7d81a95a7d5becba73eb71"
+      "reviewer": "drawing-to-regex-review",
+      "sourceHash": "sha256:5bd509750e31efaa7668be5b81d6399d4c783b8e837f3c0999613db80cc9c3dd",
+      "semanticSummaryHash": "sha256:a9a3e38c3528a127330defc2624ffd7f83d24b8ba20e629d00f684e24a72b9f0"
     },
     {
       "docId": "reference/platform-native-fields",
@@ -854,9 +854,9 @@
       "docId": "reference/security/safe-rendering",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:3f55785152dab0f7d3f0154b4041c9312232e4c6af8c329d549b12447a80b0f1",
-      "semanticSummaryHash": "sha256:e0cb958ef9b008837cdd6775256090734678b218a2a1a8ea10b7bf57b270af42"
+      "reviewer": "sealed-style-hoist-review",
+      "sourceHash": "sha256:71d889dffa9832a8ebce4bf495bb71a164170585c455403d4c76b065da508337",
+      "semanticSummaryHash": "sha256:2ac3c7367a3d32b4a1e47e5a098f5d841e5cfd338b06ea71753276f7b3341460"
     },
     {
       "docId": "reference/security/script-sandbox",
@@ -886,9 +886,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "ui-app-sections-review",
-      "sourceHash": "sha256:c37a76c540921b649e592ed17e3cd423cf182e68f226a7b4292acc311890487b",
-      "semanticSummaryHash": "sha256:f45fd8b00a44b5617cf33b92c25f9c8ba233123384ab8e2105287688f117f1ed"
+      "reviewer": "sealed-style-hoist-review",
+      "sourceHash": "sha256:990edac7c27e8cfda070b07291b088a698512fe095ffd115923572fe6fcb7adc",
+      "semanticSummaryHash": "sha256:4d54dce0546e070542b49229fd8e09c8f808231d4b1562d31f80f95167b57b31"
     },
     {
       "docId": "reference/updates",

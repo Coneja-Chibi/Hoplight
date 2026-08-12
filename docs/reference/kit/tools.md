@@ -78,6 +78,22 @@ session:
 - `block_lookup` does the same one level up, for kinds of prompt block: what a tracker or an
   assembler is for, how it is built, what silently goes wrong with it, and an editable starting
   block. `preset_verify` renders a preset through the real engine and reports what did not resolve.
+  It is offered only where an engine lives: the checkout is the one pointed at in the studio
+  window's Settings > Studio (`engines.json` in the studio folder, read when the session is built)
+  or named by `HOPLIGHT_ST_ROOT` / `HOPLIGHT_MARINARA_ROOT`, which outranks it.
+- `regex_from_drawing` and `html_will_draw` serve the design-once-render-always shape: somebody
+  draws the rich card, tracker or panel as an `htmldoc`, then a regex renders it from whatever
+  compact form the model is asked to write, so the visual complexity lives in the script rather than
+  in every reply. The pattern is a judgement call and stays with its author; the REPLACEMENT is pure
+  transcription - flatten the markup to one line, double every literal `$`, swap each declared slot
+  for a capture reference - and at four thousand characters that is where a hand-written rule goes
+  quietly wrong. `regex_from_drawing` does that transcription, refuses a slot pointing past the
+  pattern's capture count, and with a `sample` runs the finished pair through the real engine,
+  reporting a pattern that matched nothing as a failure rather than as an unchanged clean run.
+  `html_will_draw` reads any markup against `core/render/seal-policy.ts` - the same tag list the
+  sealed preview enforces - and names what would be stripped (form controls among them), which
+  http(s) reference cannot load, and which handler never fires. Both are reads; saving stays with
+  the create tools. Neither is a safety check: the sanitizer and the iframe CSP do the enforcing.
 - `folder_search` lists and reads files in a folder the user has shared with Kit, plus the studio
   itself, which is a standing grant rather than something shared. It can do nothing else. Every path is resolved and then checked against the grants, so the resolved path is the one
   used, and that resolved path is reconciled against its real path so a link cannot carry it out of
@@ -194,11 +210,14 @@ modes retain their documented write behavior.
 ## Progressive exposure
 
 The runtime registry contains every adapted capability and deferred workflow tool so dispatch can
-resolve a selected operation. Each user turn starts with twenty direct tools: `ask_choice`,
+resolve a selected operation. Each user turn starts with the direct belt: `ask_choice`,
 `block_lookup`, `capability_find`, `change_apply`, `change_discard`, `change_query`, `docs_query`,
-`folder_import`, `folder_search`, `macro_lookup`, `preset_verify`, `rail_open`, `regex_lab`,
-`result_query`, `studio_art`, `studio_delete`, `studio_export`, `studio_list`, `studio_read`, and
-`studio_search`.
+`folder_import`, `folder_search`, `html_will_draw`, `macro_lookup`, `preset_copy_blocks`,
+`preset_verify`, `rail_open`, `regex_from_drawing`, `regex_lab`, `result_query`, `studio_art`,
+`studio_collections`, `studio_delete`, `studio_export`, `studio_graveyard`, `studio_graveyard_bury`,
+`studio_list`, `studio_read`, and `studio_search`. `preset_verify` is the one entry that is
+conditional: it declares `available` and takes itself out of the belt on a machine with no engine
+checkout, so a person without one starts with twenty-five.
 
 `studio_delete` and `studio_export` are direct rather than deferred for a structural reason, not a
 convenience one. The

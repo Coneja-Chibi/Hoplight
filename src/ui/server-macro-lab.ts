@@ -19,12 +19,18 @@
 import {
   availableEngines,
   installRoot,
+  looksLikeInstall,
+  noEngineHere,
+  RENDER_ENGINE_IDS,
   RENDER_ENGINES,
   isRenderEngineId,
+  resolveEngineRoot,
+  type EngineRoots,
   type RenderEngineId,
 } from "../core/preset/render/engines";
 import { resolveScratch } from "../core/preset/render/scratch";
 import type { RenderIdentity } from "../core/preset/render/contract";
+import { normalizeRootInput, readEngineRoots, saveEngineRoot } from "../studio/engine-roots";
 import { contentTypeIs, err, json, readJsonCapped } from "./server-security";
 
 /**
@@ -125,7 +131,7 @@ const running = new Set<RenderEngineId>();
 /** For tests, which must not inherit a stuck engine from a case that threw. */
 export const clearRunningEngines = (): void => running.clear();
 
-async function handleResolve(req: Request): Promise<Response> {
+async function handleResolve(req: Request, roots: EngineRoots): Promise<Response> {
   if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
   const parsed = await readJsonCapped(req, BODY_MAX);
   if (!parsed.ok) return parsed.response;
@@ -134,14 +140,11 @@ async function handleResolve(req: Request): Promise<Response> {
   if (!ask.ok) return err(ask.why, 400);
 
   const spec = RENDER_ENGINES[ask.ask.engine];
-  const root = await installRoot(ask.ask.engine);
+  const root = await installRoot(ask.ask.engine, roots);
   if (!root) {
     // Named remedy, and never a 200: an absent engine that answered "nothing unresolved" would be
     // the exact false pass this whole surface exists to avoid.
-    return err(
-      `No ${spec.label} engine on this machine. Set ${spec.rootVar} to ${spec.install}.`,
-      422,
-    );
+    return err(noEngineHere(ask.ask.engine), 422);
   }
 
   if (running.has(ask.ask.engine)) {
@@ -173,14 +176,89 @@ async function handleResolve(req: Request): Promise<Response> {
   }
 }
 
+/** One row per engine there could be - present or not, which is the point of the screen. */
+async function rootsTable(saved: EngineRoots): Promise<Response> {
+  const engines = [];
+  for (const id of RENDER_ENGINE_IDS) {
+    const spec = RENDER_ENGINES[id];
+    const found = await resolveEngineRoot(id, saved);
+    engines.push({
+      id,
+      label: spec.label,
+      install: spec.install,
+      rootVar: spec.rootVar,
+      /** what is written in the file, shown even when it no longer resolves - that IS the fault */
+      saved: saved[id] ?? "",
+      /** the variable's value when this process was launched with one; it outranks the file */
+      env: process.env[spec.rootVar] ?? "",
+      root: found?.root ?? "",
+      from: found?.from ?? null,
+    });
+  }
+  // Host-only route (isHostOnlyRoute covers the whole prefix), so these paths never reach a
+  // tailed-in or LAN device. They are the host's own folders in the host's own browser.
+  return json({ engines });
+}
+
+async function handleSetRoot(req: Request, studioDir: string): Promise<Response> {
+  if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
+  const parsed = await readJsonCapped(req, 8192);
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.value;
+  if (!isRecord(body)) return err("expected an object", 400);
+
+  const engine = body["engine"];
+  if (!isRenderEngineId(engine)) return err("unknown engine", 400);
+  const rawRoot = body["root"];
+  if (typeof rawRoot !== "string") return err("root must be a string", 400);
+  if (rawRoot.length > 4096) return err("that path is too long", 400);
+
+  const root = normalizeRootInput(rawRoot);
+  if (root === "") {
+    // Clearing is a legitimate answer, not a failed save: somebody moved the checkout or wants the
+    // engine gone from the room.
+    return rootsTable(await saveEngineRoot(studioDir, engine, null));
+  }
+
+  /**
+   * VERIFIED BEFORE IT IS STORED. A path that is not a checkout would otherwise sit in the file
+   * looking configured and fail at the far end of a render, where the message is a subprocess's
+   * stderr. The marker names itself in the refusal, so a person who picked the parent folder or a
+   * fork with a different layout can see WHICH file was expected rather than being told no.
+   */
+  const spec = RENDER_ENGINES[engine];
+  if (!(await looksLikeInstall(engine, root))) {
+    return err(
+      `That folder does not look like ${spec.install}: it has no ${spec.marker}. `
+      + "Point at the folder the engine's own repository checks out into.",
+      422,
+    );
+  }
+  return rootsTable(await saveEngineRoot(studioDir, engine, root));
+}
+
 /**
  * Returns null for anything that is not ours, so the caller's route table keeps its shape.
+ *
+ * The saved roots are read from disk PER REQUEST rather than trusted to a value captured at boot:
+ * this is the surface where they are edited, and a screen that had to be restarted to believe its
+ * own save would be worse than no screen.
  */
-export async function handleMacroLabRoutes(p: string, req: Request): Promise<Response | null> {
+export async function handleMacroLabRoutes(
+  p: string,
+  req: Request,
+  studioDir: string,
+): Promise<Response | null> {
   if (p === "/api/macro-lab/engines" && req.method === "GET") {
-    const engines = await availableEngines();
+    const engines = await availableEngines(await readEngineRoots(studioDir));
     return json({ engines: engines.map((e) => ({ id: e.id, label: e.label })) });
   }
-  if (p === "/api/macro-lab/resolve" && req.method === "POST") return handleResolve(req);
+  if (p === "/api/macro-lab/roots") {
+    if (req.method === "GET") return rootsTable(await readEngineRoots(studioDir));
+    if (req.method === "POST") return handleSetRoot(req, studioDir);
+  }
+  if (p === "/api/macro-lab/resolve" && req.method === "POST") {
+    return handleResolve(req, await readEngineRoots(studioDir));
+  }
   return null;
 }

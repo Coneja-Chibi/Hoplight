@@ -494,9 +494,10 @@ halves, kept apart on purpose because one of them is our model and the other is 
   carrying that leniency onto a screen would print a tick beside `{{// note}}`.
 - **Resolving** (`/api/macro-lab/*`, host-only): the text is wrapped as a one-block preset and run
   through the platform's REAL engine, so the answer is the engine's rather than ours. Requires a
-  checkout (`HOPLIGHT_ST_ROOT`, `HOPLIGHT_MARINARA_ROOT`); an absent one is a named refusal, never a
-  clean pass. Button-press only, one render per engine at a time - SillyTavern's adapter stages a copy
-  inside the user's own install, so a mashed button would leave a tree copy per press.
+  checkout, pointed at in Settings > Studio or named by `HOPLIGHT_ST_ROOT` /
+  `HOPLIGHT_MARINARA_ROOT`; an absent one is a named refusal, never a clean pass. Button-press only,
+  one render per engine at a time - SillyTavern's adapter stages a copy inside the user's own
+  install, so a mashed button would leave a tree copy per press.
 - **Macro bible** - every macro the platform publishes, its own groups and wording, searchable by name,
   meaning or alias, and clicking one INSERTS it at the caret rather than copying it.
 - **Operations** - one row per canonical operation, one column per platform, derived from the catalogs
@@ -517,7 +518,12 @@ empty frame.
 Everything it draws goes through `SealedHtmlPreview` - `sandbox=""`, `script-src 'none'`,
 `connect-src 'none'`, `img-src data: blob:`, DOMPurify. The same component draws the transcript's
 inline preview and the Workbench editor's live pane: one boundary at three sizes, so there is no
-second renderer to drift. All CSS works; JavaScript never runs and no remote image or webfont loads.
+second renderer to drift. All CSS works, including a whole document's `<head>` styles - those are
+lifted out and re-injected, because sanitizing returns the body alone and the head would otherwise
+be thrown away with them. JavaScript never runs and no remote image or webfont loads. Form controls
+(`button`, `input`, `select`, `textarea`) are stripped: the same component draws untrusted card
+backdrops, where a fake field is a spoofing surface, so a wireframe should draw its controls rather
+than use real ones.
 See [entities/htmldoc.md](entities/htmldoc.md).
 
 ## Settings (drop-in sections)
@@ -526,9 +532,24 @@ Settings is built from section modules: one file in `src/ui/apps/settings/sectio
 `sections/registry.ts` is the one stated seam. Tabs derive from the registry (`src/ui/apps/settings/
 index.tsx`); every control is call-and-response against live settings (theme/accent repaint
 instantly). Shipped sections: Appearance (theme and house accent), Studio (home app, Library first
-deck, and publish targets), Workbench (follow behavior), Remote access (tunnel and LAN setup, devices,
-host controls, and the optional mesh-helper download), Updates (release checks and version switching),
-and About.
+deck, publish targets, and the engine checkouts on this machine), Workbench (follow behavior),
+Remote access (tunnel and LAN setup, devices, host controls, and the optional mesh-helper download),
+Updates (release checks and version switching), and About.
+
+Engine checkouts are the one Studio control that is not `ctx.prefs`. A root is an absolute path on
+the host's disk, and it decides which folder a subprocess is spawned against, so it is stored in
+`engines.json` beside `settings.json` and read and written only over `/api/macro-lab/roots`, which
+is host-only whole. A settings GET is not: it is served to a tailed-in or LAN device, and
+`/api/version` already withholds the studio path from those same devices for the same reason - a
+path carries the owner's username and disk layout.
+
+Paste a folder and press Save: the path is normalized (Explorer's "Copy
+as path" quotation marks, a trailing separator) and checked for the engine's own marker file before
+anything is written, so a folder that is not a checkout is refused by name rather than stored and
+discovered at render time. Saves are serialized - the file holds both engines and a save is
+read-modify-write, so two at once would drop one engine's folder. An environment variable outranks a saved folder and says so on the row,
+which is what keeps the live render suites pointing where they aimed. Kit reads the same file when a
+session is built, so a folder set here is the folder `preset_verify` uses in the terminal.
 
 Remote-access host controls use `/api/remote/*`; release information and version switching use
 `/api/updates/*`. Both route families are host-only and remain distinct from ordinary remote-client

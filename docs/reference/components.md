@@ -66,6 +66,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
 | EnginePane | src/ui/apps/macro-lab/engine-pane.tsx | ({ engine, lensLabel, state, onResolve, }: { engine: MacroEngineInfo \| null; lensLabel: string; state: EngineState; o... |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
+| EngineRoots | src/ui/apps/settings/sections/engines.tsx | () | One row per engine Hoplight can drive: where its checkout is, and whether one answered. |  |
 | EntryTocItem | src/ui/apps/workbench/lore/entry-toc-item.tsx | ({ entry, writeFor, styles, categories, onPatch, onOpen, onDuplicate, onDelete, onOpenBeside, }: EntryTocItemProps) |  |  |
 | EntryWhenWhere | src/ui/apps/workbench/lore/entry-when-where.tsx | ({ entry, writeFor, styles, onPatch, folds, onFoldToggle, }: EntryWhenWhereProps) |  |  |
 | ErrorRow | src/ui/agent/kit-bands.tsx | ({ text, onNotice, }: { text: string; onNotice?: (message: string) => void; }) | A failure, as a band rather than as a loose paragraph. |  |

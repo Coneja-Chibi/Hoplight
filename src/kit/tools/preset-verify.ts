@@ -28,8 +28,8 @@ import type { HarnessTool } from "./tool";
 import {
   availableEngines,
   installRoot,
+  noEngineHere,
   rendererCommand,
-  RENDER_ENGINES,
 } from "../../core/preset/render/engines";
 
 const input = z.strictObject({
@@ -87,13 +87,11 @@ const presetVerify: HarnessTool<z.infer<typeof input>> = {
     // The engine comes last, because it is the only check whose answer depends on this machine rather
     // than on the request. Asking it first let an out-of-bounds path return "engine not available"
     // and never reach the boundary at all.
-    const spec = RENDER_ENGINES[args.engine];
     const root = await installRoot(args.engine);
     if (!root) {
       return {
         summary: `preset_verify ${args.engine}: engine not available`,
-        output: `No ${args.engine} engine on this machine. Set ${spec.rootVar} to ${spec.install} and `
-          + "try again. Nothing was checked, so do not treat this as a pass.",
+        output: `${noEngineHere(args.engine)} Nothing was checked, so do not treat this as a pass.`,
       };
     }
 

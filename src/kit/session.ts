@@ -37,6 +37,7 @@ import type { DraftReview, RailSnapshot } from "./tools/tool";
 import { reviewChangeDraft } from "./changes/review";
 import { crossingForExport } from "./changes/crossing-preview";
 import { createCapabilityFindTool } from "./tools/capability-find";
+import { offerableTools } from "./belt";
 import { createChangeApplyTool } from "./tools/change-apply";
 import { createChangeDiscardTool } from "./tools/change-discard";
 import { createPresetCopyBlocksTool } from "./tools/preset-copy-blocks";
@@ -198,17 +199,8 @@ export async function createSession(
     discoverTools(),
     discoverCapabilities(),
   ]);
-  /**
-   * OFFER ONLY WHAT THIS MACHINE CAN RUN.
-   *
-   * A tool in the belt reads as a thing that works. preset_verify needs a SillyTavern or
-   * Marinara checkout; on a machine with neither it was still offered, and the model spent a
-   * step finding out - after several more spent guessing a file path. One turn, nothing written.
-   */
-  const directTools = (await Promise.all(discovered.map(async (tool) => ({
-    tool,
-    ok: tool.available === undefined || await tool.available(),
-  })))).filter((entry) => entry.ok).map((entry) => entry.tool);
+  // Offer only what this machine can run, engine folders included. See belt.ts.
+  const directTools = await offerableTools(discovered, bridge.studioDir);
   const changes = createChangeSession();
   const results = createResultStore();
   const folders = createGrantBook();

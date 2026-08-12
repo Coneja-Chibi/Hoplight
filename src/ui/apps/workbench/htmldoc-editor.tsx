@@ -13,6 +13,10 @@
  *
  * AUTOSAVE THROUGH useEditorGuards, like every other editor here, so a drawing behaves the way a
  * character or a persona does - including the conflict bar when the file changed underneath.
+ *
+ * THE SOURCE HALF GETS OUT OF THE WAY. Half the room spent on markup is the wrong default once a
+ * drawing is being LOOKED at rather than written, so the divider drags and the source hides
+ * outright. Both are remembered in settings, because that is a working habit, not a per-file one.
  */
 import { useCallback, useMemo, useRef, useState, type JSX, type ReactNode } from "react";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
@@ -21,7 +25,12 @@ import { HTMLDOC_CAP } from "../../../entities/htmldoc/runtime-schema";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
 import { SealedHtmlPreview } from "../../components/sealed-html-preview";
 import { useEditorGuards } from "./use-editor-guards";
+import { readSplit, splitFromKey, splitFromPointer } from "./htmldoc-split";
 import styles from "./htmldoc.module.css";
+
+/** Remembered in settings, namespaced by app like every other pref. */
+const SPLIT_KEY = "workbench.htmldoc.split";
+const SOURCE_KEY = "workbench.htmldoc.source";
 
 export interface HtmlDocEditorProps {
   entity: unknown;
@@ -58,6 +67,22 @@ export function HtmlDocEditor({ entity, revision, ctx, piece, topRight }: HtmlDo
   const [baseline, setBaseline] = useState(() => structuredClone(initBody));
   const [body, setBody] = useState(() => structuredClone(initBody));
   const [saving, setSaving] = useState(false);
+
+  const splitRef = useRef<HTMLDivElement | null>(null);
+  const [split, setSplit] = useState(() => readSplit(ctx.prefs.get(SPLIT_KEY)));
+  // Shown unless somebody said otherwise: a drawing nobody can edit is the surprising default.
+  const [sourceOpen, setSourceOpen] = useState(() => ctx.prefs.get(SOURCE_KEY) !== false);
+
+  const moveSplit = useCallback((next: number): void => {
+    setSplit(next);
+    ctx.prefs.set(SPLIT_KEY, next);
+  }, [ctx]);
+
+  const dragTo = useCallback((clientX: number): void => {
+    const room = splitRef.current?.getBoundingClientRect();
+    if (!room) return;
+    moveSplit(splitFromPointer(clientX, room.left, room.width, split));
+  }, [moveSplit, split]);
 
   const dirty = !same(body, baseline);
   const overCap = body.html.length > HTMLDOC_CAP;
@@ -120,13 +145,37 @@ export function HtmlDocEditor({ entity, revision, ctx, piece, topRight }: HtmlDo
         onChange={(e) => patch({ summary: e.target.value })}
       />
 
-      <div className={styles.split}>
-        <div className={styles.pane}>
+      <div
+        className={styles.split}
+        ref={splitRef}
+        style={sourceOpen ? { gridTemplateColumns: `${split}% 0.45rem minmax(0, 1fr)` } : undefined}
+      >
+        {/*
+          Hidden, not unmounted-and-forgotten: the source is still the piece being edited, so the
+          way back is a control in the same place the pane was, never a menu somewhere else.
+        */}
+        {!sourceOpen && (
+          <button
+            type="button"
+            className={styles.reveal}
+            onClick={() => { setSourceOpen(true); ctx.prefs.set(SOURCE_KEY, true); }}
+          >
+            {"Show source"}
+          </button>
+        )}
+        <div className={styles.pane} hidden={!sourceOpen}>
           <div className={styles.paneHead}>
             <span className={styles.paneTitle}>Source</span>
             <span className={overCap ? styles.over : styles.count}>
               {`${body.html.length} / ${HTMLDOC_CAP}`}
             </span>
+            <button
+              type="button"
+              className={styles.paneAct}
+              onClick={() => { setSourceOpen(false); ctx.prefs.set(SOURCE_KEY, false); }}
+            >
+              {"Hide"}
+            </button>
           </div>
           <textarea
             className={styles.source}
@@ -146,6 +195,38 @@ export function HtmlDocEditor({ entity, revision, ctx, piece, topRight }: HtmlDo
             </p>
           )}
         </div>
+
+        {/*
+          A real separator, not a decorative bar: arrow keys move it and Home/End slam it to the
+          bounds, so the split is reachable without a pointer at all.
+        */}
+        {sourceOpen && (
+          <div
+            className={styles.grip}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize the source pane"
+            aria-valuenow={split}
+            aria-valuemin={15}
+            aria-valuemax={85}
+            tabIndex={0}
+            onPointerDown={(e) => {
+              e.currentTarget.setPointerCapture(e.pointerId);
+              dragTo(e.clientX);
+            }}
+            onPointerMove={(e) => {
+              if (e.currentTarget.hasPointerCapture(e.pointerId)) dragTo(e.clientX);
+            }}
+            onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
+            onDoubleClick={() => moveSplit(50)}
+            onKeyDown={(e) => {
+              const next = splitFromKey(e.key, split);
+              if (next === null) return;
+              e.preventDefault();
+              moveSplit(next);
+            }}
+          />
+        )}
 
         <div className={styles.pane}>
           <div className={styles.paneHead}>

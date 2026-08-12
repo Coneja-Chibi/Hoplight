@@ -65,7 +65,7 @@ before parsing (`RENDER_INPUT_CAP` 200000 characters in `src/ui/_shared/render-p
 ## What DOMPurify allows and strips
 
 Both configurations set `ALLOW_DATA_ATTR: false` and add back only `target` on anchors
-(`render-markup.ts:113-120`, `sealed-html-preview/index.tsx:52-59`). DOMPurify's default HTML
+(`render-markup.ts:113-120`, `sealed-html-preview/index.tsx:83-87`). DOMPurify's default HTML
 profile already empties `<script>` content and strips inline event handlers and `javascript:` /
 `vbscript:` URIs before any project config is applied; both call sites also explicitly forbid the
 `script` tag for clarity and defense in depth. This baseline is exercised directly:
@@ -90,6 +90,18 @@ Past that shared baseline, the two forbid lists diverge on purpose:
   oversight: this surface's scoped CSP (`img-src data: blob:`, `connect-src 'none'`, next section)
   is what is meant to stop any network reference that survives the tag scan, so the tag list is
   narrower and the CSP carries the network-egress job instead.
+
+Permitting `<style>` in the tag list was not, on its own, enough to keep a page's design.
+`DOMPurify.sanitize` returns the parsed document's BODY markup, so a whole document's
+`<head><style>` went into the bin with the head - every word drew and none of the design did, while
+a `<style>` written inside `<body>` survived, which made the failure look arbitrary. Every style
+block is therefore lifted out before sanitizing (`extractStyleBlocks`,
+`sealed-html-preview/index.tsx:68-77`) and its text is concatenated after any author CSS and passed
+through `sanitizeBackdropCss` - the same function, the same guarantees, one behavior wherever the
+block was written. A block left unterminated by the 200,000-character cap is taken to the end rather
+than dropped, so a truncated drawing still shows the design of the part that arrived. What follows a
+real `</style>` is ordinary markup and is treated as such: a remote `<img>` there survives the tag
+scan and is stopped by the CSP, exactly as it was before (`sealed-html-preview.test.ts`).
 
 An `afterSanitizeAttributes` hook, registered lazily on first render so importing the module never
 touches `window` (`render-markup.ts:76-111`), does three more things to whatever DOMPurify lets

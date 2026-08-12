@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:1d56352d923a9cc47609ce346e026b0a4a688a1c02e5588458ee23f97cc866a8",
-  "semanticSummaryHash": "sha256:387c3f5cb0b29a6a35574041a9d945a943652889fe7d81a95a7d5becba73eb71",
+  "sourceHash": "sha256:5bd509750e31efaa7668be5b81d6399d4c783b8e837f3c0999613db80cc9c3dd",
+  "semanticSummaryHash": "sha256:a9a3e38c3528a127330defc2624ffd7f83d24b8ba20e629d00f684e24a72b9f0",
   "verdict": "APPROVE",
-  "reviewer": "chi",
-  "notes": "New section documenting hoplight mcp for readers: verified the subcommand, its studio-dir argument and --read-only flag against src/cli.ts:251 and src/mcp/run.ts, and the two-posture reasoning against the header there. Registration line is the client's own documented command.",
-  "reviewedAt": "2026-08-05T04:29:08.162Z"
+  "reviewer": "drawing-to-regex-review",
+  "notes": "Two new direct tools, regex_from_drawing and html_will_draw, plus a corrected roster. The old count was already wrong: the page said twenty direct tools and listed twenty names while the source had twenty-four, so the number and the list were rebuilt from the tree (26 files declaring exposure direct) rather than incremented. preset_verify's conditional status is checked against its available() declaration. Both new tools are registered in the safety trust map as read, which the trust-map test enforces by exact name. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T19:48:18.614Z"
 }

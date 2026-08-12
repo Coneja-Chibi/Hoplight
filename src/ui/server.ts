@@ -287,7 +287,7 @@ export function createHandler(
 
     // The Macro Lab's engines: what can run here, and run this text through it. Host-only above,
     // because it is the one route that starts somebody else's application. See server-macro-lab.ts.
-    const macroLabRoute = await handleMacroLabRoutes(p, req);
+    const macroLabRoute = await handleMacroLabRoutes(p, req, store.studioPath());
     if (macroLabRoute) return macroLabRoute;
 
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);

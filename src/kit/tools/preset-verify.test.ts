@@ -7,6 +7,7 @@
  * the tool inverted.
  */
 import { describe, expect, test } from "bun:test";
+import { applyEngineRoots } from "../../core/preset/render/engines";
 import tool from "./preset-verify";
 import type { ToolContext } from "./tool";
 import { resolve } from "node:path";
@@ -31,9 +32,16 @@ describe("preset_verify", () => {
   });
 
   test("an absent engine says nothing was checked, in those words", async () => {
+    // "Absent" now means no variable AND no saved folder; a root applied by another file in this
+    // run would answer, and the failure would read as this tool's bug rather than as leakage.
+    const before = process.env["HOPLIGHT_MARINARA_ROOT"];
+    delete process.env["HOPLIGHT_MARINARA_ROOT"];
+    applyEngineRoots({});
     const result = await run({
       engine: "marinara",
       preset: "minimal-preset",
+    }).finally(() => {
+      if (before !== undefined) process.env["HOPLIGHT_MARINARA_ROOT"] = before;
     });
     expect(result.output).toContain("HOPLIGHT_MARINARA_ROOT");
     // The sentence a model must not be able to misread as success.

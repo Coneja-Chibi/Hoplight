@@ -27,10 +27,13 @@ const input = z.strictObject({
   html: z.string().min(1).max(HTMLDOC_CAP)
     .describe(
       "the document. All CSS renders, including grid, flexbox, custom properties, gradients, "
-      + "transforms and animations; inline <style> works; images must be data: URIs. NOTHING "
-      + "executes and nothing is fetched: <script> and event attributes are stripped, so are "
-      + "iframe/object/embed/form/input/button/textarea/select/link/meta/base, and every http(s) "
-      + "image, font or request fails. Build static wireframes, mockups and diagrams.",
+      + "transforms and animations; a <style> block works wherever you put it, head or body; "
+      + "images must be data: URIs. NOTHING executes and nothing is fetched: <script> and event "
+      + "attributes are stripped, so are iframe/object/embed/link/meta/base, and every http(s) "
+      + "image, font or request fails. Form controls (form/input/button/textarea/select) are "
+      + "stripped too, so DRAW a button as a styled div or span rather than using a real one - a "
+      + "<button> loses its shape and leaves its label as bare text. Static wireframes, mockups "
+      + "and diagrams.",
     ),
   id: z.string().trim().min(1).max(200).optional()
     .describe("exact studio id; derived from the name when omitted"),

@@ -9,6 +9,7 @@ import type { AppContext } from "../../../app-contract";
 import { SETTING_KEYS } from "../../../../studio/settings-shape";
 import { knownDecks } from "../../../_shared/decks";
 import { SegControl, SettingsRow, type SettingsSection } from "../section-contract";
+import { EngineRoots } from "./engines";
 import styles from "../styles.module.css";
 
 function StudioSection({ ctx }: { ctx: AppContext }): JSX.Element {
@@ -90,6 +91,11 @@ function StudioSection({ ctx }: { ctx: AppContext }): JSX.Element {
           ))}
         </div>
       </SettingsRow>
+      {/*
+        The engines this machine has, last: it is the only block here about the MACHINE rather than
+        about the work, and it is the one somebody arrives at from the Macro Lab saying "no engine".
+      */}
+      <EngineRoots />
     </>
   );
 }

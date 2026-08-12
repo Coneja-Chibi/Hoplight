@@ -73,6 +73,13 @@ const TRUST = new Map<string, ToolAccess>([
   // regular expression, the engine refuses anything the validator calls a backtracking bomb, and
   // every run is time-bounded. Nothing is stored - saving belongs to regex_create.
   ["regex_lab", "read"],
+  // Reads one drawing out of the studio and does string work on it: flattening, escaping, slot
+  // substitution. With a sample it runs the pair through the same bounded engine regex_lab uses.
+  // Nothing is written - the rule comes back as text for a person to look at and save deliberately.
+  ["regex_from_drawing", "read"],
+  // Reads markup against the seal's tag list and reports. No studio access at all; it is handed the
+  // text it answers about.
+  ["html_will_draw", "read"],
   /**
    * Copies blocks between presets BY REFERENCE and stages the result. `draft` like every other
    * create: it composes a change and writes nothing.

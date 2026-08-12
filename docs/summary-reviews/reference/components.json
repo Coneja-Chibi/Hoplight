@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:aaf755c1f50e6dca2619a3af125ba7c7d57d9130bfa901497be72baf6be16f4b",
-  "semanticSummaryHash": "sha256:e2a5a60253e4bd16ed93b501038e1d48c9d3d4ac8e24347bc66d0f0dc26a36f4",
+  "sourceHash": "sha256:885e7e4707844049b48d86d70a8d35a1af444995743b1fb54bc292ed32e6f963",
+  "semanticSummaryHash": "sha256:5a34eb0598d6666099e2624017200f1c47a3a259eab1c15098af82f8ed3681d7",
   "verdict": "APPROVE",
-  "reviewer": "htmldoc-editor-catalog-refresh",
-  "notes": "Generated catalog refresh: adds HtmlDocEditor (src/ui/apps/workbench/htmldoc-editor.tsx), the Workbench editor for the htmldoc kind. No removals and no changed signatures on existing entries; the page's own prose about what the generated file is and how to regenerate it is unaffected.",
-  "reviewedAt": "2026-08-12T16:23:30.892Z"
+  "reviewer": "engine-roots-review",
+  "notes": "Regenerated catalog: one new row, EngineRoots in src/ui/apps/settings/sections/engines.tsx. Checked the row against the file - the component takes no props and its summary line is the one above the export. The page summary makes no claim this row changes. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T18:43:17.620Z"
 }

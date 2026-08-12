@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:c37a76c540921b649e592ed17e3cd423cf182e68f226a7b4292acc311890487b",
+  "sourceHash": "sha256:990edac7c27e8cfda070b07291b088a698512fe095ffd115923572fe6fcb7adc",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -291,8 +291,8 @@
       "slug": "the-macro-lab-catalog-only---what-a-macro-actually-does",
       "title": "The Macro Lab (catalog-only - what a macro actually does)",
       "level": 2,
-      "sourceHash": "sha256:8a4eb661ae78a7a438bbccf4d4c0dd26fab714a037f665594a5dcbfe38760ead",
-      "summary": "A scratch pad for macro text and the only surface that needs no piece open to be useful. It keeps two answers apart on purpose. Reading is pure and local: each token is broken out against the chosen platform catalog, nested tokens report under their container, and where else does it work asks the translator rather than two catalogs, so a shared name meaning different things is a flagged collision instead of a clean trip. A token invoking no name is called that rather than supported, because isMacroSupported fails lenient by design. Resolving runs the text through the platform real engine as a one-block preset behind a host-only route, needs a local checkout, and refuses by name when absent. The bible lists every macro with click-to-insert, and the operations table derives from the catalogs with gaps sorted first.",
+      "sourceHash": "sha256:7d3b4f6edf196c1ee2d1e0d6187adb2647f16e83d385bd1c1b3b73fbf1dfbbae",
+      "summary": "A scratch pad for macro text and the only surface that needs no piece open to be useful. It keeps two answers apart on purpose. Reading is pure and local: each token is broken out against the chosen platform catalog, nested tokens report under their container, and where else does it work asks the translator rather than two catalogs, so a shared name meaning different things is a flagged collision instead of a clean trip. A token invoking no name is called that rather than supported, because isMacroSupported fails lenient by design. Resolving runs the text through the platform real engine as a one-block preset behind a host-only route, needs a local checkout pointed at in Settings or named by an environment variable, and refuses by name when absent. The bible lists every macro with click-to-insert, and the operations table derives from the catalogs with gaps sorted first.",
       "topics": [
         "two answers kept apart",
         "catalog reading is pure",
@@ -308,8 +308,8 @@
       "slug": "html-view-catalog-only---a-drawing-at-full-size",
       "title": "HTML View (catalog-only - a drawing at full size)",
       "level": 2,
-      "sourceHash": "sha256:e8e69b2ce423d5681141abe126ba9c03c5a05ecb73fd6f915c949dc2a8ce06f7",
-      "summary": "A catalog-only app that draws one htmldoc piece as a whole tab. It is reached three ways: opened by id from the Library, handed a piece by another surface, or handed the raw text of a fenced html block from an agent reply. A piece travels by ID and is re-read from the studio, so the tab shows what the drawing says now rather than when it was opened and a reload costs nothing; only an unsaved reply has to be carried whole, and the room says so rather than showing an empty frame. Everything drawn passes through SealedHtmlPreview, the same component behind the transcript inline preview and the Workbench editor live pane, so one boundary serves three sizes with no second renderer to drift. All CSS renders while JavaScript never runs and no remote image or webfont loads.",
+      "sourceHash": "sha256:36de428e4f2fe3e567a9e9b78338ca6f2defa570353def0266392983af2c98a2",
+      "summary": "A catalog-only app that draws one htmldoc piece as a whole tab. It is reached three ways: opened by id from the Library, handed a piece by another surface, or handed the raw text of a fenced html block from an agent reply. A piece travels by ID and is re-read from the studio, so the tab shows what the drawing says now rather than when it was opened; only an unsaved reply is carried whole, and the room says so rather than showing an empty frame. Everything drawn passes through SealedHtmlPreview, the same component behind the transcript inline preview and the Workbench editor live pane, so one boundary serves three sizes with no second renderer to drift. All CSS renders, head styles included: a document's style blocks are lifted out and re-injected, because sanitizing returns the body alone and would otherwise bin the head with them. JavaScript never runs, no remote image or webfont loads, and form controls are stripped, since the same component draws untrusted card backdrops.",
       "topics": [
         "catalog-only app",
         "opened by id or handoff",
@@ -324,15 +324,17 @@
       "slug": "settings-drop-in-sections",
       "title": "Settings (drop-in sections)",
       "level": 2,
-      "sourceHash": "sha256:cf5347e2b69b33a2559470b5a64c5b2f1f444fc9172569231448874785484404",
-      "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access, now including the optional mesh-helper download, for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
+      "sourceHash": "sha256:700d7d5dbe435ba3db2f66762f3a52dbfd5651d723761d3a00e2046b6a41405f",
+      "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance, Studio for home app, initial deck, publish targets and this machine's engine checkouts, Workbench, Remote access for tunnel and LAN setup, devices, host controls and the optional mesh-helper download, Updates, and About. Engine checkouts are the one control that is not a preference: a root is an absolute host path deciding where a subprocess is spawned, so it lives in engines.json beside settings.json and travels only over the host-only macro-lab roots route, since a settings GET is served to a tailed-in device and a path carries the owner's username and disk layout. It is normalized and marker-checked before storage, saves are serialized because the file holds both engines, an environment variable outranks it, and it is the file Kit reads when a session is built.",
       "topics": [
         "drop-in SettingsSection",
         "registry-derived tabs",
         "live call-and-response controls",
         "Appearance theme accent",
-        "Studio home deck targets",
-        "Workbench follow behavior"
+        "Studio home deck targets and engine checkouts",
+        "engine roots not in settings.json",
+        "marker-checked before stored",
+        "the same folder Kit reads"
       ],
       "children": []
     },
