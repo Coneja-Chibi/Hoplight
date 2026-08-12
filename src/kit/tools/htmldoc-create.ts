@@ -51,7 +51,9 @@ const htmlDocCreate: HarnessTool<z.infer<typeof input>> = {
     + "wireframe, mockup, diagram or styled layout they want to KEEP - a one-off they only want to "
     + "glance at can stay as an ```html block in the reply instead. Nothing in the document ever "
     + "runs: it draws with scripts and network access off, so do not write JavaScript or link "
-    + "remote images and fonts.",
+    + "remote images and fonts. This CREATES one. To change a drawing that already exists, find "
+    + "the drawing update operation instead (search \"edit the wireframe\"): creating over an "
+    + "occupied id is refused, and that refusal is what stops a create from eating a piece.",
   // Deferred like every other create: found through capability search when somebody actually wants
   // to make one, rather than sitting in the belt for every turn that will never draw anything.
   exposure: "deferred",

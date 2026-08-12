@@ -70,6 +70,12 @@ three sizes, nothing to drift.
   browser's own where the engine grants it, an overlay over the app where it does not; Escape leaves
   either), and both pass `fill` so the drawing takes the whole room rather than the inline ceiling.
 - **Kit** - `studio_htmldoc_create` composes one as a preview-only draft; the Gate turns it into a file.
+  `htmldoc.document.update` is the edit half, found by search ("edit the wireframe", "fix the
+  layout"): a patch of markup, name, summary, tags or notes, previewed as changes and applied at the
+  same Gate. It shipped late, and its absence was a real dead end - create-only apply correctly
+  refuses an occupied id, so a model that had written a better version of a drawing had nowhere to
+  put it. Markup the seal would strip is a warning on the draft, never a refusal: what somebody may
+  draw is their call at the Gate, not the capability's.
 
 ## Size ceiling
 

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:5bd509750e31efaa7668be5b81d6399d4c783b8e837f3c0999613db80cc9c3dd",
-  "semanticSummaryHash": "sha256:a9a3e38c3528a127330defc2624ffd7f83d24b8ba20e629d00f684e24a72b9f0",
+  "sourceHash": "sha256:904aac3cb16952616305e01cdde7290f1ad95e3423b4464a74441ed71f749bad",
+  "semanticSummaryHash": "sha256:91e94da50a5aa9a71d402976cca73c052b8b1e3faa1d9d267f7cf3498db05ac4",
   "verdict": "APPROVE",
-  "reviewer": "drawing-to-regex-review",
-  "notes": "Two new direct tools, regex_from_drawing and html_will_draw, plus a corrected roster. The old count was already wrong: the page said twenty direct tools and listed twenty names while the source had twenty-four, so the number and the list were rebuilt from the tree (26 files declaring exposure direct) rather than incremented. preset_verify's conditional status is checked against its available() declaration. Both new tools are registered in the safety trust map as read, which the trust-map test enforces by exact name. Not an independent pass: written and approved in one turn.",
-  "reviewedAt": "2026-08-12T19:48:18.614Z"
+  "reviewer": "htmldoc-edit-review",
+  "notes": "Same capability, tool-doc side, plus a pointer in studio_htmldoc_create's own description so a model that reaches for create on an existing piece is sent to the edit operation instead of dead-ending. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-12T20:56:52.560Z"
 }

@@ -438,9 +438,9 @@
       "docId": "reference/entities/htmldoc",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "fullscreen-fill-review",
-      "sourceHash": "sha256:57b7f65e6e1fd26cb2b9be35077a3e9e8ce919182c6ca88fbaeca398e99a9764",
-      "semanticSummaryHash": "sha256:1dee33db4dcc9802e7051390acb90b4db76e0b4f627f78d316637d4e7293c272"
+      "reviewer": "htmldoc-edit-review",
+      "sourceHash": "sha256:7ac8766c10f5e0e5b0cb703debd7cc075975e976f7167dd98bf244efd77c4cc0",
+      "semanticSummaryHash": "sha256:f7381a90895cf9f8d0e8016c7bf9b07eb32d24f943e4774d4698aa9ceecd7e00"
     },
     {
       "docId": "reference/entities/lorebook",
@@ -606,9 +606,9 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "drawing-to-regex-review",
-      "sourceHash": "sha256:5bd509750e31efaa7668be5b81d6399d4c783b8e837f3c0999613db80cc9c3dd",
-      "semanticSummaryHash": "sha256:a9a3e38c3528a127330defc2624ffd7f83d24b8ba20e629d00f684e24a72b9f0"
+      "reviewer": "htmldoc-edit-review",
+      "sourceHash": "sha256:904aac3cb16952616305e01cdde7290f1ad95e3423b4464a74441ed71f749bad",
+      "semanticSummaryHash": "sha256:91e94da50a5aa9a71d402976cca73c052b8b1e3faa1d9d267f7cf3498db05ac4"
     },
     {
       "docId": "reference/platform-native-fields",

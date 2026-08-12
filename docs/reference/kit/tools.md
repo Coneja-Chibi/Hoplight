@@ -81,6 +81,11 @@ session:
   It is offered only where an engine lives: the checkout is the one pointed at in the studio
   window's Settings > Studio (`engines.json` in the studio folder, read when the session is built)
   or named by `HOPLIGHT_ST_ROOT` / `HOPLIGHT_MARINARA_ROOT`, which outranks it.
+- Drawings have both halves now: `studio_htmldoc_create` makes one, and `htmldoc.document.update` -
+  a deferred capability found by search ("edit the wireframe", "fix the layout") - patches the markup,
+  name, summary, tags or notes of one that exists. The edit half was missing at first, and the gap
+  was not cosmetic: create-only apply refuses an occupied id, correctly, so a model that had written
+  a better version of a drawing could neither save it nor honestly claim it had.
 - `regex_from_drawing` and `html_will_draw` serve the design-once-render-always shape: somebody
   draws the rich card, tracker or panel as an `htmldoc`, then a regex renders it from whatever
   compact form the model is asked to write, so the visual complexity lives in the script rather than

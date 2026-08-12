@@ -17,25 +17,26 @@ import capabilityModule7 from "../entities/character/capabilities/presentation";
 import capabilityModule8 from "../entities/character/capabilities/prompts";
 import capabilityModule9 from "../entities/character/capabilities/settings";
 import capabilityModule10 from "../entities/character/capabilities/variants";
-import capabilityModule11 from "../entities/lorebook/capabilities/entries";
-import capabilityModule12 from "../entities/lorebook/capabilities/notes";
-import capabilityModule13 from "../entities/lorebook/capabilities/settings";
-import capabilityModule14 from "../entities/pack/capabilities/groups";
-import capabilityModule15 from "../entities/pack/capabilities/items";
-import capabilityModule16 from "../entities/pack/capabilities/notes";
-import capabilityModule17 from "../entities/pack/capabilities/settings";
-import capabilityModule18 from "../entities/persona/capabilities/identity";
-import capabilityModule19 from "../entities/persona/capabilities/injection";
-import capabilityModule20 from "../entities/persona/capabilities/notes";
-import capabilityModule21 from "../entities/persona/capabilities/presentation";
-import capabilityModule22 from "../entities/persona/capabilities/profile";
-import capabilityModule23 from "../entities/preset/capabilities/blocks";
-import capabilityModule24 from "../entities/preset/capabilities/groups";
-import capabilityModule25 from "../entities/preset/capabilities/notes";
-import capabilityModule26 from "../entities/preset/capabilities/settings";
-import capabilityModule27 from "../entities/regex/capabilities/notes";
-import capabilityModule28 from "../entities/regex/capabilities/rules";
-import capabilityModule29 from "../entities/regex/capabilities/settings";
+import capabilityModule11 from "../entities/htmldoc/capabilities/document";
+import capabilityModule12 from "../entities/lorebook/capabilities/entries";
+import capabilityModule13 from "../entities/lorebook/capabilities/notes";
+import capabilityModule14 from "../entities/lorebook/capabilities/settings";
+import capabilityModule15 from "../entities/pack/capabilities/groups";
+import capabilityModule16 from "../entities/pack/capabilities/items";
+import capabilityModule17 from "../entities/pack/capabilities/notes";
+import capabilityModule18 from "../entities/pack/capabilities/settings";
+import capabilityModule19 from "../entities/persona/capabilities/identity";
+import capabilityModule20 from "../entities/persona/capabilities/injection";
+import capabilityModule21 from "../entities/persona/capabilities/notes";
+import capabilityModule22 from "../entities/persona/capabilities/presentation";
+import capabilityModule23 from "../entities/persona/capabilities/profile";
+import capabilityModule24 from "../entities/preset/capabilities/blocks";
+import capabilityModule25 from "../entities/preset/capabilities/groups";
+import capabilityModule26 from "../entities/preset/capabilities/notes";
+import capabilityModule27 from "../entities/preset/capabilities/settings";
+import capabilityModule28 from "../entities/regex/capabilities/notes";
+import capabilityModule29 from "../entities/regex/capabilities/rules";
+import capabilityModule30 from "../entities/regex/capabilities/settings";
 
 const capabilityModules: readonly unknown[] = [
   capabilityModule0,
@@ -68,6 +69,7 @@ const capabilityModules: readonly unknown[] = [
   capabilityModule27,
   capabilityModule28,
   capabilityModule29,
+  capabilityModule30,
 ];
 
 /** Every semantic capability, generated from the drop-in folders. */
