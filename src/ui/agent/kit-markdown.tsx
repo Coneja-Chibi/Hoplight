@@ -38,6 +38,8 @@ import { DIFF_LINE_CAP, diffInk, safeLinkHref } from "./kit-markdown-core";
  * The lazy boundary also keeps DOMPurify out of the agent chunk for every reply that has no HTML
  * in it, which is nearly all of them.
  */
+import { handOffHtml } from "./html-handoff";
+
 const SealedHtmlPreview = lazy(async () => {
   const mod = await import("../components/sealed-html-preview");
   return { default: mod.SealedHtmlPreview };
@@ -112,6 +114,16 @@ function PlainSlab({ block }: { block: Extract<Block, { t: "code" }> }): JSX.Ele
           onClick={() => setPreview(!preview)}
         >
           {preview ? "Show source" : "Preview"}
+        </button>
+      )}
+      {/*
+        The same drawing at tab size. Inline is for a glance beside the reply that produced it; a
+        wireframe is usually the thing you came for, and reading it in a column the width of a chat
+        transcript is not looking at it.
+      */}
+      {canDraw && (
+        <button type="button" className="kit-md__preview" onClick={() => handOffHtml(source)}>
+          Open as tab
         </button>
       )}
       {canDraw && preview ? (

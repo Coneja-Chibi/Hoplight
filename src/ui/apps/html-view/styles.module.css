@@ -1,0 +1,56 @@
+/**
+ * HTML View: a framed drawing at tab size. House flat-ink chrome around it; inside the frame the
+ * page is the agent's own, sealed in its iframe and styled by nothing here.
+ */
+.room {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: clamp(0.9rem, 2.4vw, 1.8rem);
+}
+
+.head { max-width: 54rem; flex: none; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.title {
+  margin: 0.25rem 0 0.4rem;
+  font-family: var(--font-big);
+  font-size: var(--text-title);
+  line-height: 1;
+  color: var(--text);
+}
+
+.lede {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+
+.quiet {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* The drawing takes the rest of the tab: this is the point of opening it here rather than inline. */
+.frame {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 5px 5px 0 0 var(--a);
+}
+
+.frame > * { flex: 1; min-height: 0; }

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-11",
+  "generated": "2026-08-12",
   "count": 112,
   "pages": [
     {
@@ -342,9 +342,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "risu-dialect-catalog-refresh",
-      "sourceHash": "sha256:cb41c95e973e36b6d78328c418d6bca4995b325977f25fa5451a3b7e626c49bb",
-      "semanticSummaryHash": "sha256:2e1dca3bad4510e9e379d3a323e56870ff1fd565bcfc755cd8c6259147d7b6ee"
+      "reviewer": "html-view-catalog-refresh",
+      "sourceHash": "sha256:8f1c128ae495d1734b79dfd27cdb119fcaa1069d2633a0cc5d65e1fbd913429f",
+      "semanticSummaryHash": "sha256:5f042159ccec2ef0046fa41567e74d46ab738013444e18ae48761a9ca891e944"
     },
     {
       "docId": "reference/concepts/bundles",

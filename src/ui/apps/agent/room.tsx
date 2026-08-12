@@ -22,6 +22,7 @@ import { loadDraft, saveDraft } from "../../agent/transcript-store";
 import { GateCard } from "../../agent/gate-card";
 import { apiFetch, apiFetchJson } from "../../_shared/api-fetch";
 import { kitVars } from "../../agent/kit-vars";
+import { HTML_VIEW_APP, onHtmlHandoff } from "../../agent/html-handoff";
 import { KeyHints, Rehearsal, RehearsalTrace, Searchlight, Stagehand, WatchNote } from "../../agent/kit-widgets";
 import { StatusToast, useNotice } from "../../agent/kit-bands";
 import { MeterBar } from "../../agent/kit-meters";
@@ -47,6 +48,15 @@ import {
 export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => void }): JSX.Element {
   const [, bump] = useState(0);
   useEffect(() => liveSurface.onChange(() => { bump((n) => n + 1); }), []);
+
+  /**
+   * THE ROOM IS WHAT CAN OPEN A TAB, so it is what listens.
+   *
+   * The transcript renderer draws model output and holds no AppContext - deliberately, since it must
+   * stay a pure function of text. So the "Open as tab" control announces (html-handoff.ts) and this,
+   * which does have ctx, turns that into openApp. One listener, one direction.
+   */
+  useEffect(() => onHtmlHandoff(() => { ctx.openApp(HTML_VIEW_APP); }), [ctx]);
 
   /**
    * Seeded from storage and written back on every change: leaving this tab UNMOUNTS the app (the

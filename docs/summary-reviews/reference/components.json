@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:cb41c95e973e36b6d78328c418d6bca4995b325977f25fa5451a3b7e626c49bb",
-  "semanticSummaryHash": "sha256:2e1dca3bad4510e9e379d3a323e56870ff1fd565bcfc755cd8c6259147d7b6ee",
+  "sourceHash": "sha256:8f1c128ae495d1734b79dfd27cdb119fcaa1069d2633a0cc5d65e1fbd913429f",
+  "semanticSummaryHash": "sha256:5f042159ccec2ef0046fa41567e74d46ab738013444e18ae48761a9ca891e944",
   "verdict": "APPROVE",
-  "reviewer": "risu-dialect-catalog-refresh",
-  "notes": "Generated catalog refresh, verified against the diff: no component rows added or removed, only signature text changed where macro-lab panes now take MacroDialect instead of PresetWriteForProfile. The page describes what the generated file is and how to regenerate it, which a type rename does not alter, so the semantic summary and topics stand unedited.",
-  "reviewedAt": "2026-08-11T07:59:50.647Z"
+  "reviewer": "html-view-catalog-refresh",
+  "notes": "Generated catalog refresh, verified against the diff: adds HtmlView (src/ui/apps/html-view) and PlainSlab (src/ui/agent/kit-markdown.tsx), no removals, no changed signatures on existing entries. The page describes what the generated file is and how to regenerate it, which adding rows does not alter.",
+  "reviewedAt": "2026-08-12T03:47:32.098Z"
 }

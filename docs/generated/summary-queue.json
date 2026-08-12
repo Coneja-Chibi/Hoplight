@@ -1,8 +1,8 @@
 {
-  "generated": "2026-08-11",
+  "generated": "2026-08-12",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 1016942,
+  "totalSourceChars": 1017075,
   "batches": [
     {
       "id": "batch-001",
@@ -360,14 +360,14 @@
     },
     {
       "id": "batch-004",
-      "sourceChars": 88760,
+      "sourceChars": 88893,
       "pages": [
         {
           "docId": "reference/components",
           "sourcePath": "docs/reference/components.md",
           "sidecarPath": "docs/summaries/reference/components.json",
           "sectionCount": 2,
-          "sourceChars": 39014,
+          "sourceChars": 39147,
           "status": "APPROVED"
         },
         {
