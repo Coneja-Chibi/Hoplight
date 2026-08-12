@@ -82,18 +82,20 @@ const app: HoplightApp = {
     catalogOnly: true,
     agentSurface: {
       describe:
-        "HTML View draws a page as a full tab, with scripts and network access off. The agent opens "
-        + "it by writing an html code block and calling html_open, or the person clicks through from "
-        + "a reply. It renders layout and styling only.",
-      actions: [
-        {
-          id: "open",
-          label: "Open a drawing",
-          describe:
-            "Show an HTML document as a full tab. Use it for wireframes and mockups the person "
-            + "should look at rather than read.",
-        },
-      ],
+        "HTML View draws a page as a full tab, with scripts and network access off - layout and "
+        + "styling only. THERE IS NO TOOL THAT OPENS IT. Write the page in an ```html code block "
+        + "and the person gets Preview and Open as tab controls on that block; the opening is "
+        + "theirs to do. Say what you drew, not that you opened it.",
+      /**
+       * NO ACTIONS, because the agent has none here.
+       *
+       * This listed an "open" action and the describe named an `html_open` tool. Neither exists -
+       * the only route to this surface is a person clicking a control on a fenced block. A menu
+       * naming a tool that is not in the belt is worse than an empty one: the agent spends a step
+       * calling it, gets an unknown-tool error, and the person watches it fail at something the
+       * screen promised.
+       */
+      actions: [],
     },
   },
   Component: HtmlView,
