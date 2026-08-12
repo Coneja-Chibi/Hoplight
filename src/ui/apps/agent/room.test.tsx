@@ -8,8 +8,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { AppContext, AppManifestEntry } from "../../app-contract";
-/** The room reads the shared module singleton, so these drive that one, not an isolated copy. */
-import { liveSurface } from "../../agent/live-state";
+import type { AgentState } from "../../agent/surface";
 import { AgentRoom } from "./room";
 
 const LIBRARY: AppManifestEntry = {
@@ -29,10 +28,27 @@ const LIBRARY: AppManifestEntry = {
  * `prefs` is real rather than absent because the room reads one to decide whether its top band is
  * folded. A double that omits what the component uses tests a component nobody ships.
  */
-const ctx = (manifests: AppManifestEntry[]): AppContext =>
+/**
+ * THE SURFACE ARRIVES THROUGH THE CONTEXT, and these tests drive it that way on purpose.
+ *
+ * They used to publish into the live-state MODULE and let the room import the same one. That works
+ * in a test process and never in the artifact: every app under /apps is bundled separately, so the
+ * room's import was its own permanently empty copy, and the window said "no screen has described
+ * itself yet" from every screen while the floating panel - which runs inside the shell's bundle -
+ * worked. The test could not see the difference, so it certified a room nobody could use.
+ */
+const ctx = (
+  manifests: AppManifestEntry[],
+  published?: { appId: string; state: AgentState },
+): AppContext =>
   ({
     apps: () => manifests,
     prefs: { get: () => undefined, set: () => undefined },
+    agent: {
+      publish: () => undefined,
+      current: () => published ?? null,
+      onChange: () => () => undefined,
+    },
   }) as unknown as AppContext;
 
 describe("AgentRoom", () => {
@@ -111,13 +127,16 @@ describe("AgentRoom", () => {
      * Opening this window makes it the active app, so without the publisher stamp the only surface
      * it could ever report would be its own. That would make the whole feature pointless.
      */
-    liveSurface.publish("library", {
-      headline: "The Presets shelf, showing 2 of 164 pieces.",
-      items: [{ kind: "preset", id: "hawthorne", name: "HawThorne", dirty: true }],
-      notes: ["1 file(s) in the studio folder did not open: preset/Clean.json (schema-mismatch)"],
-    });
+    const standing = {
+      appId: "library",
+      state: {
+        headline: "The Presets shelf, showing 2 of 164 pieces.",
+        items: [{ kind: "preset", id: "hawthorne", name: "HawThorne", dirty: true }],
+        notes: ["1 file(s) in the studio folder did not open: preset/Clean.json (schema-mismatch)"],
+      },
+    };
 
-    const html = renderToStaticMarkup(<AgentRoom ctx={ctx([LIBRARY])} />);
+    const html = renderToStaticMarkup(<AgentRoom ctx={ctx([LIBRARY], standing)} />);
 
     expect(html).toContain("Standing on The Library");
     expect(html).toContain("2 of 164 pieces");

@@ -606,9 +606,9 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "htmldoc-edit-review",
-      "sourceHash": "sha256:904aac3cb16952616305e01cdde7290f1ad95e3423b4464a74441ed71f749bad",
-      "semanticSummaryHash": "sha256:91e94da50a5aa9a71d402976cca73c052b8b1e3faa1d9d267f7cf3498db05ac4"
+      "reviewer": "agent-surface-bundle-review",
+      "sourceHash": "sha256:762e73e2692504a3dfc6fce39ed791ef9379af3909fe954315efef5a9054c217",
+      "semanticSummaryHash": "sha256:458aa5e791a02e531427a5abc091ae5e6420184d16d99a07d1f4ada758f335c8"
     },
     {
       "docId": "reference/platform-native-fields",
@@ -886,9 +886,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "fullscreen-fill-review",
-      "sourceHash": "sha256:f30eba2f305a4252a6daafe60e682b93f1fe4d4cf0117294ace8772231c24f79",
-      "semanticSummaryHash": "sha256:968ac9edffd6dbef8adc4ee0faf3010c2de1fce2da03a91e3e4c58f67ef9f2b6"
+      "reviewer": "agent-surface-bundle-review",
+      "sourceHash": "sha256:6e7c39f36460948836f70c2f7c1576bff8a1db0337f0c35f7d3f84d6eed341de",
+      "semanticSummaryHash": "sha256:5027d1651d58d557fbc9e34439ee655bb954ce9173711597b8e4f79b3ef565c4"
     },
     {
       "docId": "reference/updates",

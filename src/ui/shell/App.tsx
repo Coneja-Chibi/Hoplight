@@ -12,10 +12,10 @@
  * Until that lands, the import below is a listed, owned tsc error (NO-ROT: this file never wraps
  * the vanilla wizard in a compatibility shim).
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import { api } from "../api";
-import { liveSurface } from "../agent/live-state";
+import { AGENT_APP_ID, liveSurface } from "../agent/live-state";
 import type { AppContext, AppManifestEntry, StudioEntitySummary, HoplightApp } from "../app-contract";
 import { parseSettings, type StudioSettings } from "../../studio/settings-shape";
 import { SetupWizard } from "../setup/wizard";
@@ -180,6 +180,13 @@ export function App(): JSX.Element | null {
     })();
   };
 
+  /** A mounted screen is a screen you are standing on; agent/live-state.ts records why. */
+  const standOn = useCallback((appId: string): void => {
+    if (appId === AGENT_APP_ID) return;
+    const title = useShellStore.getState().manifests.find((m) => m.id === appId)?.title ?? appId;
+    liveSurface.publish(appId, { headline: `${title} is open.` });
+  }, []);
+
   // -- load the active app's module fresh, cache it (module identity is not store state) ------------
   useEffect(() => {
     if (!activeAppId) {
@@ -190,6 +197,7 @@ export function App(): JSX.Element | null {
     const cached = modulesRef.current.get(activeAppId);
     if (cached) {
       mountedAppId.current = activeAppId;
+      standOn(activeAppId);
       setActiveComponent(() => cached.Component);
       return;
     }
@@ -206,6 +214,7 @@ export function App(): JSX.Element | null {
         modulesRef.current.set(activeAppId, mod.default);
         if (!cancelled) {
           mountedAppId.current = activeAppId;
+          standOn(activeAppId);
           setActiveComponent(() => mod.default.Component);
         }
       } catch {
@@ -217,7 +226,8 @@ export function App(): JSX.Element | null {
     return () => {
       cancelled = true;
     };
-  }, [activeAppId]);
+    // standOn is a stable useCallback with no deps; listing it would not change when this runs.
+  }, [activeAppId, standOn]);
 
   // -- idle-prefetch the whole roster so a FIRST click on any app is instant, not a dev-bundle wait --
   const manifests = useShellStore((s) => s.manifests);
@@ -413,21 +423,21 @@ export function App(): JSX.Element | null {
        * The live half of agentSurface. Deliberately NOT in the shell store: this snapshot changes as
        * fast as a selection does, and every store write rebuilds ctx and repaints the whole app (see
        * the note on storeState above). An app publishing its state on each render would drive an
-       * infinite repaint. It lives in a module of its own that only the agent window reads.
+       * infinite repaint. It lives in a module of its own; both directions go through here, because
+       * an app that imported that module would get its own empty copy (agent/live-state.ts).
        */
       agent: {
         /**
-         * The id is read from the store rather than taken from the caller - apps never learn which
-         * app is active, and one that could name itself could name a different screen.
-         *
-         * IT NAMES THE APP THAT IS MOUNTED, NOT THE ONE THE DOCK HAS SELECTED. `activeAppId` flips
-         * the instant the dock is clicked, but the outgoing app stays mounted for a commit or two
-         * and can publish once more on the way out. Reading `activeAppId` stamped that last publish
-         * with the INCOMING app's id: opening the agent window made the Library publish itself as
-         * "agent", and the window then described ITSELF using the Library's contents. Precisely the
-         * confusion the stamp exists to prevent.
+         * Stamped with the MOUNTED app, not the one the dock has selected. `activeAppId` flips the
+         * instant the dock is clicked while the outgoing app stays mounted for a commit or two and
+         * can publish once more on the way out - stamping that with the incoming id made the Library
+         * publish itself as "agent", and the window then described ITSELF using the Library's
+         * contents. Apps never learn which app is active; one that could name itself could name a
+         * different screen.
          */
         publish: (state) => liveSurface.publish(mountedAppId.current, state),
+        current: () => liveSurface.current(),
+        onChange: (cb) => liveSurface.onChange(cb),
       },
     }),
     // storeState is an identity TRIGGER, not a consumed value: its whole job is invalidating ctx on

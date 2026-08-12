@@ -14,7 +14,6 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX, type KeyboardEvent } from "react";
 import type { AppContext } from "../../app-contract";
-import { liveSurface } from "../../agent/live-state";
 import { briefText, readSurface } from "../../agent/surface";
 import { useAgentChat } from "../../agent/use-agent-chat";
 import { useStudioChanges } from "../../agent/use-studio-changes";
@@ -47,7 +46,7 @@ import {
  */
 export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => void }): JSX.Element {
   const [, bump] = useState(0);
-  useEffect(() => liveSurface.onChange(() => { bump((n) => n + 1); }), []);
+  useEffect(() => ctx.agent.onChange(() => { bump((n) => n + 1); }), [ctx]);
 
   /**
    * THE ROOM IS WHAT CAN OPEN A TAB, so it is what listens.
@@ -138,7 +137,7 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
       // The panel if there is one; otherwise back to the screen this conversation was about, which
       // is the only "leave" a dock-mounted app can perform.
       if (onClose) { onClose(); return; }
-      const published = liveSurface.current();
+      const published = ctx.agent.current();
       if (published) ctx.openApp(published.appId);
     },
   }), [ctx, onClose]);
@@ -158,7 +157,7 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
     endRef.current?.scrollIntoView({ block: "end" });
   }, [chat.lines, chat.streaming, chat.gate]);
 
-  const published = liveSurface.current();
+  const published = ctx.agent.current();
   /** The app you came FROM: opening this window is what makes it the active one. */
   const from = published ? ctx.apps().find((m) => m.id === published.appId) : undefined;
   const reading = from

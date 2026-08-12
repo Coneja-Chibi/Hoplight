@@ -81,6 +81,11 @@ session:
   It is offered only where an engine lives: the checkout is the one pointed at in the studio
   window's Settings > Studio (`engines.json` in the studio folder, read when the session is built)
   or named by `HOPLIGHT_ST_ROOT` / `HOPLIGHT_MARINARA_ROOT`, which outranks it.
+- `rail_open` puts a preset where this app shows presets, and a name that is a real piece of ANOTHER
+  kind now gets told which kind it is and where that kind opens, instead of a roll-call of every
+  preset in the studio. Asked to put a drawing on the rail it used to answer "no preset matches" and
+  list them all - true, and read as "that piece cannot be opened at all". The rail holds a preset's
+  blocks in evaluation order; nothing else has blocks.
 - Drawings have both halves now: `studio_htmldoc_create` makes one, and `htmldoc.document.update` -
   a deferred capability found by search ("edit the wireframe", "fix the layout") - patches the markup,
   name, summary, tags or notes of one that exists. The edit half was missing at first, and the gap

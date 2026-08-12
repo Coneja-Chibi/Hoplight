@@ -33,6 +33,33 @@ import { findPreset } from "./_shared/find-preset";
 const surfaceOf = (ctx: ToolContext): string => ctx.surface ?? "the rail";
 
 /**
+ * The kinds a name might belong to when it is not a preset, in the order worth checking.
+ *
+ * Drawings first because that is the one somebody reaches for here: the rail and a drawing are both
+ * "a thing you look at", and the model that asked for one had just made it.
+ */
+const OTHER_KINDS = ["htmldoc", "character", "lorebook", "persona", "regex", "pack"] as const;
+
+/** The piece this name really is, if it is a piece of some other kind. */
+async function otherKind(
+  ctx: ToolContext,
+  query: string,
+): Promise<{ kind: string; id: string; name: string } | null> {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return null;
+  for (const kind of OTHER_KINDS) {
+    const pieces = await ctx.bridge.list(kind);
+    const hit = pieces.find(
+      (piece) => piece.id.toLowerCase() === needle
+        || piece.name.toLowerCase() === needle
+        || piece.id.toLowerCase().includes(needle),
+    );
+    if (hit) return { kind, id: hit.id, name: hit.name };
+  }
+  return null;
+}
+
+/**
  * `show` REQUIRES a preset, enforced here rather than in execute.
  *
  * Making `preset` optional for `status` quietly let `{}` parse, which moved a fail-closed refusal
@@ -103,6 +130,28 @@ const railOpen: HarnessTool<z.infer<typeof input>> = {
     }
     const picked = findPreset(await ctx.bridge.list("preset"), args.preset);
     if (!picked.ok) {
+      /**
+       * A NAME THAT IS A REAL PIECE OF ANOTHER KIND DESERVES BETTER THAN "no preset matches".
+       *
+       * Asked to put a drawing on the rail, this listed every preset in the studio and said none of
+       * them matched - true, useless, and easy to read as "that piece cannot be opened at all". The
+       * rail holds a PRESET's blocks in evaluation order; nothing else has blocks. Saying which
+       * kind the name actually is, and where that kind opens, turns a dead end into a direction.
+       */
+      const elsewhere = await otherKind(ctx, args.preset);
+      if (elsewhere) {
+        return {
+          summary: `rail_open: ${args.preset} is a ${elsewhere.kind}, not a preset`,
+          output: `"${elsewhere.name || elsewhere.id}" is a ${elsewhere.kind}, and the rail holds a `
+            + "preset's blocks in evaluation order - nothing else has blocks to show. "
+            + (elsewhere.kind === "htmldoc"
+              ? "A drawing opens in the HTML View tab, and the person opens it: from the Library, or "
+                + "from the reply it came in. No tool opens a tab. To CHANGE it, find the drawing "
+                + "update operation (search \"edit the wireframe\")."
+              : "Open it from the Library, or read it with studio_read.")
+            + " Nothing was opened.",
+        };
+      }
       return { summary: `rail_open: ${args.preset} did not resolve`, output: picked.detail };
     }
 

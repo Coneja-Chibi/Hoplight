@@ -465,6 +465,19 @@ egress ledger, one Gate. See [kit/README.md](kit/README.md) for the belt itself.
   worth doing there - and the mounted app adds what is on it right now (`ctx.agent.publish`).
   `surface.ts` joins the two into the brief. That brief is BUDGETED: a describe is truncated at 300
   characters and an action at 200, so a longer one is the same brief with its end cut off.
+- **The snapshot travels through the context in BOTH directions** - `ctx.agent.publish` to write it,
+  `ctx.agent.current` / `onChange` to read it - and an app must never import `agent/live-state`
+  itself. Every app under `/apps` is bundled separately, so an app's own import is a second,
+  permanently empty copy of that module: the agent room did exactly that and could not see a single
+  publish, saying "no screen has described itself yet" from every screen while the identical
+  component in the floating panel worked, because the panel runs inside the shell's bundle. Same
+  shape as the `instanceof` split in `_shared/api-fetch.ts`, and just as invisible to a typecheck.
+- **A mounted screen is a screen you are standing on.** Only five apps publish live state; the shell
+  publishes a bare `<title> is open.` snapshot as any other app mounts, so the manifest's static
+  half always has a carrier. Without it the six apps that never publish - Docs, the Macro Lab, HTML
+  View, the CSS Workshop, the Apps catalog - left the window with no reading at all and every turn
+  went to the model with no screen context. The agent itself is excluded: mounting it would publish
+  "agent" over the screen you came from and the window would describe itself.
 - **It notices the disk.** The studio-change stream reports the folder rather than an actor, so a file
   the agent wrote and a file dragged in from Explorer arrive the same way.
 - **Replies are parsed, not printed.** Kit's own markdown parser draws headings, lists, quotes, tables

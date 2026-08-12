@@ -258,6 +258,20 @@ export interface AppContext {
   agent: {
     /** Describe this screen. Replaces whatever the last screen said. */
     publish(state: AgentState): void;
+    /**
+     * The screen last described, or null before any has been.
+     *
+     * READ THROUGH THE CONTEXT, NEVER BY IMPORTING THE MODULE. Every app under /apps is bundled
+     * separately, so an app importing live-state gets its OWN instance of it - a different object
+     * from the one the shell publishes into. The agent app did exactly that and could therefore
+     * never see a single publish: mounted as a dock app it read an empty module and said "no screen
+     * has described itself yet" on every navigation, while the same component in the floating panel
+     * worked, because there it runs inside the shell's own bundle. The same shape as the
+     * `instanceof` split recorded in _shared/api-fetch.ts, and just as invisible to a typecheck.
+     */
+    current(): { readonly appId: string; readonly state: AgentState } | null;
+    /** Subscribe to the above; returns the unsubscribe. */
+    onChange(cb: () => void): () => void;
   };
 }
 

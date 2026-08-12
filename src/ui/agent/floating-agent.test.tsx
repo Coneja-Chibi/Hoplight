@@ -20,6 +20,9 @@ import { FloatingAgent } from "./floating-agent";
 const ctx = ({
   apps: () => [],
   prefs: { get: () => undefined, set: () => undefined },
+  // Read through the context, for the reason app-contract.ts records: a bundled app importing
+  // live-state reads its own empty copy of it.
+  agent: { publish: () => undefined, current: () => null, onChange: () => () => undefined },
 }) as unknown as AppContext;
 
 const render = (open: boolean): string =>

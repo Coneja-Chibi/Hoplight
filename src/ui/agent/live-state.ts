@@ -34,6 +34,9 @@ export interface PublishedSurface {
   readonly state: AgentState;
 }
 
+/** The reader. It never publishes; see the note on `liveSurface` below for why that matters. */
+export const AGENT_APP_ID = "agent";
+
 export interface LiveSurface {
   /** The last screen that described itself, or null before any has. */
   current(): PublishedSurface | null;
@@ -67,5 +70,24 @@ export function createLiveSurface(): LiveSurface {
  *
  * A module singleton because there is exactly one shell on a page and exactly one screen in front of
  * the user. The factory stays exported so tests get their own and never share state.
+ *
+ * ONE INSTANCE MEANS THE SHELL'S INSTANCE. Every app under /apps is bundled separately, so an app
+ * that imports this module gets its own copy of it - a different object from the one the shell
+ * publishes into, permanently empty. The agent room did exactly that and could not see a single
+ * publish: mounted as a dock app it said "no screen has described itself yet" from every screen,
+ * while the identical component in the floating panel worked, because the panel renders inside the
+ * shell's bundle. Apps reach this only through `ctx.agent` (publish / current / onChange), which the
+ * shell builds over THIS instance. Same shape as the `instanceof` split in _shared/api-fetch.ts, and
+ * just as invisible to a typecheck.
+ *
+ * A MOUNTED SCREEN IS A SCREEN YOU ARE STANDING ON, whether or not it has anything live to say. Only
+ * five apps ever call publish; six never do - Docs, the Macro Lab, HTML View, the CSS Workshop, the
+ * Apps catalog and the agent itself - and from any of those the window had no reading at all, so the
+ * turn went to the model carrying no screen context, which is the whole feature. The static half was
+ * always there (every manifest declares `agentSurface.describe`, and readSurface works with
+ * `state: null`); it simply had no carrier. The shell therefore publishes a bare `<title> is open.`
+ * snapshot as an app mounts, and an app with something better replaces it a beat later from its own
+ * render. NOT for the agent itself: that would publish "agent" over the screen you came from and the
+ * window would describe itself, which is the confusion the shell-stamped appId exists to prevent.
  */
 export const liveSurface: LiveSurface = createLiveSurface();

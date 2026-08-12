@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:f30eba2f305a4252a6daafe60e682b93f1fe4d4cf0117294ace8772231c24f79",
+  "sourceHash": "sha256:6e7c39f36460948836f70c2f7c1576bff8a1db0337f0c35f7d3f84d6eed341de",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -241,8 +241,8 @@
       "slug": "the-agent-window-the-model-standing-on-the-screen-you-came-from",
       "title": "The Agent window (the model, standing on the screen you came from)",
       "level": 2,
-      "sourceHash": "sha256:35e78bbde77e72ad6e00589bc6520e4b76ef28a103ab89d9af93811659d20b3f",
-      "summary": "A conversation with whatever model the vault holds, carrying the real tool belt. The window owns no provider and no tools: it asks the loopback server, which asks Kit, so there is one vault, one egress ledger and one Gate. The Gate is the layout rather than a dialog - when the agent wants to write, a card takes the bottom of the window and a dispatch loop on the server is genuinely parked until somebody answers it. The window can see the screen because each app publishes an agentSurface and the mounted app adds what is on it now, joined into a budgeted brief that truncates a describe at 300 characters. The studio-change stream reports the folder rather than an actor, so an agent write and a drag from Explorer arrive identically. Replies are parsed and drawn from React elements, never from an HTML string.",
+      "sourceHash": "sha256:8b23c51a2faf03cacffe312f8aa3c1d1dd6ce4484b0795d02b5cc72cfd291642",
+      "summary": "A conversation with whatever model the vault holds, carrying the real tool belt. The window owns no provider and no tools: it asks the loopback server, which asks Kit, so there is one vault, one egress ledger and one Gate. The Gate is the layout, not a dialog: a card takes the bottom of the window and the server dispatch loop parks until it is answered. It sees the screen because each app publishes an agentSurface and the mounted app adds what is on it now, joined into a brief that truncates a describe at 300 characters. That snapshot travels through the context both ways, never by importing live-state: every app is bundled separately, so its own import is a second empty copy. The shell publishes a bare snapshot as any app mounts, so apps that never publish still give the window a reading. The studio-change stream reports the folder rather than an actor, so an agent write and a drag from Explorer arrive alike. Replies are drawn from React elements, never from an HTML string.",
       "topics": [
         "no provider of its own",
         "Gate parks the dispatch loop",
