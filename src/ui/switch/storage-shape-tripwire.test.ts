@@ -25,7 +25,14 @@ async function shapeFiles(): Promise<string[]> {
 
 // LF normalization keeps the pin stable across Windows and CI.
 //
-// Updated deliberately for TWO COMPATIBLE changes that landed either side of this merge.
+// Updated deliberately for a NEW ENTITY KIND: `htmldoc`, an HTML document kept as a piece so the
+// existing rename/duplicate/delete/collection tools have something to act on. Additive and
+// COMPATIBLE - no existing kind's on-disk shape moved, and nothing previously valid becomes
+// invalid, because the discriminated union only gained a member. A file written before this exists
+// parses byte-for-byte as it did. No schema-version bump and no SCHEMA_BUMPS entry; the count above
+// went 7 to 8 because the new kind brought its own runtime-schema.ts.
+//
+// Previously updated for TWO COMPATIBLE changes that landed either side of this merge.
 //
 // From the archive-import branch: core/canonical.ts gained `primaryOriginalId`, a standalone
 // function reading the same `Original` record `primaryOriginalRaw` already reads (the KEY of its
@@ -47,12 +54,12 @@ async function shapeFiles(): Promise<string[]> {
 //
 // And before that: PresetSamplers.promptPostProcessing gained the values SillyTavern actually
 // writes, and the per-group schemas were exported for the ST codec to read expected types off them.
-const PINNED_SHAPE_HASH = "b70bf172d077b69552c678c656181a5c069f604655f8373b29f34ef0e0fc4b94";
+const PINNED_SHAPE_HASH = "da225049efb35b8b4e213e8848e894820fba921e596be8c583d75798106246e8";
 
 test("storage-shape tripwire: an on-disk shape change must be a deliberate, version-aware act", async () => {
   const h = createHash("sha256");
   const files = await shapeFiles();
-  expect(files.filter((path) => path.includes("/runtime-schema.ts"))).toHaveLength(7);
+  expect(files.filter((path) => path.includes("/runtime-schema.ts"))).toHaveLength(8);
   for (const f of files) h.update((await Bun.file(f).text()).replace(/\r\n/g, "\n"));
   expect(h.digest("hex")).toBe(PINNED_SHAPE_HASH);
 });

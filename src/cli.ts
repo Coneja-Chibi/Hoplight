@@ -24,6 +24,7 @@ import { ensureFormats } from "./ensure-formats";
 import { APP_VERSION as VERSION } from "./version";
 import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 import { validateAdapterOutput } from "./cli-validation";
+import { printEntitySummary } from "./cli-inspect";
 
 /** Read a file into the shape adapters expect. Which extensions get a decoded view is core's call, so
  *  the CLI and the studio recognise exactly the same files. */
@@ -311,41 +312,7 @@ async function main(argv: string[]): Promise<number> {
     console.log(`\n  ${path}`);
     console.log(`    format   ${src.id}  (${src.label})`);
     console.log(`    kind     ${ent.kind}`);
-    if (ent.kind === "lorebook") {
-      const b = ent.body;
-      console.log(`    name     ${b.name || "(unnamed)"}`);
-      console.log(`    type     ${b.lorebookType ?? "(none)"}`);
-      console.log(`    entries  ${b.entries.length}`);
-      console.log(`    budget   ${b.tokenBudget} (${b.budgetMode})\n`);
-    } else if (ent.kind === "persona") {
-      const b = ent.body;
-      console.log(`    name     ${b.name || "(unnamed)"}`);
-      console.log(`    brief    ${b.brief ? `${b.brief.slice(0, 60)}...` : "(none)"}`);
-      console.log(`    content  ${b.content ? `${b.content.length} chars` : "(empty)"}`);
-      console.log(`    sections ${b.sections ? Object.keys(b.sections).join(", ") : "(none)"}\n`);
-    } else if (ent.kind === "regex") {
-      const b = ent.body;
-      console.log(`    name     ${b.name || "(unnamed)"}`);
-      console.log(`    rules    ${b.rules.length}\n`);
-    } else if (ent.kind === "preset") {
-      const b = ent.body;
-      console.log(`    name     ${b.name || "(unnamed)"}`);
-      console.log(`    prompts  ${b.prompts.length}`);
-      console.log(`    groups   ${b.groups?.length ?? 0}`);
-      console.log(`    choices  ${b.choices?.length ?? 0}\n`);
-    } else if (ent.kind === "pack") {
-      const b = ent.body;
-      console.log(`    name     ${b.name || "(unnamed)"}`);
-      console.log(`    assets   ${b.pack.items.length}`);
-      console.log(`    groups   ${Object.keys(b.groups ?? {}).length}\n`);
-    } else {
-      const b = ent.body;
-      console.log(`    name     ${b.identity.name || "(unnamed)"}`);
-      const g = b.greetings;
-      console.log(`    greeting ${g.firstMessage ? `${g.firstMessage.slice(0, 60)}...` : "(none)"}`);
-      console.log(`    alts     ${g.alternateGreetings?.length ?? 0}`);
-      console.log(`    tags     ${b.discovery.tags?.join(", ") || "(none)"}\n`);
-    }
+    printEntitySummary(ent, (line) => { console.log(line); });
     return 0;
   }
 

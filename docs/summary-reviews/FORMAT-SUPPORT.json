@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "FORMAT-SUPPORT",
   "sourcePath": "docs/FORMAT-SUPPORT.md",
-  "sourceHash": "sha256:247b08e19ea28ac63cb3346f3b568a5be1a480a4e289617e0d5d14476de0c158",
-  "semanticSummaryHash": "sha256:f11a028ac82cfa5d887fa362e980bdc7ab21d424441c0ab556dcfac24e9f84cf",
+  "sourceHash": "sha256:cfec8c04249d153c7dacaf30d34ecacfaf8bc2fad4fcb8ccd03aa4d33003940c",
+  "semanticSummaryHash": "sha256:92ca4ed6252323e90c2821a8d5f38cd254b898752d02e692331414df5c87e77e",
   "verdict": "APPROVE",
-  "reviewer": "chi",
-  "notes": "sillytavern now writes png as well as json; regenerated matrix row.",
-  "reviewedAt": "2026-08-10T17:37:45.892Z"
+  "reviewer": "htmldoc-matrix-section-review",
+  "notes": "Regenerated matrix gained one section, Htmldocs (0), because a new canonical kind exists. Verified against the generated table: the count is genuinely zero and that is by design rather than pending work - htmldoc is canonical-only, authored in-app, with no foreign saved-page format to adapt from. The new section summary says so; every other section is unchanged.",
+  "reviewedAt": "2026-08-12T05:42:56.498Z"
 }

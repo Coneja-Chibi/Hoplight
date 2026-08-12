@@ -122,6 +122,6 @@
 - [Vision](docs/01-VISION.md): Simple for simple folk, an absolute unit for power users. Concretely, four people:
 - [Architecture](docs/02-ARCHITECTURE.md): Hoplight is a Bun and TypeScript application rooted in `src/`. The canonical engine is shared by three surfaces: the command-line interface, the loopback React Studio, and Kit's terminal interface. No surface owns a private format conversio
 - [Conventions](docs/03-CONVENTIONS.md): These are the repository's binding implementation rules. They describe current enforced practice, not an idealized future toolchain.
-- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-08-10.
+- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-08-12.
 - [Documentation](docs/README.md): Where every Hoplight document lives, from user guides and current references to accepted decisions, future specifications, and generated navigation.
 - [Roadmap](docs/ROADMAP.md): This roadmap separates code that exists in the repository from work that has passed a release bar. Detailed future designs live under `specs/`; a spec is not evidence that its feature ships.

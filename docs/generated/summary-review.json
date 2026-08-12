@@ -110,9 +110,9 @@
       "docId": "FORMAT-SUPPORT",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "chi",
-      "sourceHash": "sha256:247b08e19ea28ac63cb3346f3b568a5be1a480a4e289617e0d5d14476de0c158",
-      "semanticSummaryHash": "sha256:f11a028ac82cfa5d887fa362e980bdc7ab21d424441c0ab556dcfac24e9f84cf"
+      "reviewer": "htmldoc-matrix-section-review",
+      "sourceHash": "sha256:cfec8c04249d153c7dacaf30d34ecacfaf8bc2fad4fcb8ccd03aa4d33003940c",
+      "semanticSummaryHash": "sha256:92ca4ed6252323e90c2821a8d5f38cd254b898752d02e692331414df5c87e77e"
     },
     {
       "docId": "guide/converting",
@@ -342,7 +342,7 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "html-view-catalog-refresh",
+      "reviewer": "htmldoc-entity-catalog-refresh",
       "sourceHash": "sha256:8f1c128ae495d1734b79dfd27cdb119fcaa1069d2633a0cc5d65e1fbd913429f",
       "semanticSummaryHash": "sha256:5f042159ccec2ef0046fa41567e74d46ab738013444e18ae48761a9ca891e944"
     },

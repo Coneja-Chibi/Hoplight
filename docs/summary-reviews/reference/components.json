@@ -5,7 +5,7 @@
   "sourceHash": "sha256:8f1c128ae495d1734b79dfd27cdb119fcaa1069d2633a0cc5d65e1fbd913429f",
   "semanticSummaryHash": "sha256:5f042159ccec2ef0046fa41567e74d46ab738013444e18ae48761a9ca891e944",
   "verdict": "APPROVE",
-  "reviewer": "html-view-catalog-refresh",
-  "notes": "Generated catalog refresh, verified against the diff: adds HtmlView (src/ui/apps/html-view) and PlainSlab (src/ui/agent/kit-markdown.tsx), no removals, no changed signatures on existing entries. The page describes what the generated file is and how to regenerate it, which adding rows does not alter.",
-  "reviewedAt": "2026-08-12T03:47:32.098Z"
+  "reviewer": "htmldoc-entity-catalog-refresh",
+  "notes": "Generated catalog refresh for the htmldoc entity work: component rows unchanged in substance, regenerated alongside the new field docs. The page describes what the generated file is and how to regenerate it, which this does not alter.",
+  "reviewedAt": "2026-08-12T05:41:19.384Z"
 }

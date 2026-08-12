@@ -13,6 +13,7 @@ export const STUDIO_ENTITY_KINDS = [
   "pack",
   "regex",
   "preset",
+  "htmldoc",
 ] as const;
 export type StudioEntityKind = (typeof STUDIO_ENTITY_KINDS)[number];
 

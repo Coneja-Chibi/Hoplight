@@ -10,6 +10,7 @@ import lorebookCreate from "./lorebook-create";
 import packCreate from "./pack-create";
 import personaCreate from "./persona-create";
 import presetCreate from "./preset-create";
+import htmlDocCreate from "./htmldoc-create";
 import regexCreate from "./regex-create";
 import type { HarnessTool } from "./tool";
 import { createCapabilityFindTool } from "./capability-find";
@@ -29,6 +30,9 @@ const cases = [
   [personaCreate, { name: "Chi", content: "I build worlds." }, "persona"],
   [presetCreate, { name: "Mythic prose" }, "preset"],
   [regexCreate, { name: "Cleanup" }, "regex"],
+  // A drawing is a piece like any other, and this table is what proves it: same draft, same gate,
+  // same refusal to write during a preview.
+  [htmlDocCreate, { name: "Login wireframe", html: "<h1>Sign in</h1>" }, "htmldoc"],
   [packCreate, {
     name: "Eros expressions",
     items: [{
@@ -71,7 +75,7 @@ test("creation schemas explain media refs and MIME fields to the model", () => {
   expect(schemas).toContain("expression");
 });
 
-test("studio lifecycle browse exposes creation for all six kinds", async () => {
+test("studio lifecycle browse exposes creation for all seven kinds", async () => {
   const createTools = cases.map(([tool]) => tool as HarnessTool);
   const runtime = createCapabilityRuntime({
     capabilities: await discoverCapabilities(),
@@ -88,6 +92,7 @@ test("studio lifecycle browse exposes creation for all six kinds", async () => {
   };
   expect(output.capabilities.map((item) => item.id)).toEqual([
     "studio.character.create",
+    "studio.htmldoc.create",
     "studio.lorebook.create",
     "studio.pack.create",
     "studio.persona.create",

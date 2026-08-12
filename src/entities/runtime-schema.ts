@@ -25,6 +25,8 @@ import { personaBodySchema, personaProfileSchema } from "./persona/runtime-schem
 import type { CanonicalPersona } from "./persona/schema";
 import { presetBodySchema, presetProfileSchema } from "./preset/runtime-schema";
 import type { CanonicalPreset } from "./preset/schema";
+import { htmlDocBodySchema, htmlDocProfileSchema } from "./htmldoc/runtime-schema";
+import type { CanonicalHtmlDoc } from "./htmldoc/schema";
 import { regexBodySchema, regexProfileSchema } from "./regex/runtime-schema";
 import type { CanonicalRegexSet } from "./regex/schema";
 
@@ -100,6 +102,13 @@ const packEntityShape = defineExhaustiveShape<CanonicalPack>()({
   profiles: z.record(z.string(), packProfileSchema).optional(),
 });
 const packEntitySchema = z.strictObject(packEntityShape);
+const htmlDocEntityShape = defineExhaustiveShape<CanonicalHtmlDoc>()({
+  ...sharedEnvelope,
+  kind: z.literal("htmldoc"),
+  body: htmlDocBodySchema,
+  profiles: z.record(z.string(), htmlDocProfileSchema).optional(),
+});
+const htmlDocEntitySchema = z.strictObject(htmlDocEntityShape);
 
 export const canonicalEntitySchema = z.discriminatedUnion("kind", [
   characterEntitySchema,
@@ -108,6 +117,7 @@ export const canonicalEntitySchema = z.discriminatedUnion("kind", [
   presetEntitySchema,
   regexEntitySchema,
   packEntitySchema,
+  htmlDocEntitySchema,
 ]);
 
 export type ParsedCanonicalEntity =
@@ -116,7 +126,8 @@ export type ParsedCanonicalEntity =
   | CanonicalPersona
   | CanonicalPreset
   | CanonicalRegexSet
-  | CanonicalPack;
+  | CanonicalPack
+  | CanonicalHtmlDoc;
 
 /** Parse untrusted JSON once into the known canonical union. */
 export function parseCanonicalEntity(raw: unknown): ParsedCanonicalEntity {

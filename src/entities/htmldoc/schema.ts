@@ -1,0 +1,46 @@
+/** Canonical HTML-document entity shape shared by storage, the viewer, and the agent's tools. */
+import type { CanonicalEntity } from "../../core/canonical";
+
+/**
+ * CanonicalHtmlDoc - a drawing the agent made, kept as a piece.
+ *
+ * WHY AN ENTITY AND NOT A STRING IN A REPLY. A wireframe handed straight from the transcript to a
+ * viewer has no id, no file and no record, so there is nothing for "rename it", "put it with the
+ * others" or "open the one from yesterday" to act on. Every one of those verbs already exists in
+ * this app for pieces - read, save, delete, duplicate, collections, the Library - and none of them
+ * can be pointed at a value that is not a piece. Making the drawing a piece is what turns seven
+ * bespoke tools into none.
+ *
+ * IT IS UNTRUSTED CONTENT AND STAYS THAT WAY. `html` is model output; nothing in this repo ever
+ * evaluates it. It is drawn through SealedHtmlPreview - a srcdoc iframe with `sandbox=""`, a CSP of
+ * `script-src 'none'; connect-src 'none'; img-src data: blob:`, over DOMPurify-cleaned markup - and
+ * being stored rather than streamed changes none of that. Storage is not trust.
+ *
+ * Stored under studio/htmldoc/<id>.json, the same hub-spoke shape as lorebook/persona/regex.
+ */
+
+/** What the author (usually the agent) wrote. */
+export interface HtmlDocBody {
+  /** What this drawing is called. Every other kind titles itself from its body; so does this. */
+  name: string;
+  /**
+   * The document, as authored. Kept verbatim - NOT sanitised on the way in.
+   *
+   * Cleaning at rest would be the wrong boundary twice over: it would make the stored file differ
+   * from what was written, so a person editing it sees their own text mangled, and it would put a
+   * second sanitiser in the app that could drift from the one that actually renders. The seal is at
+   * the point of DRAWING, which is the only place it can be enforced, so that is where it lives.
+   */
+  html: string;
+  /** A sentence about what this draws, for a list that would otherwise be a wall of filenames. */
+  summary?: string;
+  /** Free-form labels, so a person can group drawings without a folder. */
+  tags?: string[];
+  /** The author's own notes, same shape every other entity uses. */
+  notes?: string;
+}
+
+export type CanonicalHtmlDoc = CanonicalEntity<"htmldoc", HtmlDocBody>;
+
+/** A new, empty drawing. */
+export const emptyHtmlDocBody = (): HtmlDocBody => ({ name: "", html: "" });

@@ -29,6 +29,9 @@ const TRUST = new Map<string, ToolAccess>([
   ["studio_preset_create", "draft"],
   ["studio_regex_create", "draft"],
   ["studio_pack_create", "draft"],
+  // A drawing is a preview-only create like the rest: it composes a document and shows it, and the
+  // Gate is what turns that into a file.
+  ["studio_htmldoc_create", "draft"],
   // Lifecycle beyond creation. A copy is preview-only like every other create, so it is a draft.
   // Removal is durable and irreversible, so it takes the dedicated `delete` class (danger floor)
   // rather than "write" - a piece coming back is not something the Gate can offer.

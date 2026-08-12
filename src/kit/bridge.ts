@@ -73,6 +73,7 @@ const DECK_LABELS: Record<StudioEntityKind, string> = {
   pack: "Packs",
   regex: "Regex",
   preset: "Presets",
+  htmldoc: "Drawings",
 };
 
 /** Bind a Kit session to a studio directory (defaults to the machine's studio). */

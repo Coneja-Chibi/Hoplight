@@ -1068,7 +1068,7 @@
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-08-10.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-08-12.",
       "tags": [],
       "related": [],
       "semanticSummary": "Auto-generated format support matrix from live adapters via bun run scripts/format-matrix.ts, canonical schema version 1. It lists every registered adapter by content kind with id, writes extensions, and human labels. How to use shows Hoplight formats, inspect, convert, and validate, and names SillyTavern CCv3 as the default portable character shape for thin hosts such as C.AI Tools dumps and Crushon import. Characters currently has nine adapters including agnai, backyard, byaf, lumiverse, pygmalion, risu, rolecall, sillytavern, and vaud-json. Lorebooks has six: agnai, marinara, novelai, risu, rolecall, and sillytavern world info. Personas has four: lumiverse, marinara, rolecall, and sillytavern. Presets has four: lumiverse, marinara, rolecall, and sillytavern. Regex script sets has five: lumiverse, marinara, risu, rolecall, and sillytavern. Sprite packs has zero adapters; the studio edits the pack kind but no import or export format exists yet. Notes require content-sniff detection not extension alone, same-format lossless round-trips where fixtures prove them, honest cross-format drops, and Default CCv3 via sillytavern for skipped host-native bags. Samples lists per-platform fixture folders under samples/.",
@@ -1182,6 +1182,19 @@
             "sprite packs empty",
             "pack kind studio only",
             "no import export yet"
+          ],
+          "children": []
+        },
+        {
+          "text": "Htmldocs (0)",
+          "slug": "htmldocs-0",
+          "level": 2,
+          "summary": "Drawings list zero format adapters, and unlike the other empty kinds that is by design rather than pending work. An htmldoc is an HTML document the agent authors and the studio keeps as a piece so it can be named, grouped, duplicated and deleted like anything else; it is canonical-only and there is no foreign app to import one from or export one to. The kind exists for storage and for the HTML View tab, which draws it with scripts and network access off. If a platform ever ships a comparable saved-page format, an adapter belongs here.",
+          "topics": [
+            "drawings empty by design",
+            "htmldoc canonical only",
+            "no foreign saved-page format",
+            "HTML View draws it sealed"
           ],
           "children": []
         },

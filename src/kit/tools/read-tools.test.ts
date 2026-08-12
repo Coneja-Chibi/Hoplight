@@ -258,6 +258,7 @@ describe("discovery", () => {
       "studio_export",
       "studio_graveyard",
       "studio_graveyard_bury",
+      "studio_htmldoc_create",
       "studio_list",
       "studio_lorebook_create",
       "studio_pack_create",
