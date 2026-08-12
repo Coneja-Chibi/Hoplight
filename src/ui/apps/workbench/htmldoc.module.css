@@ -1,0 +1,123 @@
+/**
+ * The drawing editor: source on the left, the sealed drawing on the right. House flat-ink chrome
+ * around both; inside the frame the page is the author's own and nothing here styles it.
+ */
+.room {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: clamp(0.7rem, 1.8vw, 1.2rem);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: none;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-big);
+  font-size: 1.05rem;
+  padding: 0.4rem 0.55rem;
+  color: var(--text);
+  background: var(--stage-row, var(--face));
+  border: 3px solid var(--edge);
+}
+
+.summary {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.5rem;
+  color: var(--text);
+  background: var(--stage-row, var(--face));
+  border: 2px solid var(--edge);
+}
+
+.split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.7rem;
+}
+
+@media (max-width: 60rem) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+}
+
+.pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.paneHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex: none;
+}
+
+.paneTitle {
+  font-family: var(--font-big);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+/* Over the cap is a state you can still type your way out of, so it reads as a warning, not a wall. */
+.over {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.source {
+  flex: 1;
+  min-height: 8rem;
+  resize: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  padding: 0.55rem;
+  color: var(--text);
+  background: var(--stage-row, var(--face));
+  border: 3px solid var(--edge);
+}
+
+.frame {
+  flex: 1;
+  min-height: 8rem;
+  display: flex;
+  background: var(--face);
+  border: 3px solid var(--edge);
+}
+
+.frame > * { flex: 1; min-height: 0; }
+
+.empty {
+  margin: auto;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}

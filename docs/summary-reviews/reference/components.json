@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:b88b8d418cbfbc62f45f5090617b766680800edcc2339147599421a0e37660df",
-  "semanticSummaryHash": "sha256:0ac6139b71e205610200a4f19bf06bae2737344781af8472c31c5c7a596e9dc4",
+  "sourceHash": "sha256:aaf755c1f50e6dca2619a3af125ba7c7d57d9130bfa901497be72baf6be16f4b",
+  "semanticSummaryHash": "sha256:e2a5a60253e4bd16ed93b501038e1d48c9d3d4ac8e24347bc66d0f0dc26a36f4",
   "verdict": "APPROVE",
-  "reviewer": "htmldoc-viewer-catalog-refresh",
-  "notes": "Generated catalog refresh: adds Icon (extracted from library/index.tsx to stay under the line cap, behaviour unchanged) and reflects HtmlView's new signature. No removals; the page's own prose about what the generated file is and how to regenerate it is unaffected.",
-  "reviewedAt": "2026-08-12T06:09:35.475Z"
+  "reviewer": "htmldoc-editor-catalog-refresh",
+  "notes": "Generated catalog refresh: adds HtmlDocEditor (src/ui/apps/workbench/htmldoc-editor.tsx), the Workbench editor for the htmldoc kind. No removals and no changed signatures on existing entries; the page's own prose about what the generated file is and how to regenerate it is unaffected.",
+  "reviewedAt": "2026-08-12T16:23:30.892Z"
 }

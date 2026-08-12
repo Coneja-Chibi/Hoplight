@@ -20,25 +20,30 @@ describe("routeSend", () => {
     expect(sendStatus(out)).toBeNull();
   });
 
-  test("keeps a drawing away from the Workbench entirely", () => {
+  test("routes a drawing to the Workbench now that it has an editor there", () => {
+    // Drawings were routed away until the Workbench could edit one. Making them pieces was the
+    // point; a piece that opens somewhere else forever would only be half of that.
     const out = routeSend([piece("htmldoc", "wire")]);
-    expect(out.toWorkbench).toEqual([]);
-    expect(out.toViewer?.id).toBe("wire");
+    expect(out.toWorkbench.map((p) => p.id)).toEqual(["wire"]);
+    expect(out.toViewer).toBeNull();
   });
 
-  test("splits a mixed batch so neither destination loses a piece", () => {
+  test("a mixed batch loses nothing", () => {
     const out = routeSend([piece("character", "a"), piece("htmldoc", "wire"), piece("regex", "r")]);
-    expect(out.toWorkbench.map((p) => p.id)).toEqual(["a", "r"]);
-    expect(out.toViewer?.id).toBe("wire");
+    expect(out.toWorkbench.map((p) => p.id)).toEqual(["a", "wire", "r"]);
+    expect(out.toViewer).toBeNull();
     expect(out.deferred).toBe(0);
   });
 
-  /** The viewer draws one page, so the rest are staged and NOT silently dropped from the count. */
-  test("opens one drawing and reports how many it did not", () => {
-    const out = routeSend([piece("htmldoc", "one"), piece("htmldoc", "two"), piece("htmldoc", "three")]);
-    expect(out.toViewer?.id).toBe("one");
-    expect(out.deferred).toBe(2);
+  /**
+   * The rerouted path, proven through the seam rather than through a kind - no kind is rerouted
+   * today, and the rule it encodes (one opens, the rest are COUNTED rather than dropped) has to
+   * keep working for whichever kind arrives next before its editor does.
+   */
+  test("when a kind is rerouted, one opens and the rest are counted", () => {
+    const out = { toWorkbench: [], toViewer: piece("htmldoc", "one"), deferred: 2 };
     expect(sendStatus(out)).toContain("2 more");
+    expect(sendStatus({ ...out, deferred: 0 })).toBe("opened one");
   });
 
   test("an empty batch routes nowhere and says nothing", () => {

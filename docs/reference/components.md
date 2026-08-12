@@ -93,6 +93,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | HelpDot | src/ui/apps/workbench/preset/help-dot.tsx | ({ help }: { help: FieldHelp }) |  |  |
 | HelperInstalledLine | src/ui/apps/settings/sections/helper-card.tsx | ({ h }: { h: HelperControls }) | Shown on the `off` card: which helper is installed, and a way to fetch it again. |  |
 | HelperMissingCard | src/ui/apps/settings/sections/helper-card.tsx | ({ detail, h }: { detail?: string; h: HelperControls }) | The `unavailable` card. NOT an error card and it never offers "Try again": the helper is absent from |  |
+| HtmlDocEditor | src/ui/apps/workbench/htmldoc-editor.tsx | ({ entity, revision, ctx, piece, topRight }: HtmlDocEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | HtmlView | src/ui/apps/html-view/index.tsx | ({ ctx }: { ctx: AppContext }) |  | .room .head .eyebrow .title .lede .quiet .frame |
 | Icon | src/ui/apps/library/icon.tsx | ({ svg }: { svg: string }) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |

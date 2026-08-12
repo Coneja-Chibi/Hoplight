@@ -19,6 +19,7 @@ import { PackEditor } from "./PackEditor";
 import { LorebookEditor } from "./LorebookEditor";
 import { RegexSetEditor } from "./RegexSetEditor";
 import { PersonaEditor } from "./PersonaEditor";
+import { HtmlDocEditor } from "./htmldoc-editor";
 import { PresetEditor } from "./PresetEditor";
 import { emptyPackBody } from "../../../entities/pack/schema";
 import { emptyLorebookBody } from "../../../core/lore";
@@ -100,6 +101,8 @@ function EditablePane({
       <RegexSetEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "persona" ? (
       <PersonaEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
+    ) : piece.kind === "htmldoc" ? (
+      <HtmlDocEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "preset" ? (
       <PresetEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : (
@@ -222,7 +225,8 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
       p.kind === "lorebook" ||
       p.kind === "regex" ||
       p.kind === "persona" ||
-      p.kind === "preset",
+      p.kind === "preset" ||
+      p.kind === "htmldoc",
   );
   // the split is real only when the beside piece can actually render an editor here
   const splitOn =

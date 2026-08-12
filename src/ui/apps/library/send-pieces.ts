@@ -1,18 +1,22 @@
 /**
  * Where a batch of staged pieces actually goes.
  *
- * NOT EVERY PIECE HAS A WORKBENCH EDITOR. A drawing (htmldoc) is rendered by the HTML View tab and
- * by nothing else, so sending one to the Workbench opens a tab that shows nothing - which reads as
- * a broken drawing rather than as a surface that was never built for it. Split by destination
- * before anything is sent.
+ * NOT EVERY KIND HAS A WORKBENCH EDITOR. Sending one that does not opens a tab showing nothing,
+ * which reads as broken content rather than as a missing editor - so a kind without one is routed
+ * to whatever surface can actually show it, before anything is sent.
  *
- * Its own file because index.tsx has a 500-line cap and this is a routing decision that will grow
- * with the KINDS, not with the Library's chrome - the same split cli.ts needed for the same reason.
+ * THE SET IS EMPTY NOW, AND THE SEAM STAYS. Drawings were here until the Workbench gained an editor
+ * for them; they now open like any other piece, which is the point of having made them pieces.
+ * Deleting the split would only mean rediscovering it the next time a kind arrives before its
+ * editor does - which is the normal order, since a kind has to exist before anything can edit one.
+ *
+ * Its own file because index.tsx has a 500-line cap and this decision grows with the KINDS, not
+ * with the Library's chrome - the same split cli.ts needed for the same reason.
  */
 import type { StudioEntitySummary } from "../../app-contract";
 
-/** Kinds the Workbench has no editor for, routed to their own surface instead. */
-const DRAWN_ELSEWHERE = new Set(["htmldoc"]);
+/** Kinds the Workbench cannot edit, routed to their own surface instead. */
+const DRAWN_ELSEWHERE = new Set<string>();
 
 export interface SendRouting {
   /** pieces the Workbench can edit; empty when the batch was all drawings */
