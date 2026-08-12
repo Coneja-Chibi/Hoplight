@@ -19,7 +19,7 @@ export type Block =
   | { t: "bullet"; depth: number; spans: Inline[] }
   | { t: "ordered"; depth: number; num: number; spans: Inline[] }
   | { t: "quote"; spans: Inline[] }
-  | { t: "code"; lines: string[]; lang?: string }
+  | { t: "code"; lines: string[]; lang?: string; /** false when the model was still writing it */ closed?: boolean }
   /**
    * A pipe table.
    *
@@ -93,8 +93,16 @@ export const parseMarkdown = (src: string): Block[] => {
       i += 1;
       const code: string[] = [];
       while (i < lines.length && !FENCE.test(lines[i]!)) code.push(lines[i++]!);
-      i += 1; // skip closing fence (may be absent mid-stream; loop just ends)
-      blocks.push({ t: "code", lines: code, lang });
+      /**
+       * WHETHER THE FENCE ACTUALLY CLOSED, which mid-stream is the difference between a finished
+       * block and half of one. Both render as code, so this changes nothing for a reader - but a
+       * consumer that does something RICHER with a block (drawing HTML rather than printing it)
+       * must not act on a document the model is still writing: sanitising half a page yields markup
+       * that renders wrong and then rewrites itself as the rest arrives.
+       */
+      const closed = i < lines.length;
+      i += 1; // skip closing fence (absent mid-stream; the loop just ended instead)
+      blocks.push({ t: "code", lines: code, lang, closed });
       continue;
     }
     if (!line.trim()) {

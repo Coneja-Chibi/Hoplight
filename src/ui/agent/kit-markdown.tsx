@@ -22,10 +22,26 @@
  * those three become real borders in `mut` and every remaining piece of TEXT floors at `quiet`,
  * which is what the palette's rule actually asks for.
  */
-import { useState, type JSX, type ReactNode } from "react";
+import { lazy, Suspense, useState, type JSX, type ReactNode } from "react";
 import { classifyDiff } from "../../kit/render/diff-classify";
 import { parseMarkdown, type Block, type Inline } from "../../kit/render/markdown";
 import { DIFF_LINE_CAP, diffInk, safeLinkHref } from "./kit-markdown-core";
+
+/**
+ * LOADED ONLY WHEN SOMEBODY ASKS FOR A PREVIEW, and that is a correctness fix before it is a size
+ * one. SealedHtmlPreview imports DOMPurify, which binds to a window when the module first
+ * evaluates; importing it at the top of the transcript renderer pulled it into the graph early
+ * enough to change that binding, and 22 of render-markup's sanitiser tests began failing while
+ * every one of them still passed in isolation. Same shape as react-dom's import-time feature
+ * detection elsewhere in this suite: what a module does when it LOADS is part of its contract.
+ *
+ * The lazy boundary also keeps DOMPurify out of the agent chunk for every reply that has no HTML
+ * in it, which is nearly all of them.
+ */
+const SealedHtmlPreview = lazy(async () => {
+  const mod = await import("../components/sealed-html-preview");
+  return { default: mod.SealedHtmlPreview };
+});
 
 /** One styled run inside a line. Kit's assignment: code gold on sunken, links teal, the rest plain. */
 function Span({ span }: { span: Inline }): JSX.Element {
@@ -55,6 +71,65 @@ function Spans({ spans }: { spans: readonly Inline[] }): JSX.Element {
 }
 
 /**
+ * Fences whose content can be DRAWN rather than only printed.
+ *
+ * `html` only, and svg is deliberately not here. Inline SVG carries foreignObject and event
+ * attributes, and the sealed preview's forbid list was written for card backgrounds rather than for
+ * SVG - so adding it is a decision to be made against that component's real behaviour, not a
+ * freebie because both happen to be markup.
+ */
+const DRAWABLE = new Set(["html"]);
+
+/**
+ * A code slab, with a preview toggle when the fence holds something we can draw.
+ *
+ * SOURCE FIRST, PREVIEW ON REQUEST, and only once the fence has CLOSED. The transcript streams, so a
+ * fence mid-arrival is half a document; sanitising that yields markup which renders wrong and then
+ * rewrites itself as the rest lands. Offering the toggle only on a closed fence means a preview is
+ * always of something the model finished saying.
+ *
+ * WHAT THE PREVIEW CAN AND CANNOT DO, because the boundary decides what is worth asking for.
+ * SealedHtmlPreview is a srcdoc iframe with `sandbox=""` and a CSP of `script-src 'none';
+ * connect-src 'none'; img-src data: blob:`. CSS layout renders faithfully; JavaScript never runs and
+ * no external image or font is ever fetched. Static wireframes and mockups are exactly what this
+ * draws well, and an interactive prototype is not something it can be made to draw.
+ */
+function PlainSlab({ block }: { block: Extract<Block, { t: "code" }> }): JSX.Element {
+  const [preview, setPreview] = useState(false);
+  const source = block.lines.join("\n");
+  const canDraw = block.lang !== undefined
+    && DRAWABLE.has(block.lang.toLowerCase())
+    && block.closed === true
+    && source.trim().length > 0;
+
+  return (
+    <div className="kit-md__slabwrap">
+      {canDraw && (
+        <button
+          type="button"
+          className="kit-md__preview"
+          aria-pressed={preview}
+          onClick={() => setPreview(!preview)}
+        >
+          {preview ? "Show source" : "Preview"}
+        </button>
+      )}
+      {canDraw && preview ? (
+        <Suspense fallback={<p className="kit-md__p">Loading preview…</p>}>
+          <SealedHtmlPreview html={source} title="Preview of HTML the agent wrote" />
+        </Suspense>
+      ) : (
+        <pre className="kit-md__slab">
+          {/* The info string after the fence, when the model gave one. Dim: it labels, it is not code. */}
+          {block.lang !== undefined && <span className="kit-md__lang">{block.lang}</span>}
+          <code>{source}</code>
+        </pre>
+      )}
+    </div>
+  );
+}
+
+/**
  * A fenced block: a diff playbill when it parses as a patch, a plain code slab otherwise.
  *
  * THE DIFF RECOGNISER IS KIT'S. An explicit ```diff fence always counts; any other fence needs a
@@ -63,13 +138,7 @@ function Spans({ spans }: { spans: readonly Inline[] }): JSX.Element {
 function CodeBlock({ block }: { block: Extract<Block, { t: "code" }> }): JSX.Element {
   const diff = classifyDiff(block.lines, block.lang);
   if (!diff) {
-    return (
-      <pre className="kit-md__slab">
-        {/* The info string after the fence, when the model gave one. Dim: it labels, it is not code. */}
-        {block.lang !== undefined && <span className="kit-md__lang">{block.lang}</span>}
-        <code>{block.lines.join("\n")}</code>
-      </pre>
-    );
+    return <PlainSlab block={block} />;
   }
   const shown = diff.lines.slice(0, DIFF_LINE_CAP);
   return (

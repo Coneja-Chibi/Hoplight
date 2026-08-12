@@ -63,12 +63,15 @@ describe("parseMarkdown", () => {
 
   test("fenced code keeps lines verbatim, no inline parse", () => {
     const blocks = parseMarkdown("```\nconst x = **1**\n```");
-    expect(blocks).toEqual([{ t: "code", lines: ["const x = **1**"] }]);
+    expect(blocks).toEqual([{ t: "code", lines: ["const x = **1**"], lang: undefined, closed: true }]);
   });
 
-  test("unterminated fence mid-stream still yields a code block", () => {
+  test("unterminated fence mid-stream still yields a code block, marked unclosed", () => {
+    // `closed` is what stops a consumer DRAWING half a document: the agent window offers an HTML
+    // preview only on a finished fence, because sanitising a partial one renders wrong and then
+    // rewrites itself as the rest streams in.
     const blocks = parseMarkdown("```\npartial code");
-    expect(blocks).toEqual([{ t: "code", lines: ["partial code"] }]);
+    expect(blocks).toEqual([{ t: "code", lines: ["partial code"], lang: undefined, closed: false }]);
   });
 
   test("block quote folds consecutive lines", () => {
