@@ -81,21 +81,68 @@ const app: HoplightApp = {
     subtitle: "app · preview",
     catalogOnly: true,
     agentSurface: {
-      describe:
-        "HTML View draws a page as a full tab, with scripts and network access off - layout and "
-        + "styling only. THERE IS NO TOOL THAT OPENS IT. Write the page in an ```html code block "
-        + "and the person gets Preview and Open as tab controls on that block; the opening is "
-        + "theirs to do. Say what you drew, not that you opened it.",
       /**
-       * NO ACTIONS, because the agent has none here.
+       * WRITTEN TO 300 CHARACTERS, which is what actually reaches the model.
        *
-       * This listed an "open" action and the describe named an `html_open` tool. Neither exists -
-       * the only route to this surface is a person clicking a control on a fenced block. A menu
-       * naming a tool that is not in the belt is worse than an empty one: the agent spends a step
-       * calling it, gets an unknown-tool error, and the person watches it fail at something the
-       * screen promised.
+       * surface.ts truncates a describe at 300 (`safeText(reading.describe, 300)`), so a longer
+       * brief is not a fuller brief - it is the same brief with the end cut off, and the end is
+       * where the constraints were. The full authoring notes live in the actions below, which get
+       * 200 each and are listed separately.
+       *
+       * These facts are what a page needs to be written FOR this surface rather than for a browser:
+       * without them a model reaches for a <script>, a CDN image and a webfont, every one of which
+       * is dropped silently so the drawing arrives subtly wrong with nothing to explain it.
        */
-      actions: [],
+      describe:
+        "HTML View draws a page as a full tab. Write it in an ```html block - the PERSON opens it, "
+        + "no tool does. Sealed and offline: all CSS works, images only as data: URIs. No "
+        + "JavaScript, no iframe/form/input/button, no http(s) image, font or fetch. Static "
+        + "wireframes and mockups only.",
+      /**
+       * NOT A TOOL MENU - there is no tool here, and one was claimed once already.
+       *
+       * An earlier version listed an "open" action and named an `html_open` tool. Neither exists,
+       * and that text goes to the model, so it spent a step on an unknown tool while the person
+       * watched it fail at something the screen had promised.
+       *
+       * These are AUTHORING NOTES instead: the surface has capabilities worth knowing even though
+       * it has no verbs, and 200 characters each is where the detail the describe could not hold
+       * actually fits. Each one is a fact about SealedHtmlPreview's real CSP and forbid list.
+       */
+      actions: [
+        {
+          id: "css",
+          label: "What renders",
+          describe:
+            "Every CSS feature: grid, flexbox, custom properties, gradients, transforms, "
+            + "animations, media and container queries. Inline <style> and style attributes. "
+            + "Tables, semantic layout, inline SVG, unicode.",
+        },
+        {
+          id: "blocked",
+          label: "What is dropped, silently",
+          describe:
+            "<script> and every event attribute - no JavaScript runs. iframe, object, embed, form, "
+            + "input, button, textarea, select, link, meta, base are stripped. Reaching for one "
+            + "leaves a page missing that part.",
+        },
+        {
+          id: "offline",
+          label: "The frame is offline",
+          describe:
+            "No http(s) request of any kind resolves: a remote image is a blank box and a webfont "
+            + "falls back to a system font. Images must be data: URIs. Assume no network and no "
+            + "fonts beyond the system stack.",
+        },
+        {
+          id: "interactive",
+          label: "When asked for interactive",
+          describe:
+            "Say plainly that this surface cannot run scripts and offer the static version - "
+            + "states drawn side by side, or a flow shown as steps. Do not ship a page whose "
+            + "behaviour will silently not happen.",
+        },
+      ],
     },
   },
   Component: HtmlView,
