@@ -342,9 +342,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "htmldoc-entity-catalog-refresh",
-      "sourceHash": "sha256:8f1c128ae495d1734b79dfd27cdb119fcaa1069d2633a0cc5d65e1fbd913429f",
-      "semanticSummaryHash": "sha256:5f042159ccec2ef0046fa41567e74d46ab738013444e18ae48761a9ca891e944"
+      "reviewer": "htmldoc-viewer-catalog-refresh",
+      "sourceHash": "sha256:b88b8d418cbfbc62f45f5090617b766680800edcc2339147599421a0e37660df",
+      "semanticSummaryHash": "sha256:0ac6139b71e205610200a4f19bf06bae2737344781af8472c31c5c7a596e9dc4"
     },
     {
       "docId": "reference/concepts/bundles",

@@ -17,6 +17,9 @@ import {
   pickFiles,
   type ImportState,
 } from "./import-flow";
+import { handOffPiece, HTML_VIEW_APP } from "../../agent/html-handoff";
+import { routeSend, sendStatus } from "./send-pieces";
+import { Icon } from "./icon";
 import {
   LoreWorkshopDialog,
   type LoreWorkshopState,
@@ -57,18 +60,6 @@ import { CollectionsBar } from "./collections-bar";
 
 const portraitUrl = (e: StudioEntitySummary): string | null =>
   e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
-
-/** Parse a static first-party icon constant into a live SVG node (no innerHTML, house rule). */
-function Icon({ svg }: { svg: string }): JSX.Element {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const box = ref.current;
-    if (!box) return;
-    box.replaceChildren();
-    box.append(document.importNode(new DOMParser().parseFromString(svg, "image/svg+xml").documentElement, true));
-  }, [svg]);
-  return <span ref={ref} className="ico" />;
-}
 
 function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const firstDeck = ctx.prefs.get(PREF_FIRST_DECK);
@@ -394,10 +385,18 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
         entities={entities}
         onSend={(batch) => {
           picking.replace([]);
+          // Not every kind has a Workbench editor; see send-pieces.ts for the split.
+          const routing = routeSend(batch);
+          if (routing.toWorkbench.length > 0) ctx.workbench.sendMany(routing.toWorkbench);
+          if (routing.toViewer) {
+            handOffPiece(routing.toViewer.id);
+            ctx.openApp(HTML_VIEW_APP);
+          }
+          const said = sendStatus(routing);
+          if (said) ctx.setStatus(said);
           // sendMany opens the pieces (firing workbench.onChange -> this room repaints with the
           // staged marks gone) and, in "always" mode, navigates to the Workbench; forcing our
           // own render here would clobber that navigation, so we deliberately don't.
-          ctx.workbench.sendMany(batch);
         }}
         onDelete={(batch) => del.requestDelete(batch)}
         onSelectAll={selectAll}

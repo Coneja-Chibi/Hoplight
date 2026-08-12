@@ -28,22 +28,70 @@ const MARK_SVG =
 
 const ACCENT = "#c2683f"; // hardcode-ok: app identity accent, not theme chrome
 
-export function HtmlView({ ctx }: { ctx: AppContext }): JSX.Element {
-  const [html, setHtml] = useState<string | null>(() => takeHandedHtml());
+/** What the frame is drawing, and where it came from. */
+interface Drawing {
+  readonly html: string;
+  /** the piece's name, when this came from the studio rather than a reply */
+  readonly name?: string;
+}
 
-  // Re-read when another document is handed over while this tab is already open, so a second ask
+export function HtmlView({ ctx }: { ctx: AppContext }): JSX.Element {
+  const [drawing, setDrawing] = useState<Drawing | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [handoff, setHandoff] = useState(() => takeHandedHtml());
+
+  // Re-read when something else is handed over while this tab is already open, so a second ask
   // replaces the drawing rather than leaving the first one up.
-  useEffect(() => onHtmlHandoff(() => setHtml(takeHandedHtml())), []);
+  useEffect(() => onHtmlHandoff(() => setHandoff(takeHandedHtml())), []);
+
+  /**
+   * A piece is READ FROM THE STUDIO, not carried. So the tab shows what the drawing says now rather
+   * than what it said when somebody opened it, and a reload costs nothing - the id is enough to
+   * find it again. Only an unsaved reply has to be carried whole, because it exists nowhere else.
+   */
+  useEffect(() => {
+    let cancelled = false;
+    if (!handoff) { setDrawing(null); setProblem(null); return; }
+    if (handoff.at === "inline") { setDrawing({ html: handoff.html }); setProblem(null); return; }
+    setProblem(null);
+    void (async () => {
+      try {
+        const entity = await ctx.api.getEntity(handoff.id);
+        if (cancelled) return;
+        const body = (entity as { body?: { html?: unknown; name?: unknown } } | null)?.body;
+        if (typeof body?.html !== "string") {
+          // Named rather than drawn as an empty frame: a piece that is not a drawing is a wrong
+          // id, and a blank tab would read as a drawing that renders to nothing.
+          setDrawing(null);
+          setProblem(`"${handoff.id}" is not a drawing this tab can show.`);
+          return;
+        }
+        setDrawing({ html: body.html, ...(typeof body.name === "string" ? { name: body.name } : {}) });
+      } catch {
+        if (!cancelled) {
+          setDrawing(null);
+          setProblem(`Could not read "${handoff.id}" from the studio. It may have been deleted.`);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [ctx, handoff]);
+
+  const html = drawing?.html ?? null;
 
   useEffect(() => {
-    ctx.setStatus(html ? `html view · ${html.length} characters` : "html view · nothing to draw");
-  }, [ctx, html]);
+    ctx.setStatus(
+      drawing
+        ? `html view · ${drawing.name ?? "from a reply"} · ${drawing.html.length} characters`
+        : "html view · nothing to draw",
+    );
+  }, [ctx, drawing]);
 
   return (
     <div className={styles.room} style={{ "--a": ACCENT } as CSSProperties}>
       <header className={styles.head}>
         <span className={styles.eyebrow}>HTML view</span>
-        <h1 className={styles.title}>{html ? "What the agent drew" : "Nothing to draw yet"}</h1>
+        <h1 className={styles.title}>{drawing?.name ?? (html ? "What the agent drew" : "Nothing to draw yet")}</h1>
         <p className={styles.lede}>
           {html
             ? "Rendered with scripts and network access off, so this is layout and styling only - "
@@ -63,8 +111,10 @@ export function HtmlView({ ctx }: { ctx: AppContext }): JSX.Element {
           real way to arrive here with nothing, and "it vanished" is worse than knowing why.
         */
         <p className={styles.quiet}>
-          Anything opened here is kept for this session only, so a reload empties it. Open it again
-          from the reply it came from.
+          {problem
+            ?? "A drawing saved as a piece reopens from the Library after a reload. One written "
+              + "straight into a reply is kept for this session only, so open it again from the "
+              + "reply it came from."}
         </p>
       )}
     </div>
