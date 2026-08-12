@@ -454,6 +454,35 @@ room works only its staged queue - no studio browser inside. The queue is shell-
 - Deferred, stated: delivery ledger + saved jobs, drag reorder, rehearse-bytes drawer, offer-rail
   readiness dots.
 
+## The Agent window (the model, standing on the screen you came from)
+A conversation with whatever model the vault has, holding the real tool belt. The window has **no
+provider and no tools of its own**: it asks the loopback server, which asks Kit - one vault, one
+egress ledger, one Gate. See [kit/README.md](kit/README.md) for the belt itself.
+- **The Gate is the layout.** When the agent wants to write, a card takes over the bottom of the
+  window and a dispatch loop on the server is genuinely PARKED until it is answered. It is not a
+  confirmation dialog painted after the fact over a write that already happened.
+- **It can see the screen.** Each app publishes an `agentSurface` - what the room is FOR, and what is
+  worth doing there - and the mounted app adds what is on it right now (`ctx.agent.publish`).
+  `surface.ts` joins the two into the brief. That brief is BUDGETED: a describe is truncated at 300
+  characters and an action at 200, so a longer one is the same brief with its end cut off.
+- **It notices the disk.** The studio-change stream reports the folder rather than an actor, so a file
+  the agent wrote and a file dragged in from Explorer arrive the same way.
+- **Replies are parsed, not printed.** Kit's own markdown parser draws headings, lists, quotes, tables
+  and fenced code, colours a patch as a diff with counts, and offers an ```html block as a drawing
+  (see HTML View below). Model output is built from React elements and never from an HTML string -
+  there is no `dangerouslySetInnerHTML` in that file and there must never be one.
+
+## CSS Workshop (catalog-only - assisted CSS authoring)
+Starters, property knobs, plain CSS source and a sealed preview, for authoring the CSS a card or a
+host will carry. Copy or download the result for any host; the room writes no studio state of its own.
+The preview is the same seal every untrusted-markup surface here uses.
+
+## Help / Docs (catalog-only - the corpus, in the app)
+The committed documentation corpus as a first-class room, read from the same source GitHub serves, so
+the app and the repository can never disagree about what a page says. It reads the generated index
+(`docs/generated/docs-index.json`) rather than crawling the tree, which is why an unapproved or stale
+semantic sidecar keeps a page out of the app as well as out of CI.
+
 ## The Macro Lab (catalog-only - what a macro actually does)
 A scratch pad for macro text, and the only surface here that needs no piece open to be useful. Two
 halves, kept apart on purpose because one of them is our model and the other is an engine.

@@ -2,7 +2,7 @@
   "generated": "2026-08-12",
   "targetChars": 90000,
   "totalPages": 113,
-  "totalSourceChars": 1025702,
+  "totalSourceChars": 1028028,
   "batches": [
     {
       "id": "batch-001",
@@ -958,14 +958,14 @@
     },
     {
       "id": "batch-013",
-      "sourceChars": 51652,
+      "sourceChars": 53978,
       "pages": [
         {
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
-          "sectionCount": 18,
-          "sourceChars": 43585,
+          "sectionCount": 21,
+          "sourceChars": 45911,
           "status": "APPROVED"
         },
         {

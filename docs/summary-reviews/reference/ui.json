@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:bbd4aa01e9870e6fe6e209ef867a50c33a36d57f5ea73ca6c0d5c99d7ae6ceee",
-  "semanticSummaryHash": "sha256:4ecd154bdd4acd434708602ff83fc3686fef8426090481f65c6f864f39be61f7",
+  "sourceHash": "sha256:c37a76c540921b649e592ed17e3cd423cf182e68f226a7b4292acc311890487b",
+  "semanticSummaryHash": "sha256:f45fd8b00a44b5617cf33b92c25f9c8ba233123384ab8e2105287688f117f1ed",
   "verdict": "APPROVE",
-  "reviewer": "ui-new-app-sections-review",
-  "notes": "Two sections added for the two new catalog-only apps, Macro Lab and HTML View, inserted in document order before Settings. Checked that every OTHER section summary still sits under its own heading: an earlier attempt appended rather than spliced and shifted every later summary onto the wrong section, which the shape checks did not catch. Claims verified against source - the host-only route, the one-render-per-engine guard, SealedHtmlPreview shared by three surfaces, and catalogOnly on both manifests.",
-  "reviewedAt": "2026-08-12T16:48:55.441Z"
+  "reviewer": "ui-app-sections-review",
+  "notes": "Three sections added for apps that had none: the Agent window, CSS Workshop and Help/Docs, found by the new apps:documented gate rather than by eye. The sidecar was REBUILT keyed by heading title in document order, then verified section-by-section against the file's H2 list - the previous attempt spliced by index and shifted later summaries onto the wrong headings while the shape checks passed. Claims checked against source: the agent window owns no provider, the brief truncates at 300/200, Docs reads docs-index.json.",
+  "reviewedAt": "2026-08-12T17:17:07.765Z"
 }

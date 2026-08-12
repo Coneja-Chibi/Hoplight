@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:bbd4aa01e9870e6fe6e209ef867a50c33a36d57f5ea73ca6c0d5c99d7ae6ceee",
+  "sourceHash": "sha256:c37a76c540921b649e592ed17e3cd423cf182e68f226a7b4292acc311890487b",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -236,6 +236,56 @@
         "deferred press features"
       ],
       "children": []
+    },
+    {
+      "slug": "the-agent-window-the-model-standing-on-the-screen-you-came-from",
+      "title": "The Agent window (the model, standing on the screen you came from)",
+      "level": 2,
+      "sourceHash": "sha256:35e78bbde77e72ad6e00589bc6520e4b76ef28a103ab89d9af93811659d20b3f",
+      "summary": "A conversation with whatever model the vault holds, carrying the real tool belt. The window owns no provider and no tools: it asks the loopback server, which asks Kit, so there is one vault, one egress ledger and one Gate. The Gate is the layout rather than a dialog - when the agent wants to write, a card takes the bottom of the window and a dispatch loop on the server is genuinely parked until somebody answers it. The window can see the screen because each app publishes an agentSurface and the mounted app adds what is on it now, joined into a budgeted brief that truncates a describe at 300 characters. The studio-change stream reports the folder rather than an actor, so an agent write and a drag from Explorer arrive identically. Replies are parsed and drawn from React elements, never from an HTML string.",
+      "topics": [
+        "no provider of its own",
+        "Gate parks the dispatch loop",
+        "agentSurface plus live state",
+        "budgeted brief truncation",
+        "studio change stream",
+        "replies built from elements"
+      ],
+      "children": [],
+      "shortSource": ""
+    },
+    {
+      "slug": "css-workshop-catalog-only---assisted-css-authoring",
+      "title": "CSS Workshop (catalog-only - assisted CSS authoring)",
+      "level": 2,
+      "sourceHash": "sha256:1502541cc554becade8eb6bd7ef59b37bfd7e16265ae5da0b311c1c61fa034b4",
+      "summary": "A catalog-only room for authoring the CSS a card or a host will carry, rather than the CSS this app is built from. It offers starters to begin from, property knobs for the common adjustments, the plain CSS source for anything the knobs do not reach, and a sealed preview showing the result. The output leaves by copy or download for any host, and the room writes no studio state of its own, so nothing here is a piece and nothing needs saving. The preview uses the same seal every untrusted-markup surface in this app uses, which is what lets it show authored CSS without that CSS reaching the application around it.",
+      "topics": [
+        "catalog-only room",
+        "starters and property knobs",
+        "plain CSS source",
+        "sealed preview",
+        "copy or download",
+        "writes no studio state"
+      ],
+      "children": [],
+      "shortSource": ""
+    },
+    {
+      "slug": "help-docs-catalog-only---the-corpus-in-the-app",
+      "title": "Help / Docs (catalog-only - the corpus, in the app)",
+      "level": 2,
+      "sourceHash": "sha256:b8853f75ccbdaca4758e4d3c2132c1154b519f2249ccee2e98d2ffbf42b3f1f1",
+      "summary": "The committed documentation corpus presented as a first-class room, read from the same source GitHub serves so the app and the repository can never disagree about what a page says. It reads the generated index at docs/generated/docs-index.json rather than crawling the documentation tree, which has a consequence worth knowing: a page whose semantic sidecar is missing, stale or unapproved stays out of the app exactly as it stays out of CI, because both read that one index. Keeping documentation inside the app means somebody can answer a question without leaving the studio, and means the docs gates protect what users read rather than only what the repository ships.",
+      "topics": [
+        "committed corpus as a room",
+        "same source as GitHub",
+        "reads the generated index",
+        "unapproved pages stay out",
+        "docs gates protect readers"
+      ],
+      "children": [],
+      "shortSource": ""
     },
     {
       "slug": "the-macro-lab-catalog-only---what-a-macro-actually-does",

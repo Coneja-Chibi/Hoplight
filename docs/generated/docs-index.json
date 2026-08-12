@@ -14101,6 +14101,50 @@
           "children": []
         },
         {
+          "text": "The Agent window (the model, standing on the screen you came from)",
+          "slug": "the-agent-window-the-model-standing-on-the-screen-you-came-from",
+          "level": 2,
+          "summary": "A conversation with whatever model the vault holds, carrying the real tool belt. The window owns no provider and no tools: it asks the loopback server, which asks Kit, so there is one vault, one egress ledger and one Gate. The Gate is the layout rather than a dialog - when the agent wants to write, a card takes the bottom of the window and a dispatch loop on the server is genuinely parked until somebody answers it. The window can see the screen because each app publishes an agentSurface and the mounted app adds what is on it now, joined into a budgeted brief that truncates a describe at 300 characters. The studio-change stream reports the folder rather than an actor, so an agent write and a drag from Explorer arrive identically. Replies are parsed and drawn from React elements, never from an HTML string.",
+          "topics": [
+            "no provider of its own",
+            "Gate parks the dispatch loop",
+            "agentSurface plus live state",
+            "budgeted brief truncation",
+            "studio change stream",
+            "replies built from elements"
+          ],
+          "children": []
+        },
+        {
+          "text": "CSS Workshop (catalog-only - assisted CSS authoring)",
+          "slug": "css-workshop-catalog-only---assisted-css-authoring",
+          "level": 2,
+          "summary": "A catalog-only room for authoring the CSS a card or a host will carry, rather than the CSS this app is built from. It offers starters to begin from, property knobs for the common adjustments, the plain CSS source for anything the knobs do not reach, and a sealed preview showing the result. The output leaves by copy or download for any host, and the room writes no studio state of its own, so nothing here is a piece and nothing needs saving. The preview uses the same seal every untrusted-markup surface in this app uses, which is what lets it show authored CSS without that CSS reaching the application around it.",
+          "topics": [
+            "catalog-only room",
+            "starters and property knobs",
+            "plain CSS source",
+            "sealed preview",
+            "copy or download",
+            "writes no studio state"
+          ],
+          "children": []
+        },
+        {
+          "text": "Help / Docs (catalog-only - the corpus, in the app)",
+          "slug": "help-docs-catalog-only---the-corpus-in-the-app",
+          "level": 2,
+          "summary": "The committed documentation corpus presented as a first-class room, read from the same source GitHub serves so the app and the repository can never disagree about what a page says. It reads the generated index at docs/generated/docs-index.json rather than crawling the documentation tree, which has a consequence worth knowing: a page whose semantic sidecar is missing, stale or unapproved stays out of the app exactly as it stays out of CI, because both read that one index. Keeping documentation inside the app means somebody can answer a question without leaving the studio, and means the docs gates protect what users read rather than only what the repository ships.",
+          "topics": [
+            "committed corpus as a room",
+            "same source as GitHub",
+            "reads the generated index",
+            "unapproved pages stay out",
+            "docs gates protect readers"
+          ],
+          "children": []
+        },
+        {
           "text": "The Macro Lab (catalog-only - what a macro actually does)",
           "slug": "the-macro-lab-catalog-only---what-a-macro-actually-does",
           "level": 2,
