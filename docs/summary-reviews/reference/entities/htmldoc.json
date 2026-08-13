@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/entities/htmldoc",
   "sourcePath": "docs/reference/entities/htmldoc.md",
-  "sourceHash": "sha256:7ac8766c10f5e0e5b0cb703debd7cc075975e976f7167dd98bf244efd77c4cc0",
-  "semanticSummaryHash": "sha256:f7381a90895cf9f8d0e8016c7bf9b07eb32d24f943e4774d4698aa9ceecd7e00",
+  "sourceHash": "sha256:ce8126bb701ed8af0dc1b5a89b27645d3b6e8f4a4ac6a63116ed6ccfb0696ada",
+  "semanticSummaryHash": "sha256:8d079adb1863ea0df0a8e06b48528faee04705c0118756aa7a83a28012afca35",
   "verdict": "APPROVE",
-  "reviewer": "htmldoc-edit-review",
-  "notes": "Adds the edit capability drawings never had. Verified through the real runtime rather than by reading: discoverCapabilities() now returns htmldoc.document.update, and capability search resolves it for 'edit the wireframe', 'fix the layout', 'change the mockup', 'rewrite the html' and 'update the drawing'. The claim that create-only apply refuses an occupied id is the existing documented behaviour in apply-and-authorization, not a new one. Warnings-not-refusal on stripped tags is asserted in htmldoc-capabilities.test.ts. Not an independent pass: written and approved in one turn.",
-  "reviewedAt": "2026-08-12T20:56:52.322Z"
+  "reviewer": "frame-focus-review",
+  "notes": "The sealed frame no longer keeps the keyboard. Reproduced in Chromium first: after clicking a drawing, document.activeElement was the IFRAME and ctrl+/ did nothing; blurring the frame by hand made it work again. The deferral is measured, not stylistic - a synchronous blur inside the handler loses to the browser's own focus assignment and the frame keeps focus, which JSDOM cannot reproduce, so focus.test.tsx asserts the frame is STILL focused in the dispatch tick and released after one turn. That test fails on the synchronous version, checked by reverting it. Re-proved live end to end: click the drawing, press ctrl+/, the panel opens. Not an independent pass: written and approved in one turn.",
+  "reviewedAt": "2026-08-13T04:44:34.763Z"
 }

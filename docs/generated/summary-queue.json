@@ -1,8 +1,8 @@
 {
-  "generated": "2026-08-12",
+  "generated": "2026-08-13",
   "targetChars": 90000,
   "totalPages": 113,
-  "totalSourceChars": 1037389,
+  "totalSourceChars": 1037984,
   "batches": [
     {
       "id": "batch-001",
@@ -430,7 +430,7 @@
     },
     {
       "id": "batch-005",
-      "sourceChars": 78296,
+      "sourceChars": 78891,
       "pages": [
         {
           "docId": "reference/concepts/regex-engine",
@@ -469,7 +469,7 @@
           "sourcePath": "docs/reference/entities/htmldoc.md",
           "sidecarPath": "docs/summaries/reference/entities/htmldoc.json",
           "sectionCount": 7,
-          "sourceChars": 7045,
+          "sourceChars": 7640,
           "status": "APPROVED"
         },
         {

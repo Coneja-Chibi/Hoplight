@@ -45,6 +45,13 @@ So: **all CSS renders**, images work as `data:` URIs, and JavaScript never runs 
 font, stylesheet or fetch ever resolves. That is a static-drawing surface by construction. See
 [security/safe-rendering.md](../security/safe-rendering.md).
 
+The frame does not keep the keyboard. Clicking inside an iframe focuses it, and every keystroke after
+that belongs to the frame's own document - so the shell's chords (ctrl+/ for the agent, ctrl+1..9 for
+the dock) all went dead once somebody clicked a drawing, and the parent cannot listen inside a
+`sandbox=""` frame to fix it. Focus is handed straight back, deferred by one turn of the loop because
+a synchronous blur loses to the browser's own focus assignment. The cost is arrow-key scrolling
+inside a drawing; the wheel still scrolls it, and a sealed page has nothing to type into anyway.
+
 A whole document keeps its design: sanitizing returns the parsed BODY, so a `<head><style>` block
 would go into the bin with the head. Every style block is lifted out first and re-injected into the
 frame's own `<style>`, wherever in the document it was written. Form controls are the one thing an

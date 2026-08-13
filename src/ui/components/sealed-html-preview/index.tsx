@@ -4,7 +4,7 @@
  * offline CSP (img/media data/blob only), and DOMPurify-cleaned markup. Sanitizing is not isolation;
  * the iframe + CSP are the load-bearing egress barrier.
  */
-import { useMemo, type JSX } from "react";
+import { useEffect, useMemo, useRef, type JSX } from "react";
 import createDOMPurify from "dompurify";
 import { SEALED_FORBID_TAGS } from "../../../core/render/seal-policy";
 import { sanitizeBackdropCss } from "./backdrop-css";
@@ -62,6 +62,8 @@ export const SEALED_PREVIEW_CSP =
  *
  * An unterminated block (a document cut off by the cap mid-style) is taken to the end rather than
  * dropped, so a truncated drawing still shows the design of the part that arrived.
+ *
+ * (The regex itself is below the sanitizer, which the next comment explains.)
  */
 /**
  * The sanitizer, bound to the window that is here NOW rather than the one that was here at import.
@@ -123,6 +125,50 @@ export function buildBackdropSrcDoc(html: string, css = ""): string {
   );
 }
 
+/**
+ * THE FRAME MUST NOT KEEP THE KEYBOARD.
+ *
+ * A click inside an iframe focuses that iframe, and from then on every keystroke belongs to ITS
+ * document. The shell's chords are `window` listeners on the parent - ctrl+/ for the agent, ctrl+1..9
+ * for the dock - so after clicking a drawing, none of them fire. It reads exactly like the shortcut
+ * being broken, and the parent cannot listen inside the frame to fix it: `sandbox=""` makes the
+ * document an opaque origin with no scripting, which is the whole point of the seal.
+ *
+ * So focus is handed straight back. `window` blur with the frame as `document.activeElement` is the
+ * one reliable way to notice the frame taking it. Blurring returns focus to the body, where the
+ * chords work again.
+ *
+ * WHAT THIS COSTS is arrow-key scrolling inside a long drawing, which needs the frame focused. That
+ * is the right trade here: a sealed page has no scripts and no form controls (they are stripped), so
+ * there is nothing in it to type into or operate, and the wheel and trackpad still scroll it under
+ * the pointer. Losing every application shortcut to a picture is the worse half of that bargain.
+ */
+function useFocusStaysOutside(ref: { current: HTMLIFrameElement | null }): void {
+  useEffect(() => {
+    let queued = 0;
+    const onBlur = (): void => {
+      // Also fires when the whole window loses focus; the activeElement check is what separates
+      // "the frame took it" from "somebody alt-tabbed away".
+      if (document.activeElement !== ref.current) return;
+      /**
+       * DEFERRED, and measured that way in Chromium. Blurring inside the handler does not stick:
+       * the browser is still assigning focus to the frame and puts it straight back, so the frame
+       * keeps the keyboard and the chords stay dead. One turn of the loop later the assignment is
+       * finished and the blur holds. Checked again there, because focus may have moved somewhere
+       * real in the meantime and stealing it back would be worse than the bug.
+       */
+      queued = window.setTimeout(() => {
+        if (document.activeElement === ref.current) ref.current?.blur();
+      }, 0);
+    };
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.clearTimeout(queued);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, [ref]);
+}
+
 /** Sandboxed iframe preview of card backdrop HTML. */
 export function SealedHtmlPreview({
   html,
@@ -131,8 +177,13 @@ export function SealedHtmlPreview({
   fill = false,
 }: SealedHtmlPreviewProps): JSX.Element {
   const srcDoc = useMemo(() => buildBackdropSrcDoc(html, css), [html, css]);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
+  useFocusStaysOutside(frameRef);
   return (
     <iframe
+      ref={frameRef}
+      // Nor does Tab land on it: a picture is not a stop on the way through a screen.
+      tabIndex={-1}
       className={fill ? `${styles.frame} ${styles.fill}` : styles.frame}
       title={title}
       sandbox=""

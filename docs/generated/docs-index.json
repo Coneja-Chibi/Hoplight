@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-12",
+  "generated": "2026-08-13",
   "count": 113,
   "docs": [
     {
@@ -5737,7 +5737,7 @@
           "text": "It is untrusted content, and storing it changes nothing",
           "slug": "it-is-untrusted-content-and-storing-it-changes-nothing",
           "level": 2,
-          "summary": "The html field is model output and nothing in the repo ever evaluates it. It is stored unsanitised because cleaning at rest is the wrong boundary twice: the stored file would differ from what was written, and a second sanitiser could drift from the one that renders. Enforcement lives at the point of drawing - sandbox=\"\" iframe, script-src none, connect-src none, img-src data: blob:, DOMPurify with script/iframe/object/embed/form/input/button/textarea/select/link/meta/base forbidden, that tag list held in core/render/seal-policy.ts so Kit can read the same policy without a DOM - which makes it a static drawing surface by construction. A whole document keeps its design because every style block is hoisted before sanitizing, which returns the body alone; form controls are the one thing an author designs around, so a button is drawn as a styled div rather than used.",
+          "summary": "The html field is model output and nothing in the repo ever evaluates it. It is stored unsanitised because cleaning at rest is the wrong boundary twice: the stored file would differ from what was written, and a second sanitiser could drift from the one that renders. Enforcement lives at the point of drawing - sandbox=\"\" iframe, script-src none, connect-src none, img-src data: blob:, DOMPurify with script/iframe/object/embed/form/input/button/textarea/select/link/meta/base forbidden, that tag list held in core/render/seal-policy.ts so Kit can read the same policy without a DOM - which makes it a static drawing surface by construction. A whole document keeps its design because every style block is hoisted before sanitizing, which returns the body alone; form controls are the one thing an author designs around, so a button is drawn as a styled div. The frame is not allowed to keep the keyboard either: clicking an iframe focuses it and every keystroke then belongs to its document, killing the shell chords, so focus is handed back a turn of the loop later - a synchronous blur loses to the browser assignment.",
           "topics": [
             "model output never evaluated",
             "stored verbatim not sanitised",
