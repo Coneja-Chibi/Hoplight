@@ -9,6 +9,18 @@ import type { TokenUsage } from "./usage";
 export interface ModelMessage {
   role: "user" | "assistant" | "tool";
   content: string;
+  /**
+   * The model's thinking before it answered, when it thought aloud at all (assistant only).
+   *
+   * SOME OPENAI-COMPATIBLE BACKENDS REQUIRE IT BACK: a DeepSeek-style reasoning model will reject
+   * a conversation whose assistant turns lack the thinking they originally produced, so Kit keeps
+   * the raw thought with the message. Replay is provider-aware: a spoke that declares
+   * `reasoningEcho` gets the thought mapped back onto the wire; every other adapter either ignores
+   * the part it cannot carry or needs its own signature metadata, so the safe default is not to echo.
+   *
+   * Shell-stored, never rendered as speech: the reply's `content` is what the person reads.
+   */
+  reasoning?: string;
   /** On an assistant turn that invoked tools: the calls it made (adapters render these as tool_use). */
   toolCalls?: ModelToolCall[];
   /**
@@ -51,8 +63,8 @@ export interface ModelToolCall {
  * provider's reported token counts for this call (already cleaned), when it reported any; the meter and
  * tally read it. Optional: an OAI-compatible router that omits usage simply leaves it undefined. */
 export type ModelReply =
-  | { kind: "say"; text: string; usage?: TokenUsage }
-  | { kind: "use"; text: string; calls: ModelToolCall[]; usage?: TokenUsage };
+  | { kind: "say"; text: string; usage?: TokenUsage; reasoning?: string }
+  | { kind: "use"; text: string; calls: ModelToolCall[]; usage?: TokenUsage; reasoning?: string };
 
 /** How a tool looks to the model: name, description, and a JSON-schema for its args. */
 export interface ToolSpec {

@@ -84,6 +84,7 @@ const parseMessage = (raw: unknown): ModelMessage | null => {
   return {
     role,
     content: raw["content"],
+    ...(typeof raw["reasoning"] === "string" ? { reasoning: raw["reasoning"] } : {}),
     ...(calls.length > 0 ? { toolCalls: calls } : {}),
     ...(typeof raw["toolCallId"] === "string" ? { toolCallId: raw["toolCallId"] } : {}),
     ...(typeof raw["toolName"] === "string" ? { toolName: raw["toolName"] } : {}),

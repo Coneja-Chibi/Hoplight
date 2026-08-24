@@ -8,6 +8,8 @@ const groq: ProviderSpoke = {
   brand: "#F55036",
   host: "api.groq.com",
   defaultModel: "llama-3.3-70b-versatile",
+  // The Groq SDK maps assistant reasoning parts back to its own `reasoning` field (multi-turn thinking).
+  reasoningEcho: true,
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createGroq } = await import("@ai-sdk/groq");
     return createGroq({ apiKey, baseURL, headers, fetch })(model);

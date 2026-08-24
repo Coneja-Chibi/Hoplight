@@ -15,6 +15,27 @@ test("a plain answer yields one say and records the exchange", async () => {
   ]);
 });
 
+test("a reply's thinking is recorded with the assistant message it introduces", async () => {
+  // A DeepSeek-style backend rejects a history whose assistant turns lost the reasoning_content
+  // they originally carried, so the loop must persist the thought the reply opened with.
+  const call: ModelToolCall = { id: "c1", name: "list", args: {} };
+  const plain = await drain(runTurn("hi", [], deps(async () => ({
+    kind: "say",
+    text: "hello",
+    reasoning: "let me think",
+  }))));
+  expect(plain.history.at(-1)).toMatchObject(
+    { role: "assistant", content: "hello", reasoning: "let me think" },
+  );
+  const tooled = await drain(runTurn("list", [], deps(scripted([
+    { kind: "use", text: "", calls: [call], reasoning: "find them" },
+    { kind: "say", text: "here" },
+  ]))));
+  expect(tooled.history.find((m) => m.role === "assistant" && m.toolCalls?.length)).toMatchObject(
+    { role: "assistant", content: "", reasoning: "find them", toolCalls: [call] },
+  );
+});
+
 test("ReAct: calls a tool, observes the result, then answers", async () => {
   const call: ModelToolCall = { id: "c1", name: "list", args: { kind: "character" } };
   const chat = scripted([

@@ -9,6 +9,8 @@ const local: ProviderSpoke = {
   // No fixed host: the egress allowlist is derived from the user's base URL (localhost).
   defaultModel: "llama3.1",
   keyless: true,
+  // Qwen3-class thinking trunks on Ollama/LM Studio answer in reasoning_content and expect it back.
+  reasoningEcho: true,
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
     return createOpenAICompatible({

@@ -29,6 +29,14 @@ export async function spokeChat(
   return spoke.chat(config, signal);
 }
 
+/** Whether the spoke requires assistant thinking to be echoed back onto the wire. Absent means no,
+ * so only a spoke that DECLARED the capability (its adapter carries reasoning parts back) ever does. */
+export async function spokeEchoesReasoning(config: ProviderConfig | null): Promise<boolean> {
+  if (!config) return false;
+  const spoke = (await spokes()).get(config.kind);
+  return spoke?.reasoningEcho === true;
+}
+
 /** Build the model for a config, or fail closed if it is unset, unknown, or missing a key. */
 export async function buildModel(config: ProviderConfig | null): Promise<LanguageModel> {
   if (!config) {

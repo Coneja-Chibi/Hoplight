@@ -7,9 +7,12 @@
 import { jsonSchema, streamText, tool, type ModelMessage as AiMessage, type ImagePart, type TextPart, type ToolCallPart, type ToolSet } from "ai";
 import type { ChatFn, ModelMessage, ModelReply, ModelToolCall, ToolSpec } from "./provider";
 import type { ProviderConfig } from "./config";
-import { buildModel, spokeChat } from "./adapters";
+import { buildModel, spokeChat, spokeEchoesReasoning } from "./adapters";
 import { readUsage, type TokenUsage } from "./usage";
 import { KIT_TOOL_PROTOCOL } from "./tool-protocol";
+
+/** The SDK's assistant reasoning part (not re-exported by `ai`): thinking text beside the reply. */
+type ReasoningPart = { type: "reasoning"; text: string };
 
 /** Map the AI SDK's ragged usage object into a clean TokenUsage. Field names have drifted across SDK
  * majors (promptTokens/inputTokens, cachedInputTokens/cacheReadInputTokens), so we read tolerantly and
@@ -48,13 +51,15 @@ export function makeChat(
     const own = await spokeChat(config, abortSignal);
     if (own) return own(messages, tools, onDelta);
     const model = await buildModel(config);
+    // Only the active spoke decides whether thinking must travel back; see ProviderSpoke.reasoningEcho.
+    const echoReasoning = await spokeEchoesReasoning(config);
     const cap = AbortSignal.timeout(HANG_CAP_MS);
     const result = streamText({
       model,
       system: ambient ? `${KIT_TOOL_PROTOCOL}
 
 ${ambient()}` : KIT_TOOL_PROTOCOL,
-      messages: messages.map(toAiMessage),
+      messages: messages.map((message) => toAiMessage(message, echoReasoning)),
       tools: toAiTools(tools),
       toolChoice: "auto",
       abortSignal: abortSignal ? AbortSignal.any([abortSignal, cap]) : cap,
@@ -66,12 +71,21 @@ ${ambient()}` : KIT_TOOL_PROTOCOL,
         throw part.error instanceof Error ? part.error : new Error(String(part.error));
       }
     }
-    return toReply(await result.text, await result.toolCalls, mapUsage(await result.usage));
+    return toReply(
+      await result.text,
+      await result.toolCalls,
+      mapUsage(await result.usage),
+      // Some backends insist the thought they produced comes back with the next turn; keep it.
+      await result.reasoningText,
+    );
   };
 }
 
-/** Kit message -> AI SDK message, preserving assistant tool calls and tool results. */
-function toAiMessage(message: ModelMessage): AiMessage {
+/** Kit message -> AI SDK message, preserving assistant tool calls and tool results. Reasoning is
+ * attached only when the spoke DECLARED it must echo (reasoningEcho): for every other provider the
+ * part is signature-gated (anthropic, google), folded into text (mistral), or silently dropped
+ * (openai chat-completions), so the safe default is to leave it off the wire entirely. */
+export function toAiMessage(message: ModelMessage, echoReasoning: boolean): AiMessage {
   if (message.role === "user") {
     /**
      * Images ride as PARTS beside the text, which is the shape every vision model takes.
@@ -101,6 +115,16 @@ function toAiMessage(message: ModelMessage): AiMessage {
       ],
     };
   }
+  if (message.reasoning && echoReasoning) {
+    const parts: Array<ReasoningPart | TextPart | ToolCallPart> = [
+      { type: "reasoning", text: message.reasoning },
+    ];
+    if (message.content) parts.push({ type: "text", text: message.content });
+    for (const call of message.toolCalls ?? []) {
+      parts.push({ type: "tool-call", toolCallId: call.id, toolName: call.name, input: call.args });
+    }
+    return { role: "assistant", content: parts };
+  }
   if (message.toolCalls && message.toolCalls.length > 0) {
     const parts: Array<TextPart | ToolCallPart> = [];
     if (message.content) parts.push({ type: "text", text: message.content });
@@ -121,19 +145,21 @@ function toAiTools(specs: ToolSpec[]): ToolSet {
   return Object.fromEntries(entries);
 }
 
-/** AI SDK result -> our ModelReply: a plain answer, or a request to run tools, carrying this call's usage. */
-function toReply(
+/** AI SDK result -> our ModelReply: a plain answer, or a request to run tools, carrying this call's
+ * usage and - when the backend thought aloud - the thinking text, for spokes that must replay it. */
+export function toReply(
   text: string,
   toolCalls: ReadonlyArray<{ toolCallId: string; toolName: string; input: unknown }>,
   usage: TokenUsage,
+  reasoning?: string,
 ): ModelReply {
   if (toolCalls.length === 0) {
-    return { kind: "say", text, usage };
+    return { kind: "say", text, usage, reasoning };
   }
   const calls: ModelToolCall[] = toolCalls.map((call) => ({
     id: call.toolCallId,
     name: call.toolName,
     args: call.input,
   }));
-  return { kind: "use", text, calls, usage };
+  return { kind: "use", text, calls, usage, reasoning };
 }

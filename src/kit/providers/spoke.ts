@@ -46,6 +46,18 @@ export interface ProviderSpoke {
    * turn - and a spoke that gains vision says so in one line.
    */
   images?: boolean;
+  /**
+   * Does this provider require assistant reasoning (thinking) content to be passed back on the wire?
+   *
+   * DECLARED, not assumed. The openai-compatible family expresses thinking as `reasoning_content`,
+   * and a DeepSeek-style reasoning backend REJECTS a history whose assistant turns lack the thought
+   * they originally produced ("The reasoning_content in the thinking mode must be passed back to
+   * the API"). Native adapters differ: anthropic and google need their own signature metadata and
+   * skip the block without it, openai chat-completions drops reasoning parts, and mistral would
+   * fold the thought into the visible text - so only a spoke whose SDK carries the field back
+   * declares this. Absent means NO, and Kit then never attaches the thought to a request.
+   */
+  reasoningEcho?: boolean;
   /** Provider-specific setup choices (plan tiers, endpoint variants). Rendered by the form. */
   options?: ReadonlyArray<SpokeOption>;
   /** Build the AI SDK model, lazy-importing the vendor adapter and wiring the guarded fetch.

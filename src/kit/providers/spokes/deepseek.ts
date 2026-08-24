@@ -8,6 +8,9 @@ const deepseek: ProviderSpoke = {
   brand: "#4D6BFE",
   host: "api.deepseek.com",
   defaultModel: "deepseek-chat",
+  // DeepSeek's reasoner REQUIRES thinking to be passed back: its API rejects a history whose
+  // assistant turns lack the reasoning_content they originally carried.
+  reasoningEcho: true,
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
     return createOpenAICompatible({

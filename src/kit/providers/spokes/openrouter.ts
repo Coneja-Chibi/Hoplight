@@ -8,6 +8,8 @@ const openrouter: ProviderSpoke = {
   brand: "#94A3B8",
   host: "openrouter.ai",
   defaultModel: "anthropic/claude-opus-4-8",
+  // The OpenRouter SDK maps assistant reasoning parts back to its own `reasoning` field.
+  reasoningEcho: true,
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createOpenRouter } = await import("@openrouter/ai-sdk-provider");
     return createOpenRouter({ apiKey, baseURL, headers, fetch }).chat(model);

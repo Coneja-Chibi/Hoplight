@@ -278,7 +278,7 @@ export async function* runTurn(
         lifecycle = initialLoopState();
         continue;
       }
-      messages.push({ role: "assistant", content: reply.text });
+      messages.push({ role: "assistant", content: reply.text, reasoning: reply.reasoning });
       yield { type: "say", text: reply.text };
       return messages;
     }
@@ -312,7 +312,12 @@ export async function* runTurn(
     }
 
     // Keep provider history valid: record tool calls only when this turn can answer all of them.
-    messages.push({ role: "assistant", content: reply.text, toolCalls: reply.calls });
+    messages.push({
+      role: "assistant",
+      content: reply.text,
+      toolCalls: reply.calls,
+      reasoning: reply.reasoning,
+    });
 
     const effectFor = (call: ModelToolCall): ToolEffect =>
       deps.effectFor?.(call) ?? "apply";

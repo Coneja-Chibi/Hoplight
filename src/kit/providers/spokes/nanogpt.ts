@@ -18,6 +18,8 @@ const nanogpt: ProviderSpoke = {
   brand: "#34D399",
   host: "nano-gpt.com",
   defaultModel: "chatgpt-4o-latest",
+  // OpenAI-compatible behind a proxy that may run a reasoning model; the wire field is reasoning_content.
+  reasoningEcho: true,
   options: [
     {
       key: "plan",
