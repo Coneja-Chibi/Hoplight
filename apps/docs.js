@@ -1,9 +1,139 @@
-{const s=document.createElement("style");s.dataset.vaudeModuleCss="1";s.textContent="/* src/ui/components/render-box/styles.module.css */\n.box_NK8WZQ {\n  display: flex;\n  flex-direction: column;\n  gap: .4rem;\n  min-width: 0;\n}\n\n.bar_NK8WZQ {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.toggle_NK8WZQ {\n  display: inline-flex;\n  font-family: var(--font-mono);\n  letter-spacing: .06em;\n  text-transform: uppercase;\n  align-items:  center;\n  gap: .3rem;\n  padding: .2rem .4rem;\n  font-size: .625rem;\n}\n\n.toggle_NK8WZQ svg {\n  display: block;\n}\n\n.out_NK8WZQ {\n  color: var(--stage-soft);\n  overflow-wrap: anywhere;\n  min-width: 0;\n  font-size: .8125rem;\n  line-height: 1.5;\n}\n\n.out_NK8WZQ p {\n  margin: 0 0 .6rem;\n}\n\n.out_NK8WZQ p:last-child {\n  margin-bottom: 0;\n}\n\n.out_NK8WZQ h1 {\n  font-family: var(--font-big);\n  color: var(--stage-paper);\n  margin: .4rem 0 .5rem;\n  font-weight: 800;\n}\n\n.out_NK8WZQ h2 {\n  font-family: var(--font-big);\n  color: var(--stage-paper);\n  margin: .4rem 0 .5rem;\n  font-weight: 800;\n}\n\n.out_NK8WZQ h3 {\n  font-family: var(--font-big);\n  color: var(--stage-paper);\n  margin: .4rem 0 .5rem;\n  font-weight: 800;\n}\n\n.out_NK8WZQ h1 {\n  font-size: 1rem;\n}\n\n.out_NK8WZQ h2 {\n  font-size: .9rem;\n}\n\n.out_NK8WZQ h3 {\n  font-size: .8125rem;\n}\n\n.out_NK8WZQ strong {\n  color: var(--stage-paper);\n}\n\n.out_NK8WZQ em {\n  color: var(--stage-soft);\n}\n\n.out_NK8WZQ ul {\n  margin: 0 0 .6rem;\n  padding-left: 1.2rem;\n}\n\n.out_NK8WZQ ol {\n  margin: 0 0 .6rem;\n  padding-left: 1.2rem;\n}\n\n.out_NK8WZQ li {\n  margin: .15rem 0;\n}\n\n.out_NK8WZQ a {\n  color: var(--link);\n  text-decoration: underline;\n  overflow-wrap: anywhere;\n}\n\n.out_NK8WZQ blockquote {\n  border-left: 3px solid var(--stage-seam);\n  color: var(--stage-mute);\n  margin: 0 0 .6rem;\n  padding-left: .7rem;\n}\n\n.out_NK8WZQ code {\n  font-family: var(--font-mono);\n  background: var(--stage-panel);\n  border: 1px solid var(--stage-seam);\n  padding: .05rem .25rem;\n  font-size: .75rem;\n}\n\n.out_NK8WZQ pre {\n  background: var(--stage-2);\n  border: 2px solid var(--stage-seam);\n  overflow-x: auto;\n  padding: .6rem;\n}\n\n.out_NK8WZQ pre code {\n  background: none;\n  border: none;\n  padding: 0;\n}\n\n.out_NK8WZQ img {\n  max-width: 100%;\n  height: auto;\n}\n\n.out_NK8WZQ hr {\n  border: none;\n  border-top: 2px solid var(--stage-seam);\n  margin: .6rem 0;\n}\n\n.src_NK8WZQ {\n  font-family: var(--font-mono);\n  color: var(--stage-mute);\n  white-space: pre-wrap;\n  overflow-wrap: anywhere;\n  min-width: 0;\n  margin: 0;\n  font-size: .75rem;\n  line-height: 1.45;\n}\n\n.plain_NK8WZQ {\n  overflow-wrap: anywhere;\n  min-width: 0;\n}\n\n.plain_NK8WZQ a {\n  color: var(--link);\n  text-decoration: underline;\n  overflow-wrap: anywhere;\n}\n\n/* src/ui/apps/docs/styles.module.css */\n.room_Iqb2zg {\n  container-type: inline-size;\n  display: grid;\n  grid-template-columns: 16rem minmax(0, 1fr) 13rem;\n  background: var(--canvas);\n  color: var(--text);\n  flex: 1;\n  height: 100%;\n  min-height: 0;\n}\n\n.nav_Iqb2zg {\n  overflow: auto;\n  padding: var(--gap-m) .75rem;\n  background: var(--chrome);\n  border-right: var(--ink-border);\n  min-height: 0;\n}\n\n.search_Iqb2zg {\n  margin-bottom: var(--gap-m);\n  color: var(--text);\n  background: var(--face);\n  border: var(--ink-border);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n  font-family: var(--font-mono);\n  font-size: var(--text-meta);\n  width: 100%;\n  padding: .55rem .65rem;\n}\n\n.search_Iqb2zg::placeholder {\n  color: var(--text-faint);\n}\n\n.search_Iqb2zg:focus {\n  outline: none;\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--accent);\n}\n\n.shelves_Iqb2zg {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  margin-bottom: var(--gap-m);\n  gap: .35rem;\n}\n\n.shelf_Iqb2zg {\n  color: var(--text-dim);\n  background: var(--face);\n  border: 2px solid var(--seam);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  min-width: 0;\n  padding: .45rem .3rem;\n  font-size: .625rem;\n  font-weight: 700;\n}\n\n.shelf_Iqb2zg.on_Iqb2zg {\n  color: var(--stage-white);\n  background: var(--accent-deep);\n  border-color: var(--ink);\n  box-shadow: 2px 2px 0 0 var(--seam);\n}\n\n.group_Iqb2zg, .section_Iqb2zg {\n  margin: 0;\n}\n\n.groupTitle_Iqb2zg {\n  color: var(--text);\n  font-family: var(--font-big);\n  margin: .9rem 0 .35rem;\n  font-size: .78rem;\n}\n\n.grp_Iqb2zg {\n  margin: var(--gap-m) 0 .3rem;\n  color: var(--text-faint);\n  cursor: pointer;\n  font-family: var(--font-big);\n  letter-spacing: .16em;\n  text-transform: uppercase;\n  font-size: .625rem;\n  font-weight: 800;\n}\n\n.grp_Iqb2zg span {\n  float: right;\n  font-family: var(--font-mono);\n}\n\n.grp_Iqb2zg::marker {\n  color: var(--accent);\n}\n\n.item_Iqb2zg {\n  display: block;\n  color: var(--text-soft);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  text-align: left;\n  background: none;\n  border: 0;\n  border-left: 3px solid #0000;\n  width: 100%;\n  margin: 1px 0;\n  padding: .35rem .55rem;\n  font-size: .72rem;\n}\n\n.item_Iqb2zg:hover {\n  color: var(--text);\n  background: var(--face);\n}\n\n.item_Iqb2zg.on_Iqb2zg {\n  color: var(--text);\n  background: var(--face);\n  border-left-color: var(--accent);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n}\n\n.noResults_Iqb2zg, .empty_Iqb2zg, .message_Iqb2zg {\n  color: var(--text-dim);\n  font-style: italic;\n}\n\n.noResults_Iqb2zg {\n  font-size: .85rem;\n}\n\n.message_Iqb2zg {\n  padding: 2rem;\n}\n\n.main_Iqb2zg {\n  overflow: auto;\n  padding: var(--gap-l) clamp(1rem, 3vw, 2.5rem) 3rem;\n  scroll-behavior: smooth;\n  min-height: 0;\n}\n\n.inner_Iqb2zg {\n  max-width: 52rem;\n}\n\n.crumb_Iqb2zg {\n  display: flex;\n  color: var(--text-faint);\n  font-family: var(--font-mono);\n  font-size: var(--text-meta);\n  letter-spacing: .06em;\n  text-transform: uppercase;\n  align-items:  center;\n  gap: .5rem;\n  margin-bottom: .85rem;\n}\n\n.crumb_Iqb2zg > span {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  min-width: 0;\n}\n\n.github_Iqb2zg {\n  color: var(--text);\n  background: var(--face);\n  border: var(--ink-border);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  font-size: var(--text-meta);\n  text-transform: none;\n  flex: none;\n  margin-left: auto;\n  padding: .3rem .6rem;\n}\n\n.github_Iqb2zg:hover {\n  transform: translate(-1px, -1px);\n}\n\n.audience_Iqb2zg {\n  display: inline-block;\n  color: var(--stage-white);\n  background: var(--accent-deep);\n  border: 2px solid var(--ink);\n  font-family: var(--font-mono);\n  letter-spacing: .1em;\n  text-transform: uppercase;\n  margin-bottom: .5rem;\n  padding: .12rem .45rem;\n  font-size: .625rem;\n}\n\n.prose_Iqb2zg {\n  color: var(--text-soft);\n  font-family: var(--font-body);\n  font-size: var(--text-body);\n  line-height: 1.6;\n}\n\n.prose_Iqb2zg h1 {\n  color: var(--text);\n  font-family: var(--font-big);\n  font-size: var(--text-title);\n  letter-spacing: -.02em;\n  margin: .1rem 0 .4rem;\n  font-weight: 900;\n}\n\n.prose_Iqb2zg h2 {\n  display: flex;\n  color: var(--text);\n  border-bottom: var(--ink-border);\n  font-family: var(--font-big);\n  align-items:  center;\n  gap: .6rem;\n  margin: 1.6rem 0 .6rem;\n  padding-bottom: .35rem;\n  font-size: 1.25rem;\n  font-weight: 800;\n}\n\n.prose_Iqb2zg h2:before {\n  background: var(--accent);\n  border: 2px solid var(--ink);\n  content: \"\";\n  width: .55rem;\n  height: 1.1rem;\n}\n\n.prose_Iqb2zg h3 {\n  color: var(--text);\n  font-family: var(--font-big);\n  margin: 1.1rem 0 .4rem;\n  font-size: 1.05rem;\n}\n\n.prose_Iqb2zg p {\n  margin: .5rem 0 .9rem;\n}\n\n.prose_Iqb2zg a {\n  color: var(--link);\n}\n\n.prose_Iqb2zg ul {\n  padding-left: 1.4rem;\n  line-height: 1.7;\n}\n\n.prose_Iqb2zg ol {\n  padding-left: 1.4rem;\n  line-height: 1.7;\n}\n\n.prose_Iqb2zg code {\n  color: var(--text);\n  background: var(--face);\n  border: 2px solid var(--seam);\n  font-family: var(--font-mono);\n  padding: .05rem .35rem;\n  font-size: .85em;\n}\n\n.prose_Iqb2zg pre {\n  overflow-x: auto;\n  background: var(--stage-well);\n  border: var(--ink-border);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n  padding: .75rem .9rem;\n}\n\n.prose_Iqb2zg pre code {\n  color: var(--stage-soft);\n  background: none;\n  border: 0;\n  padding: 0;\n}\n\n.prose_Iqb2zg table {\n  display: block;\n  overflow-x: auto;\n  border-collapse: collapse;\n  width: 100%;\n  font-size: .85rem;\n}\n\n.prose_Iqb2zg th {\n  border: 2px solid var(--seam);\n  text-align: left;\n  padding: .3rem .5rem;\n}\n\n.prose_Iqb2zg td {\n  border: 2px solid var(--seam);\n  text-align: left;\n  padding: .3rem .5rem;\n}\n\n.prose_Iqb2zg th {\n  color: var(--text-dim);\n  font-family: var(--font-mono);\n  text-transform: uppercase;\n  font-size: .72rem;\n}\n\n.prose_Iqb2zg blockquote {\n  color: var(--text-dim);\n  border-left: 3px solid var(--accent);\n  margin: .6rem 0;\n  padding: .2rem 0 .2rem .9rem;\n  font-style: italic;\n}\n\n.prose_Iqb2zg [id^=\"doc-\"] {\n  scroll-margin-top: 1rem;\n}\n\n.figure_Iqb2zg {\n  background: var(--face);\n  border: var(--ink-border);\n  box-shadow: 5px 5px 0 0 var(--seam);\n  margin: 1rem 0 1.25rem;\n  padding: .75rem;\n}\n\n.figure_Iqb2zg img {\n  display: block;\n  width: 100%;\n  height: auto;\n}\n\n.figure_Iqb2zg figcaption {\n  color: var(--text-dim);\n  margin-top: .65rem;\n  font-size: .85rem;\n  font-style: italic;\n}\n\n.toc_Iqb2zg {\n  overflow: auto;\n  padding: var(--gap-l) .75rem;\n  background: var(--chrome);\n  border-left: var(--ink-border);\n  min-height: 0;\n}\n\n.tocHead_Iqb2zg {\n  color: var(--text-faint);\n  font-family: var(--font-big);\n  letter-spacing: .14em;\n  text-transform: uppercase;\n  margin-bottom: .6rem;\n  font-size: .625rem;\n  font-weight: 800;\n}\n\n.tocLink_Iqb2zg {\n  display: block;\n  color: var(--text-dim);\n  border: 0;\n  border-left: 2px solid var(--seam);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  text-align: left;\n  background: none;\n  width: 100%;\n  padding: .28rem 0 .28rem .6rem;\n  font-size: .64rem;\n}\n\n.tocLink_Iqb2zg:hover {\n  color: var(--text-soft);\n}\n\n.tocLink_Iqb2zg.sub_Iqb2zg {\n  padding-left: 1.2rem;\n}\n\n.tocLink_Iqb2zg.on_Iqb2zg {\n  color: var(--accent);\n  border-left-color: var(--accent);\n}\n\n@container (width <= 62rem) {\n  .room_Iqb2zg {\n    grid-template-columns: 15rem minmax(0, 1fr);\n  }\n\n  .toc_Iqb2zg {\n    display: none;\n  }\n}\n\n@container (width <= 40rem) {\n  .room_Iqb2zg {\n    grid-template-columns: 1fr;\n    grid-template-rows: auto minmax(0, 1fr);\n  }\n\n  .nav_Iqb2zg {\n    max-height: 13rem;\n    border-right: 0;\n    border-bottom: var(--ink-border);\n  }\n\n  .main_Iqb2zg {\n    padding-top: var(--gap-m);\n  }\n\n  .crumb_Iqb2zg {\n    align-items:  flex-start;\n    flex-direction: column;\n  }\n\n  .github_Iqb2zg {\n    margin-left: 0;\n  }\n}\n";document.head.append(s);}
+{const s=document.createElement("style");s.dataset.vaudeModuleCss="1";s.textContent="/* src/ui/components/bottom-sheet/styles.module.css */\n.overlay_kRtnYA {\n  position: absolute;\n  z-index: 120;\n  background: var(--shadow-ink);\n  display: flex;\n  align-items:  flex-end;\n  inset: 0;\n}\n\n.sheet_kRtnYA {\n  border-top: 3px solid var(--stage-black);\n  background: var(--stage-panel);\n  color: var(--stage-soft);\n  display: flex;\n  position: relative;\n  flex-direction: column;\n  width: 100%;\n  max-height: 72%;\n}\n\n.grab_kRtnYA {\n  background: var(--stage-faint, var(--stage-seam));\n  flex: none;\n  width: 3rem;\n  height: .3rem;\n  margin: .5rem auto .3rem;\n}\n\n.titleRow_kRtnYA {\n  display: flex;\n  border-bottom: 2px solid var(--stage-seam);\n  flex: none;\n  align-items:  center;\n  gap: .5rem;\n  padding: .2rem .8rem .5rem;\n}\n\n.title_kRtnYA {\n  font-family: var(--font-big);\n  letter-spacing: .09em;\n  text-transform: uppercase;\n  color: var(--stage-paper);\n  flex: 1;\n  min-width: 0;\n  font-size: .66rem;\n  font-weight: 800;\n}\n\n.closeX_kRtnYA {\n  border: 2px solid var(--stage-seam);\n  background: var(--stage-row);\n  color: var(--stage-mute);\n  font-family: var(--font-mono);\n  cursor: pointer;\n  flex: none;\n  width: 2.2rem;\n  height: 2.2rem;\n  font-size: .9rem;\n}\n\n.body_kRtnYA {\n  overflow-y: auto;\n  min-height: 0;\n  padding: .5rem .6rem .8rem;\n}\n\n.footer_kRtnYA {\n  border-top: 2px solid var(--stage-seam);\n  flex: none;\n  padding: .5rem .8rem .7rem;\n}\n\n/* src/ui/components/render-box/styles.module.css */\n.box_NK8WZQ {\n  display: flex;\n  flex-direction: column;\n  gap: .4rem;\n  min-width: 0;\n}\n\n.bar_NK8WZQ {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.toggle_NK8WZQ {\n  display: inline-flex;\n  font-family: var(--font-mono);\n  letter-spacing: .06em;\n  text-transform: uppercase;\n  align-items:  center;\n  gap: .3rem;\n  padding: .2rem .4rem;\n  font-size: .625rem;\n}\n\n.toggle_NK8WZQ svg {\n  display: block;\n}\n\n.out_NK8WZQ {\n  color: var(--stage-soft);\n  overflow-wrap: anywhere;\n  min-width: 0;\n  font-size: .8125rem;\n  line-height: 1.5;\n}\n\n.out_NK8WZQ p {\n  margin: 0 0 .6rem;\n}\n\n.out_NK8WZQ p:last-child {\n  margin-bottom: 0;\n}\n\n.out_NK8WZQ h1 {\n  font-family: var(--font-big);\n  color: var(--stage-paper);\n  margin: .4rem 0 .5rem;\n  font-weight: 800;\n}\n\n.out_NK8WZQ h2 {\n  font-family: var(--font-big);\n  color: var(--stage-paper);\n  margin: .4rem 0 .5rem;\n  font-weight: 800;\n}\n\n.out_NK8WZQ h3 {\n  font-family: var(--font-big);\n  color: var(--stage-paper);\n  margin: .4rem 0 .5rem;\n  font-weight: 800;\n}\n\n.out_NK8WZQ h1 {\n  font-size: 1rem;\n}\n\n.out_NK8WZQ h2 {\n  font-size: .9rem;\n}\n\n.out_NK8WZQ h3 {\n  font-size: .8125rem;\n}\n\n.out_NK8WZQ strong {\n  color: var(--stage-paper);\n}\n\n.out_NK8WZQ em {\n  color: var(--stage-soft);\n}\n\n.out_NK8WZQ ul {\n  margin: 0 0 .6rem;\n  padding-left: 1.2rem;\n}\n\n.out_NK8WZQ ol {\n  margin: 0 0 .6rem;\n  padding-left: 1.2rem;\n}\n\n.out_NK8WZQ li {\n  margin: .15rem 0;\n}\n\n.out_NK8WZQ a {\n  color: var(--link);\n  text-decoration: underline;\n  overflow-wrap: anywhere;\n}\n\n.out_NK8WZQ blockquote {\n  border-left: 3px solid var(--stage-seam);\n  color: var(--stage-mute);\n  margin: 0 0 .6rem;\n  padding-left: .7rem;\n}\n\n.out_NK8WZQ code {\n  font-family: var(--font-mono);\n  background: var(--stage-panel);\n  border: 1px solid var(--stage-seam);\n  padding: .05rem .25rem;\n  font-size: .75rem;\n}\n\n.out_NK8WZQ pre {\n  background: var(--stage-2);\n  border: 2px solid var(--stage-seam);\n  overflow-x: auto;\n  padding: .6rem;\n}\n\n.out_NK8WZQ pre code {\n  background: none;\n  border: none;\n  padding: 0;\n}\n\n.out_NK8WZQ img {\n  max-width: 100%;\n  height: auto;\n}\n\n.out_NK8WZQ hr {\n  border: none;\n  border-top: 2px solid var(--stage-seam);\n  margin: .6rem 0;\n}\n\n.src_NK8WZQ {\n  font-family: var(--font-mono);\n  color: var(--stage-mute);\n  white-space: pre-wrap;\n  overflow-wrap: anywhere;\n  min-width: 0;\n  margin: 0;\n  font-size: .75rem;\n  line-height: 1.45;\n}\n\n.plain_NK8WZQ {\n  overflow-wrap: anywhere;\n  min-width: 0;\n}\n\n.plain_NK8WZQ a {\n  color: var(--link);\n  text-decoration: underline;\n  overflow-wrap: anywhere;\n}\n\n/* src/ui/apps/docs/styles.module.css */\n.host_Iqb2zg {\n  container-type: inline-size;\n  display: flex;\n  flex: 1;\n  width: 100%;\n  min-width: 0;\n  min-height: 0;\n}\n\n.room_Iqb2zg {\n  position: relative;\n  display: grid;\n  grid-template-columns: minmax(0, 1fr);\n  grid-template-rows: auto minmax(0, 1fr);\n  background: var(--canvas);\n  color: var(--text);\n  flex: 1;\n  width: 100%;\n  min-width: 0;\n  height: 100%;\n  min-height: 0;\n}\n\n.mobileHead_Iqb2zg {\n  display: grid;\n  grid-template-columns: auto minmax(0, 1fr) auto;\n  align-items:  center;\n  gap: var(--gap-s);\n  background: var(--chrome);\n  border-bottom: var(--ink-border);\n  padding: .45rem .55rem;\n}\n\n.mobileAction_Iqb2zg {\n  color: var(--text);\n  background: var(--face);\n  border: var(--ink-border);\n  box-shadow: 2px 2px 0 0 var(--seam);\n  cursor: pointer;\n  font-family: var(--font-big);\n  letter-spacing: .05em;\n  text-transform: uppercase;\n  min-width: 4.25rem;\n  min-height: 2.75rem;\n  padding: .45rem .55rem;\n  font-size: .625rem;\n  font-weight: 800;\n}\n\n.mobileAction_Iqb2zg[aria-expanded=\"true\"] {\n  border-color: var(--accent);\n}\n\n.mobileAction_Iqb2zg:disabled {\n  opacity: .42;\n  cursor: default;\n  box-shadow: none;\n}\n\n.mobileTitle_Iqb2zg {\n  text-align: center;\n  min-width: 0;\n}\n\n.mobileTitle_Iqb2zg b, .mobileTitle_Iqb2zg small {\n  display: block;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.mobileTitle_Iqb2zg b {\n  color: var(--text);\n  font-family: var(--font-big);\n  font-size: .82rem;\n  font-weight: 900;\n}\n\n.mobileTitle_Iqb2zg small {\n  color: var(--text-dim);\n  font-family: var(--font-mono);\n  letter-spacing: .08em;\n  text-transform: uppercase;\n  margin-top: .1rem;\n  font-size: .5625rem;\n}\n\n.desktopNav_Iqb2zg, .desktopToc_Iqb2zg {\n  display: none;\n  min-height: 0;\n}\n\n.mobileSheet_Iqb2zg {\n  --canvas: var(--stage-panel);\n  --chrome: var(--stage-panel);\n  --face: var(--stage-row);\n  --ink: var(--stage-black);\n  --seam: var(--stage-seam);\n  --text: var(--stage-paper);\n  --text-soft: var(--stage-soft);\n  --text-dim: var(--stage-text-dim);\n  --text-faint: var(--stage-kicker);\n}\n\n.mobileSheet_Iqb2zg .nav_Iqb2zg, .mobileSheet_Iqb2zg .toc_Iqb2zg {\n  overflow: visible;\n  background: none;\n  border: 0;\n  padding: 0;\n}\n\n.nav_Iqb2zg {\n  overflow: auto;\n  padding: var(--gap-m) .75rem;\n  background: var(--chrome);\n  border-right: var(--ink-border);\n  min-height: 0;\n}\n\n.search_Iqb2zg {\n  margin-bottom: var(--gap-m);\n  color: var(--text);\n  background: var(--face);\n  border: var(--ink-border);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n  font-family: var(--font-mono);\n  font-size: var(--text-meta);\n  width: 100%;\n  padding: .55rem .65rem;\n}\n\n.search_Iqb2zg::placeholder {\n  color: var(--text-faint);\n}\n\n.search_Iqb2zg:focus {\n  outline: none;\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--accent);\n}\n\n.shelves_Iqb2zg {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  margin-bottom: var(--gap-m);\n  gap: .35rem;\n}\n\n.shelf_Iqb2zg {\n  color: var(--text-dim);\n  background: var(--face);\n  border: 2px solid var(--seam);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  min-width: 0;\n  padding: .45rem .3rem;\n  font-size: .625rem;\n  font-weight: 700;\n}\n\n.shelf_Iqb2zg.on_Iqb2zg {\n  color: var(--stage-white);\n  background: var(--accent-deep);\n  border-color: var(--ink);\n  box-shadow: 2px 2px 0 0 var(--seam);\n}\n\n.group_Iqb2zg, .section_Iqb2zg {\n  margin: 0;\n}\n\n.groupTitle_Iqb2zg {\n  color: var(--text);\n  font-family: var(--font-big);\n  margin: .9rem 0 .35rem;\n  font-size: .78rem;\n}\n\n.grp_Iqb2zg {\n  margin: var(--gap-m) 0 .3rem;\n  color: var(--text-faint);\n  cursor: pointer;\n  font-family: var(--font-big);\n  letter-spacing: .16em;\n  text-transform: uppercase;\n  font-size: .625rem;\n  font-weight: 800;\n}\n\n.grp_Iqb2zg span {\n  float: right;\n  font-family: var(--font-mono);\n}\n\n.grp_Iqb2zg::marker {\n  color: var(--accent);\n}\n\n.item_Iqb2zg {\n  display: block;\n  color: var(--text-soft);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  text-align: left;\n  background: none;\n  border: 0;\n  border-left: 3px solid #0000;\n  width: 100%;\n  margin: 1px 0;\n  padding: .35rem .55rem;\n  font-size: .72rem;\n}\n\n.item_Iqb2zg:hover {\n  color: var(--text);\n  background: var(--face);\n}\n\n.item_Iqb2zg.on_Iqb2zg {\n  color: var(--text);\n  background: var(--face);\n  border-left-color: var(--accent);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n}\n\n.noResults_Iqb2zg, .empty_Iqb2zg, .message_Iqb2zg {\n  color: var(--text-dim);\n  font-style: italic;\n}\n\n.noResults_Iqb2zg {\n  font-size: .85rem;\n}\n\n.message_Iqb2zg {\n  padding: 2rem;\n}\n\n.main_Iqb2zg {\n  grid-row: 2;\n  overflow: auto;\n  padding: var(--gap-m) .85rem 2.5rem;\n  scroll-behavior: smooth;\n  min-width: 0;\n  min-height: 0;\n}\n\n.inner_Iqb2zg {\n  max-width: 52rem;\n  margin: 0 auto;\n}\n\n.crumb_Iqb2zg {\n  display: flex;\n  color: var(--text-faint);\n  font-family: var(--font-mono);\n  font-size: var(--text-meta);\n  letter-spacing: .06em;\n  text-transform: uppercase;\n  flex-wrap: wrap;\n  align-items:  center;\n  gap: .5rem;\n  margin-bottom: .85rem;\n}\n\n.crumb_Iqb2zg > span {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  min-width: 0;\n}\n\n.github_Iqb2zg {\n  color: var(--text);\n  background: var(--face);\n  border: var(--ink-border);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  font-size: var(--text-meta);\n  text-transform: none;\n  flex: none;\n  min-height: 2.5rem;\n  padding: .3rem .6rem;\n}\n\n.github_Iqb2zg:hover {\n  transform: translate(-1px, -1px);\n}\n\n.audience_Iqb2zg {\n  display: inline-block;\n  color: var(--stage-white);\n  background: var(--accent-deep);\n  border: 2px solid var(--ink);\n  font-family: var(--font-mono);\n  letter-spacing: .1em;\n  text-transform: uppercase;\n  margin-bottom: .5rem;\n  padding: .12rem .45rem;\n  font-size: .625rem;\n}\n\n.prose_Iqb2zg {\n  color: var(--text-soft);\n  font-family: var(--font-body);\n  font-size: var(--text-body);\n  overflow-wrap: anywhere;\n  line-height: 1.6;\n}\n\n.prose_Iqb2zg h1 {\n  color: var(--text);\n  font-family: var(--font-big);\n  font-size: var(--text-title);\n  letter-spacing: -.02em;\n  margin: .1rem 0 .4rem;\n  font-weight: 900;\n}\n\n.prose_Iqb2zg h2 {\n  display: flex;\n  color: var(--text);\n  border-bottom: var(--ink-border);\n  font-family: var(--font-big);\n  align-items:  center;\n  gap: .6rem;\n  margin: 1.6rem 0 .6rem;\n  padding-bottom: .35rem;\n  font-size: 1.25rem;\n  font-weight: 800;\n}\n\n.prose_Iqb2zg h2:before {\n  background: var(--accent);\n  border: 2px solid var(--ink);\n  content: \"\";\n  width: .55rem;\n  height: 1.1rem;\n}\n\n.prose_Iqb2zg h3 {\n  color: var(--text);\n  font-family: var(--font-big);\n  margin: 1.1rem 0 .4rem;\n  font-size: 1.05rem;\n}\n\n.prose_Iqb2zg p {\n  margin: .5rem 0 .9rem;\n}\n\n.prose_Iqb2zg a {\n  color: var(--link);\n}\n\n.prose_Iqb2zg ul {\n  padding-left: 1.4rem;\n  line-height: 1.7;\n}\n\n.prose_Iqb2zg ol {\n  padding-left: 1.4rem;\n  line-height: 1.7;\n}\n\n.prose_Iqb2zg code {\n  color: var(--text);\n  background: var(--face);\n  border: 2px solid var(--seam);\n  font-family: var(--font-mono);\n  padding: .05rem .35rem;\n  font-size: .85em;\n}\n\n.prose_Iqb2zg pre {\n  overflow-x: auto;\n  background: var(--stage-well);\n  border: var(--ink-border);\n  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);\n  padding: .75rem .9rem;\n}\n\n.prose_Iqb2zg pre code {\n  color: var(--stage-soft);\n  overflow-wrap: normal;\n  background: none;\n  border: 0;\n  padding: 0;\n}\n\n.prose_Iqb2zg table {\n  display: block;\n  overflow-x: auto;\n  border-collapse: collapse;\n  width: 100%;\n  font-size: .85rem;\n}\n\n.prose_Iqb2zg th {\n  border: 2px solid var(--seam);\n  text-align: left;\n  padding: .3rem .5rem;\n}\n\n.prose_Iqb2zg td {\n  border: 2px solid var(--seam);\n  text-align: left;\n  padding: .3rem .5rem;\n}\n\n.prose_Iqb2zg th {\n  color: var(--text-dim);\n  font-family: var(--font-mono);\n  text-transform: uppercase;\n  font-size: .72rem;\n}\n\n.prose_Iqb2zg blockquote {\n  color: var(--text-dim);\n  border-left: 3px solid var(--accent);\n  margin: .6rem 0;\n  padding: .2rem 0 .2rem .9rem;\n  font-style: italic;\n}\n\n.prose_Iqb2zg [id^=\"doc-\"] {\n  scroll-margin-top: 1rem;\n}\n\n.figure_Iqb2zg {\n  background: var(--face);\n  border: var(--ink-border);\n  box-shadow: 5px 5px 0 0 var(--seam);\n  margin: 1rem 0 1.25rem;\n  padding: .75rem;\n}\n\n.figure_Iqb2zg img {\n  display: block;\n  width: 100%;\n  height: auto;\n}\n\n.figure_Iqb2zg figcaption {\n  color: var(--text-dim);\n  margin-top: .65rem;\n  font-size: .85rem;\n  font-style: italic;\n}\n\n.toc_Iqb2zg {\n  overflow: auto;\n  padding: var(--gap-l) .75rem;\n  background: var(--chrome);\n  border-left: var(--ink-border);\n  min-height: 0;\n}\n\n.tocHead_Iqb2zg {\n  color: var(--text-faint);\n  font-family: var(--font-big);\n  letter-spacing: .14em;\n  text-transform: uppercase;\n  margin-bottom: .6rem;\n  font-size: .625rem;\n  font-weight: 800;\n}\n\n.tocLink_Iqb2zg {\n  display: block;\n  color: var(--text-dim);\n  border: 0;\n  border-left: 2px solid var(--seam);\n  cursor: pointer;\n  font-family: var(--font-mono);\n  text-align: left;\n  background: none;\n  width: 100%;\n  padding: .28rem 0 .28rem .6rem;\n  font-size: .64rem;\n}\n\n.tocLink_Iqb2zg:hover {\n  color: var(--text-soft);\n}\n\n.tocLink_Iqb2zg.sub_Iqb2zg {\n  padding-left: 1.2rem;\n}\n\n.tocLink_Iqb2zg.on_Iqb2zg {\n  color: var(--accent);\n  border-left-color: var(--accent);\n}\n\n@container (width >= 40rem) {\n  .room_Iqb2zg {\n    grid-template-columns: 15rem minmax(0, 1fr);\n    grid-template-rows: minmax(0, 1fr);\n  }\n\n  .mobileHead_Iqb2zg {\n    display: none;\n  }\n\n  .desktopNav_Iqb2zg {\n    display: block;\n    grid-column: 1;\n    grid-row: 1;\n  }\n\n  .desktopNav_Iqb2zg .nav_Iqb2zg {\n    height: 100%;\n  }\n\n  .main_Iqb2zg {\n    grid-column: 2;\n    grid-row: 1;\n    padding: var(--gap-l) clamp(1rem, 3vw, 2.5rem) 3rem;\n  }\n\n  .crumb_Iqb2zg {\n    flex-wrap: nowrap;\n  }\n\n  .github_Iqb2zg {\n    margin-left: auto;\n  }\n}\n\n@container (width >= 62rem) {\n  .room_Iqb2zg {\n    grid-template-columns: 16rem minmax(0, 1fr) 13rem;\n  }\n\n  .desktopToc_Iqb2zg {\n    display: block;\n    grid-column: 3;\n    grid-row: 1;\n  }\n\n  .desktopToc_Iqb2zg .toc_Iqb2zg {\n    height: 100%;\n  }\n}\n";document.head.append(s);}
 // src/ui/apps/docs/room.tsx
-import { useEffect as useEffect4, useRef as useRef2, useState as useState3 } from "react";
+import { useEffect as useEffect5, useRef as useRef3, useState as useState3 } from "react";
+
+// src/ui/components/bottom-sheet/index.tsx
+import { useEffect, useRef } from "react";
+
+// src/ui/components/bottom-sheet/styles.module.css
+var styles_module_default = {
+  overlay: "overlay_kRtnYA",
+  sheet: "sheet_kRtnYA",
+  grab: "grab_kRtnYA",
+  titleRow: "titleRow_kRtnYA",
+  title: "title_kRtnYA",
+  closeX: "closeX_kRtnYA",
+  body: "body_kRtnYA",
+  footer: "footer_kRtnYA"
+};
+
+// src/ui/components/bottom-sheet/index.tsx
+import { jsxDEV } from "react/jsx-dev-runtime";
+var FOCUSABLE = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "summary",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])'
+].join(",");
+var visibleIn = (element, sheet) => {
+  if (element.closest('[hidden], [inert], [aria-hidden="true"]'))
+    return false;
+  const closedDetails = element.closest("details:not([open])");
+  if (closedDetails && !closedDetails.querySelector(":scope > summary")?.contains(element))
+    return false;
+  const view = element.ownerDocument.defaultView;
+  for (let node = element;node && sheet.contains(node); node = node.parentElement) {
+    const style = view?.getComputedStyle(node);
+    if (style && (style.display === "none" || style.visibility === "hidden" || style.visibility === "collapse"))
+      return false;
+  }
+  return true;
+};
+function BottomSheet({ title, ariaLabel, onDismiss, titleAction, footerAction, children }) {
+  const sheetRef = useRef(null);
+  const dismissRef = useRef(onDismiss);
+  dismissRef.current = onDismiss;
+  useEffect(() => {
+    const sheet = sheetRef.current;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    sheet?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        dismissRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !sheet)
+        return;
+      const focusable = [...sheet.querySelectorAll(FOCUSABLE)].filter((element) => visibleIn(element, sheet));
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) {
+        event.preventDefault();
+        sheet.focus();
+      } else if (event.shiftKey && (document.activeElement === first || document.activeElement === sheet)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === sheet || !sheet.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      if (!previous?.isConnected)
+        return;
+      previous.focus();
+      queueMicrotask(() => {
+        if (previous.isConnected)
+          previous.focus();
+      });
+    };
+  }, []);
+  return /* @__PURE__ */ jsxDEV("div", {
+    className: styles_module_default.overlay,
+    role: "presentation",
+    onMouseDown: onDismiss,
+    children: /* @__PURE__ */ jsxDEV("div", {
+      ref: sheetRef,
+      className: styles_module_default.sheet,
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": ariaLabel ?? title,
+      tabIndex: -1,
+      onMouseDown: (e) => e.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxDEV("span", {
+          className: styles_module_default.grab,
+          "aria-hidden": "true"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsxDEV("div", {
+          className: styles_module_default.titleRow,
+          children: [
+            /* @__PURE__ */ jsxDEV("b", {
+              className: styles_module_default.title,
+              children: title
+            }, undefined, false, undefined, this),
+            titleAction,
+            /* @__PURE__ */ jsxDEV("button", {
+              type: "button",
+              className: styles_module_default.closeX,
+              "aria-label": "Close",
+              onClick: onDismiss,
+              children: "×"
+            }, undefined, false, undefined, this)
+          ]
+        }, undefined, true, undefined, this),
+        /* @__PURE__ */ jsxDEV("div", {
+          className: styles_module_default.body,
+          children
+        }, undefined, false, undefined, this),
+        footerAction !== undefined && /* @__PURE__ */ jsxDEV("div", {
+          className: styles_module_default.footer,
+          children: footerAction
+        }, undefined, false, undefined, this)
+      ]
+    }, undefined, true, undefined, this)
+  }, undefined, false, undefined, this);
+}
 
 // src/ui/apps/docs/doc-content.tsx
-import { useEffect as useEffect2, useMemo as useMemo2 } from "react";
+import { useEffect as useEffect3, useMemo as useMemo2 } from "react";
 
 // src/ui/_shared/external-url.ts
 var safeExternalUrl = (input) => {
@@ -58,7 +188,7 @@ var assetUrl = (path) => new URL(path.replace(/^\//, ""), document.baseURI).href
 var docAssetUrl = (path) => isBrowserStudio() ? assetUrl(path) : `/api/docs/asset?path=${encodeURIComponent(path)}`;
 
 // src/ui/components/render-box/index.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect as useEffect2, useMemo, useRef as useRef2, useState } from "react";
 
 // node_modules/dompurify/dist/purify.es.mjs
 /*! @license DOMPurify 3.4.11 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.4.11/LICENSE */
@@ -2973,7 +3103,7 @@ var renderMarkup = (raw, format) => {
 };
 
 // src/ui/components/render-box/styles.module.css
-var styles_module_default = {
+var styles_module_default2 = {
   box: "box_NK8WZQ",
   bar: "bar_NK8WZQ",
   toggle: "toggle_NK8WZQ",
@@ -2983,7 +3113,7 @@ var styles_module_default = {
 };
 
 // src/ui/components/render-box/index.tsx
-import { jsxDEV } from "react/jsx-dev-runtime";
+import { jsxDEV as jsxDEV2 } from "react/jsx-dev-runtime";
 var onRenderedClick = (e, onLinkClick) => {
   if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)
     return;
@@ -3003,8 +3133,8 @@ function SanitizedHtml({
   className,
   onClick
 }) {
-  const ref = useRef(null);
-  useEffect(() => {
+  const ref = useRef2(null);
+  useEffect2(() => {
     const el = ref.current;
     if (!el)
       return;
@@ -3016,13 +3146,13 @@ function SanitizedHtml({
     const doc = new Parser().parseFromString(html2, "text/html");
     el.replaceChildren(...[...doc.body.childNodes].map((n) => el.ownerDocument.importNode(n, true)));
   }, [html2]);
-  return /* @__PURE__ */ jsxDEV("div", {
+  return /* @__PURE__ */ jsxDEV2("div", {
     ref,
     className,
     onClick
   }, undefined, false, undefined, this);
 }
-var EyeIcon = /* @__PURE__ */ jsxDEV("svg", {
+var EyeIcon = /* @__PURE__ */ jsxDEV2("svg", {
   width: "13",
   height: "13",
   viewBox: "0 0 24 24",
@@ -3031,17 +3161,17 @@ var EyeIcon = /* @__PURE__ */ jsxDEV("svg", {
   strokeWidth: "2",
   "aria-hidden": "true",
   children: [
-    /* @__PURE__ */ jsxDEV("path", {
+    /* @__PURE__ */ jsxDEV2("path", {
       d: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"
     }, undefined, false, undefined, this),
-    /* @__PURE__ */ jsxDEV("circle", {
+    /* @__PURE__ */ jsxDEV2("circle", {
       cx: "12",
       cy: "12",
       r: "3"
     }, undefined, false, undefined, this)
   ]
 }, undefined, true, undefined, this);
-var CodeIcon = /* @__PURE__ */ jsxDEV("svg", {
+var CodeIcon = /* @__PURE__ */ jsxDEV2("svg", {
   width: "13",
   height: "13",
   viewBox: "0 0 24 24",
@@ -3049,7 +3179,7 @@ var CodeIcon = /* @__PURE__ */ jsxDEV("svg", {
   stroke: "currentColor",
   strokeWidth: "2",
   "aria-hidden": "true",
-  children: /* @__PURE__ */ jsxDEV("path", {
+  children: /* @__PURE__ */ jsxDEV2("path", {
     d: "m8 6-6 6 6 6M16 6l6 6-6 6"
   }, undefined, false, undefined, this)
 }, undefined, false, undefined, this);
@@ -3064,39 +3194,39 @@ function RenderBox({
   const [rendered, setRendered] = useState(defaultRendered);
   const html2 = useMemo(() => renderMarkup(value, format), [value, format]);
   if (format === "plain" || displayOnly) {
-    return /* @__PURE__ */ jsxDEV(SanitizedHtml, {
+    return /* @__PURE__ */ jsxDEV2(SanitizedHtml, {
       html: html2,
-      className: styles_module_default.plain,
+      className: styles_module_default2.plain,
       onClick: (event) => onRenderedClick(event, onLinkClick)
     }, undefined, false, undefined, this);
   }
   const empty = value.trim() === "";
   const showRendered = rendered && !empty;
-  return /* @__PURE__ */ jsxDEV("div", {
-    className: styles_module_default.box,
+  return /* @__PURE__ */ jsxDEV2("div", {
+    className: styles_module_default2.box,
     children: [
-      /* @__PURE__ */ jsxDEV("div", {
-        className: styles_module_default.bar,
-        children: /* @__PURE__ */ jsxDEV("button", {
+      /* @__PURE__ */ jsxDEV2("div", {
+        className: styles_module_default2.bar,
+        children: /* @__PURE__ */ jsxDEV2("button", {
           type: "button",
-          className: `stamp ${styles_module_default.toggle}`,
+          className: `stamp ${styles_module_default2.toggle}`,
           "aria-pressed": showRendered,
           title: showRendered ? "Showing rendered output - click to edit the source" : "Showing source - click to render",
           onClick: () => setRendered((r) => !r),
           children: [
             showRendered ? EyeIcon : CodeIcon,
-            /* @__PURE__ */ jsxDEV("span", {
+            /* @__PURE__ */ jsxDEV2("span", {
               children: showRendered ? "Rendered" : "Source"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
-      showRendered ? /* @__PURE__ */ jsxDEV(SanitizedHtml, {
+      showRendered ? /* @__PURE__ */ jsxDEV2(SanitizedHtml, {
         html: html2,
-        className: styles_module_default.out,
+        className: styles_module_default2.out,
         onClick: (event) => onRenderedClick(event, onLinkClick)
-      }, undefined, false, undefined, this) : children ?? /* @__PURE__ */ jsxDEV("pre", {
-        className: styles_module_default.src,
+      }, undefined, false, undefined, this) : children ?? /* @__PURE__ */ jsxDEV2("pre", {
+        className: styles_module_default2.src,
         children: value
       }, undefined, false, undefined, this)
     ]
@@ -3378,9 +3508,17 @@ function targetFromAppHref(href) {
 }
 
 // src/ui/apps/docs/styles.module.css
-var styles_module_default2 = {
+var styles_module_default3 = {
+  host: "host_Iqb2zg",
   room: "room_Iqb2zg",
+  mobileHead: "mobileHead_Iqb2zg",
+  mobileAction: "mobileAction_Iqb2zg",
+  mobileTitle: "mobileTitle_Iqb2zg",
+  desktopNav: "desktopNav_Iqb2zg",
+  desktopToc: "desktopToc_Iqb2zg",
+  mobileSheet: "mobileSheet_Iqb2zg",
   nav: "nav_Iqb2zg",
+  toc: "toc_Iqb2zg",
   search: "search_Iqb2zg",
   shelves: "shelves_Iqb2zg",
   shelf: "shelf_Iqb2zg",
@@ -3400,17 +3538,16 @@ var styles_module_default2 = {
   audience: "audience_Iqb2zg",
   prose: "prose_Iqb2zg",
   figure: "figure_Iqb2zg",
-  toc: "toc_Iqb2zg",
   tocHead: "tocHead_Iqb2zg",
   tocLink: "tocLink_Iqb2zg",
   sub: "sub_Iqb2zg"
 };
 
 // src/ui/apps/docs/doc-content.tsx
-import { jsxDEV as jsxDEV2 } from "react/jsx-dev-runtime";
+import { jsxDEV as jsxDEV3 } from "react/jsx-dev-runtime";
 function DocContent({ doc, docs, figures, body, anchor, loading, onPick }) {
   const segments = useMemo2(() => prepareDocSegments(body, doc, docs, figures), [body, doc, docs, figures]);
-  useEffect2(() => {
+  useEffect3(() => {
     if (!anchor || loading)
       return;
     requestAnimationFrame(() => document.getElementById(`doc-${anchor}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
@@ -3425,55 +3562,55 @@ function DocContent({ doc, docs, figures, body, anchor, loading, onPick }) {
   const openGitHub = () => {
     requestExternal(`https://github.com/Coneja-Chibi/Hoplight/blob/Mainstage/${doc.path}`, `View ${doc.title} on GitHub`);
   };
-  return /* @__PURE__ */ jsxDEV2("main", {
-    className: styles_module_default2.main,
+  return /* @__PURE__ */ jsxDEV3("main", {
+    className: styles_module_default3.main,
     "data-tour": "content",
-    children: /* @__PURE__ */ jsxDEV2("div", {
-      className: styles_module_default2.inner,
+    children: /* @__PURE__ */ jsxDEV3("div", {
+      className: styles_module_default3.inner,
       children: [
-        /* @__PURE__ */ jsxDEV2("div", {
-          className: styles_module_default2.crumb,
+        /* @__PURE__ */ jsxDEV3("div", {
+          className: styles_module_default3.crumb,
           children: [
-            /* @__PURE__ */ jsxDEV2("span", {
+            /* @__PURE__ */ jsxDEV3("span", {
               children: [
                 doc.audience === "user" ? "User Docs" : "Developer Docs",
                 " / ",
                 displayDocTitle(doc)
               ]
             }, undefined, true, undefined, this),
-            /* @__PURE__ */ jsxDEV2("button", {
+            /* @__PURE__ */ jsxDEV3("button", {
               type: "button",
-              className: styles_module_default2.github,
+              className: styles_module_default3.github,
               onClick: openGitHub,
               children: "view on GitHub"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
-        /* @__PURE__ */ jsxDEV2("span", {
-          className: styles_module_default2.audience,
+        /* @__PURE__ */ jsxDEV3("span", {
+          className: styles_module_default3.audience,
           children: doc.audience
         }, undefined, false, undefined, this),
-        loading ? /* @__PURE__ */ jsxDEV2("p", {
-          className: styles_module_default2.empty,
+        loading ? /* @__PURE__ */ jsxDEV3("p", {
+          className: styles_module_default3.empty,
           children: "Opening the page…"
-        }, undefined, false, undefined, this) : /* @__PURE__ */ jsxDEV2("article", {
-          className: styles_module_default2.prose,
-          children: segments.map((segment, index) => segment.kind === "markdown" ? /* @__PURE__ */ jsxDEV2(RenderBox, {
+        }, undefined, false, undefined, this) : /* @__PURE__ */ jsxDEV3("article", {
+          className: styles_module_default3.prose,
+          children: segments.map((segment, index) => segment.kind === "markdown" ? /* @__PURE__ */ jsxDEV3(RenderBox, {
             value: segment.body,
             format: "markdown",
             displayOnly: true,
             onLinkClick
-          }, `copy-${index}`, false, undefined, this) : /* @__PURE__ */ jsxDEV2("figure", {
-            className: styles_module_default2.figure,
+          }, `copy-${index}`, false, undefined, this) : /* @__PURE__ */ jsxDEV3("figure", {
+            className: styles_module_default3.figure,
             children: [
-              /* @__PURE__ */ jsxDEV2("img", {
+              /* @__PURE__ */ jsxDEV3("img", {
                 src: docAssetUrl(segment.path),
                 alt: segment.alt,
                 width: segment.width,
                 height: segment.height,
                 loading: "lazy"
               }, undefined, false, undefined, this),
-              segment.caption && /* @__PURE__ */ jsxDEV2("figcaption", {
+              segment.caption && /* @__PURE__ */ jsxDEV3("figcaption", {
                 children: segment.caption
               }, undefined, false, undefined, this)
             ]
@@ -3485,62 +3622,62 @@ function DocContent({ doc, docs, figures, body, anchor, loading, onPick }) {
 }
 
 // src/ui/apps/docs/doc-nav.tsx
-import { useEffect as useEffect3, useState as useState2 } from "react";
-import { jsxDEV as jsxDEV3 } from "react/jsx-dev-runtime";
+import { useEffect as useEffect4, useState as useState2 } from "react";
+import { jsxDEV as jsxDEV4 } from "react/jsx-dev-runtime";
 function DocNav({ docs, activeId, query, onQuery, onPick }) {
   const groups = groupDocs(searchDocs(docs, query));
   const activeGroup = groupDocs(docs).find((group) => group.sections.some((section) => section.docs.some((doc) => doc.id === activeId)))?.id ?? "user";
   const [shelf, setShelf] = useState2(activeGroup);
-  useEffect3(() => setShelf(activeGroup), [activeGroup]);
+  useEffect4(() => setShelf(activeGroup), [activeGroup]);
   const visibleGroups = query.trim() ? groups : groups.filter((group) => group.id === shelf);
-  return /* @__PURE__ */ jsxDEV3("nav", {
-    className: styles_module_default2.nav,
+  return /* @__PURE__ */ jsxDEV4("nav", {
+    className: styles_module_default3.nav,
     "aria-label": "Documentation",
     children: [
-      /* @__PURE__ */ jsxDEV3("input", {
-        className: styles_module_default2.search,
+      /* @__PURE__ */ jsxDEV4("input", {
+        className: styles_module_default3.search,
         placeholder: "search the docs",
         value: query,
         onChange: (event) => onQuery(event.target.value),
         "aria-label": "Search the docs",
         "data-tour": "search"
       }, undefined, false, undefined, this),
-      !query.trim() && /* @__PURE__ */ jsxDEV3("div", {
-        className: styles_module_default2.shelves,
+      !query.trim() && /* @__PURE__ */ jsxDEV4("div", {
+        className: styles_module_default3.shelves,
         "aria-label": "Documentation audience",
-        children: groupDocs(docs).map((group) => /* @__PURE__ */ jsxDEV3("button", {
+        children: groupDocs(docs).map((group) => /* @__PURE__ */ jsxDEV4("button", {
           type: "button",
-          className: `${styles_module_default2.shelf}${shelf === group.id ? ` ${styles_module_default2.on}` : ""}`,
+          className: `${styles_module_default3.shelf}${shelf === group.id ? ` ${styles_module_default3.on}` : ""}`,
           "aria-pressed": shelf === group.id,
           onClick: () => setShelf(group.id),
           children: group.label
         }, group.id, false, undefined, this))
       }, undefined, false, undefined, this),
-      visibleGroups.map((group) => /* @__PURE__ */ jsxDEV3("section", {
-        className: styles_module_default2.group,
+      visibleGroups.map((group) => /* @__PURE__ */ jsxDEV4("section", {
+        className: styles_module_default3.group,
         "aria-label": group.label,
         children: [
-          query.trim() && /* @__PURE__ */ jsxDEV3("h2", {
-            className: styles_module_default2.groupTitle,
+          query.trim() && /* @__PURE__ */ jsxDEV4("h2", {
+            className: styles_module_default3.groupTitle,
             children: group.label
           }, undefined, false, undefined, this),
-          group.sections.map((section, index) => /* @__PURE__ */ jsxDEV3("details", {
-            className: styles_module_default2.section,
+          group.sections.map((section, index) => /* @__PURE__ */ jsxDEV4("details", {
+            className: styles_module_default3.section,
             open: Boolean(query.trim()) || index === 0 || section.docs.some((doc) => doc.id === activeId),
             children: [
-              /* @__PURE__ */ jsxDEV3("summary", {
-                className: styles_module_default2.grp,
+              /* @__PURE__ */ jsxDEV4("summary", {
+                className: styles_module_default3.grp,
                 children: [
                   section.label,
                   " ",
-                  /* @__PURE__ */ jsxDEV3("span", {
+                  /* @__PURE__ */ jsxDEV4("span", {
                     children: section.docs.length
                   }, undefined, false, undefined, this)
                 ]
               }, undefined, true, undefined, this),
-              section.docs.map((doc) => /* @__PURE__ */ jsxDEV3("button", {
+              section.docs.map((doc) => /* @__PURE__ */ jsxDEV4("button", {
                 type: "button",
-                className: `${styles_module_default2.item}${doc.id === activeId ? ` ${styles_module_default2.on}` : ""}`,
+                className: `${styles_module_default3.item}${doc.id === activeId ? ` ${styles_module_default3.on}` : ""}`,
                 "aria-current": doc.id === activeId ? "page" : undefined,
                 onClick: () => onPick(doc.id),
                 children: displayDocTitle(doc)
@@ -3549,8 +3686,8 @@ function DocNav({ docs, activeId, query, onQuery, onPick }) {
           }, `${group.id}-${section.id}-${shelf}`, true, undefined, this))
         ]
       }, group.id, true, undefined, this)),
-      groups.length === 0 && /* @__PURE__ */ jsxDEV3("p", {
-        className: styles_module_default2.noResults,
+      groups.length === 0 && /* @__PURE__ */ jsxDEV4("p", {
+        className: styles_module_default3.noResults,
         children: "No docs match that search."
       }, undefined, false, undefined, this)
     ]
@@ -3558,7 +3695,7 @@ function DocNav({ docs, activeId, query, onQuery, onPick }) {
 }
 
 // src/ui/apps/docs/doc-toc.tsx
-import { jsxDEV as jsxDEV4 } from "react/jsx-dev-runtime";
+import { jsxDEV as jsxDEV5 } from "react/jsx-dev-runtime";
 var flattenAnchors2 = (anchors) => {
   const out = [];
   for (const anchor of anchors) {
@@ -3570,18 +3707,18 @@ var flattenAnchors2 = (anchors) => {
 };
 function DocToc({ anchors, activeSlug, onJump }) {
   const flat = flattenAnchors2(anchors);
-  return /* @__PURE__ */ jsxDEV4("aside", {
-    className: styles_module_default2.toc,
+  return /* @__PURE__ */ jsxDEV5("aside", {
+    className: styles_module_default3.toc,
     "aria-label": "On this page",
     "data-tour": "toc",
     children: [
-      flat.length > 0 && /* @__PURE__ */ jsxDEV4("div", {
-        className: styles_module_default2.tocHead,
+      flat.length > 0 && /* @__PURE__ */ jsxDEV5("div", {
+        className: styles_module_default3.tocHead,
         children: "On this page"
       }, undefined, false, undefined, this),
-      flat.map((anchor) => /* @__PURE__ */ jsxDEV4("button", {
+      flat.map((anchor) => /* @__PURE__ */ jsxDEV5("button", {
         type: "button",
-        className: `${styles_module_default2.tocLink}${anchor.level >= 3 ? ` ${styles_module_default2.sub}` : ""}${activeSlug === anchor.slug ? ` ${styles_module_default2.on}` : ""}`,
+        className: `${styles_module_default3.tocLink}${anchor.level >= 3 ? ` ${styles_module_default3.sub}` : ""}${activeSlug === anchor.slug ? ` ${styles_module_default3.on}` : ""}`,
         onClick: () => onJump(anchor.slug),
         children: anchor.text
       }, `${anchor.slug}-${anchor.level}`, false, undefined, this))
@@ -3590,9 +3727,9 @@ function DocToc({ anchors, activeSlug, onJump }) {
 }
 
 // src/ui/apps/docs/room.tsx
-import { jsxDEV as jsxDEV5 } from "react/jsx-dev-runtime";
+import { jsxDEV as jsxDEV6 } from "react/jsx-dev-runtime";
 function DocsRoom({ ctx }) {
-  const ctxRef = useRef2(ctx);
+  const ctxRef = useRef3(ctx);
   ctxRef.current = ctx;
   const [docs, setDocs] = useState3(null);
   const [figures, setFigures] = useState3([]);
@@ -3600,9 +3737,10 @@ function DocsRoom({ ctx }) {
   const [anchor, setAnchor] = useState3("");
   const [body, setBody] = useState3("");
   const [query, setQuery] = useState3("");
+  const [mobilePanel, setMobilePanel] = useState3(null);
   const [loading, setLoading] = useState3(true);
   const [error, setError] = useState3(null);
-  useEffect4(() => {
+  useEffect5(() => {
     let cancelled = false;
     Promise.all([fetch("/api/docs/index"), fetch("/api/docs/figures")]).then(async ([indexRes, figuresRes]) => {
       if (!indexRes.ok || !figuresRes.ok)
@@ -3624,7 +3762,7 @@ function DocsRoom({ ctx }) {
       cancelled = true;
     };
   }, []);
-  useEffect4(() => {
+  useEffect5(() => {
     if (!activeId)
       return;
     let cancelled = false;
@@ -3664,42 +3802,117 @@ function DocsRoom({ ctx }) {
     }
   };
   if (error)
-    return /* @__PURE__ */ jsxDEV5("div", {
-      className: styles_module_default2.message,
+    return /* @__PURE__ */ jsxDEV6("div", {
+      className: styles_module_default3.message,
       children: error
     }, undefined, false, undefined, this);
   if (!docs || !activeId)
-    return /* @__PURE__ */ jsxDEV5("div", {
-      className: styles_module_default2.message,
+    return /* @__PURE__ */ jsxDEV6("div", {
+      className: styles_module_default3.message,
       children: "Opening Help / Docs…"
     }, undefined, false, undefined, this);
   const active = docs.find((doc) => doc.id === activeId) ?? docs[0];
-  return /* @__PURE__ */ jsxDEV5("div", {
-    className: styles_module_default2.room,
-    children: [
-      /* @__PURE__ */ jsxDEV5(DocNav, {
-        docs,
-        activeId: active.id,
-        query,
-        onQuery: setQuery,
-        onPick: pick
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV5(DocContent, {
-        doc: active,
-        docs,
-        figures,
-        body,
-        anchor,
-        loading,
-        onPick: pick
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV5(DocToc, {
-        anchors: active.anchors,
-        activeSlug: anchor,
-        onJump: (slug) => pick(active.id, slug)
-      }, undefined, false, undefined, this)
-    ]
-  }, undefined, true, undefined, this);
+  const mobilePick = (id, nextAnchor = "") => {
+    pick(id, nextAnchor);
+    setMobilePanel(null);
+  };
+  return /* @__PURE__ */ jsxDEV6("div", {
+    className: styles_module_default3.host,
+    children: /* @__PURE__ */ jsxDEV6("div", {
+      className: styles_module_default3.room,
+      children: [
+        /* @__PURE__ */ jsxDEV6("header", {
+          className: styles_module_default3.mobileHead,
+          children: [
+            /* @__PURE__ */ jsxDEV6("button", {
+              type: "button",
+              className: styles_module_default3.mobileAction,
+              "aria-controls": "docs-mobile-browse",
+              "aria-expanded": mobilePanel === "browse",
+              onClick: () => setMobilePanel("browse"),
+              children: "Browse"
+            }, undefined, false, undefined, this),
+            /* @__PURE__ */ jsxDEV6("span", {
+              className: styles_module_default3.mobileTitle,
+              children: [
+                /* @__PURE__ */ jsxDEV6("b", {
+                  children: displayDocTitle(active)
+                }, undefined, false, undefined, this),
+                /* @__PURE__ */ jsxDEV6("small", {
+                  children: active.audience === "user" ? "User docs" : "Developer docs"
+                }, undefined, false, undefined, this)
+              ]
+            }, undefined, true, undefined, this),
+            /* @__PURE__ */ jsxDEV6("button", {
+              type: "button",
+              className: styles_module_default3.mobileAction,
+              "aria-controls": "docs-mobile-sections",
+              "aria-expanded": mobilePanel === "sections",
+              disabled: active.anchors.length === 0,
+              onClick: () => setMobilePanel("sections"),
+              children: "Sections"
+            }, undefined, false, undefined, this)
+          ]
+        }, undefined, true, undefined, this),
+        /* @__PURE__ */ jsxDEV6("div", {
+          className: styles_module_default3.desktopNav,
+          children: /* @__PURE__ */ jsxDEV6(DocNav, {
+            docs,
+            activeId: active.id,
+            query,
+            onQuery: setQuery,
+            onPick: pick
+          }, undefined, false, undefined, this)
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsxDEV6(DocContent, {
+          doc: active,
+          docs,
+          figures,
+          body,
+          anchor,
+          loading,
+          onPick: pick
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsxDEV6("div", {
+          className: styles_module_default3.desktopToc,
+          children: /* @__PURE__ */ jsxDEV6(DocToc, {
+            anchors: active.anchors,
+            activeSlug: anchor,
+            onJump: (slug) => pick(active.id, slug)
+          }, undefined, false, undefined, this)
+        }, undefined, false, undefined, this),
+        mobilePanel === "browse" && /* @__PURE__ */ jsxDEV6(BottomSheet, {
+          title: "Browse docs",
+          ariaLabel: "Browse documentation",
+          onDismiss: () => setMobilePanel(null),
+          children: /* @__PURE__ */ jsxDEV6("div", {
+            id: "docs-mobile-browse",
+            className: styles_module_default3.mobileSheet,
+            children: /* @__PURE__ */ jsxDEV6(DocNav, {
+              docs,
+              activeId: active.id,
+              query,
+              onQuery: setQuery,
+              onPick: mobilePick
+            }, undefined, false, undefined, this)
+          }, undefined, false, undefined, this)
+        }, undefined, false, undefined, this),
+        mobilePanel === "sections" && /* @__PURE__ */ jsxDEV6(BottomSheet, {
+          title: "On this page",
+          onDismiss: () => setMobilePanel(null),
+          children: /* @__PURE__ */ jsxDEV6("div", {
+            id: "docs-mobile-sections",
+            className: styles_module_default3.mobileSheet,
+            children: /* @__PURE__ */ jsxDEV6(DocToc, {
+              anchors: active.anchors,
+              activeSlug: anchor,
+              onJump: (slug) => mobilePick(active.id, slug)
+            }, undefined, false, undefined, this)
+          }, undefined, false, undefined, this)
+        }, undefined, false, undefined, this)
+      ]
+    }, undefined, true, undefined, this)
+  }, undefined, false, undefined, this);
 }
 
 // src/ui/apps/docs/index.tsx

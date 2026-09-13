@@ -366,7 +366,7 @@ var require_png_chunk_text = __commonJS((exports) => {
 });
 
 // src/ui/apps/workbench/index.tsx
-import { useCallback as useCallback16, useEffect as useEffect37, useState as useState72 } from "react";
+import { useCallback as useCallback16, useEffect as useEffect38, useState as useState72 } from "react";
 
 // src/ui/_shared/color-math.ts
 var clamp01 = (n) => Math.min(1, Math.max(0, n));
@@ -659,7 +659,7 @@ function rankRecents(entities, lastOpened, openKeys, limit) {
 }
 
 // src/ui/apps/workbench/Editor.tsx
-import { useCallback as useCallback5, useEffect as useEffect18, useRef as useRef19, useState as useState32 } from "react";
+import { useCallback as useCallback5, useEffect as useEffect19, useRef as useRef20, useState as useState32 } from "react";
 
 // src/entities/_shared/path-operations.ts
 var record = (value) => value !== null && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -10088,6 +10088,9 @@ function PlatformTabs({ platforms, selected, onToggle, onClear, offTarget, onOff
 // src/ui/components/progress-checklist/index.tsx
 import { useState as useState15 } from "react";
 
+// src/ui/components/bottom-sheet/index.tsx
+import { useEffect as useEffect11, useRef as useRef12 } from "react";
+
 // src/ui/components/bottom-sheet/styles.module.css
 var styles_module_default29 = {
   overlay: "overlay_kRtnYA",
@@ -10102,16 +10105,83 @@ var styles_module_default29 = {
 
 // src/ui/components/bottom-sheet/index.tsx
 import { jsxDEV as jsxDEV37 } from "react/jsx-dev-runtime";
+var FOCUSABLE2 = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "summary",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])'
+].join(",");
+var visibleIn = (element, sheet) => {
+  if (element.closest('[hidden], [inert], [aria-hidden="true"]'))
+    return false;
+  const closedDetails = element.closest("details:not([open])");
+  if (closedDetails && !closedDetails.querySelector(":scope > summary")?.contains(element))
+    return false;
+  const view = element.ownerDocument.defaultView;
+  for (let node = element;node && sheet.contains(node); node = node.parentElement) {
+    const style = view?.getComputedStyle(node);
+    if (style && (style.display === "none" || style.visibility === "hidden" || style.visibility === "collapse"))
+      return false;
+  }
+  return true;
+};
 function BottomSheet({ title, ariaLabel, onDismiss, titleAction, footerAction, children }) {
+  const sheetRef = useRef12(null);
+  const dismissRef = useRef12(onDismiss);
+  dismissRef.current = onDismiss;
+  useEffect11(() => {
+    const sheet = sheetRef.current;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    sheet?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        dismissRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !sheet)
+        return;
+      const focusable = [...sheet.querySelectorAll(FOCUSABLE2)].filter((element) => visibleIn(element, sheet));
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) {
+        event.preventDefault();
+        sheet.focus();
+      } else if (event.shiftKey && (document.activeElement === first || document.activeElement === sheet)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === sheet || !sheet.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      if (!previous?.isConnected)
+        return;
+      previous.focus();
+      queueMicrotask(() => {
+        if (previous.isConnected)
+          previous.focus();
+      });
+    };
+  }, []);
   return /* @__PURE__ */ jsxDEV37("div", {
     className: styles_module_default29.overlay,
     role: "presentation",
     onMouseDown: onDismiss,
     children: /* @__PURE__ */ jsxDEV37("div", {
+      ref: sheetRef,
       className: styles_module_default29.sheet,
       role: "dialog",
       "aria-modal": "true",
       "aria-label": ariaLabel ?? title,
+      tabIndex: -1,
       onMouseDown: (e) => e.stopPropagation(),
       children: [
         /* @__PURE__ */ jsxDEV37("span", {
@@ -10476,7 +10546,7 @@ function EditorHeader({
 }
 
 // src/ui/components/export-dialog/index.tsx
-import { useEffect as useEffect11, useMemo as useMemo2, useState as useState16 } from "react";
+import { useEffect as useEffect12, useMemo as useMemo2, useState as useState16 } from "react";
 
 // src/ui/_shared/download-name.ts
 var FORBIDDEN_FILENAME_CHARS = /[<>:"/\\|?*\u0000-\u001f]/g;
@@ -10861,7 +10931,7 @@ function ExportDialog({
   const [extension, setExtension] = useState16("");
   const [busy, setBusy] = useState16(false);
   const [err2, setErr] = useState16(null);
-  useEffect11(() => {
+  useEffect12(() => {
     let cancelled = false;
     (async () => {
       try {
@@ -11043,7 +11113,7 @@ function ExportDialog({
 }
 
 // src/ui/components/sprite-pack/dialog.tsx
-import { useMemo as useMemo4, useRef as useRef12, useState as useState18 } from "react";
+import { useMemo as useMemo4, useRef as useRef13, useState as useState18 } from "react";
 
 // src/ui/components/expression-stage/index.tsx
 import { useMemo as useMemo3, useState as useState17 } from "react";
@@ -11339,7 +11409,7 @@ function SpritePackDialog({
   const [attachBusy, setAttachBusy] = useState18(false);
   const [sheetCols, setSheetCols] = useState18(4);
   const [sheetRows, setSheetRows] = useState18(2);
-  const sheetRef = useRef12(null);
+  const sheetRef = useRef13(null);
   const profile = expandSlots ? ST_GOEMOTIONS : profileForTargets(targets);
   const draft = showGroups && activeGroup !== FLAT ? groups[activeGroup] ?? emptyPack() : flat;
   const setDraft = (next) => {
@@ -11652,7 +11722,7 @@ function SpritePackDialog({
 import { useState as useState19 } from "react";
 
 // src/ui/components/named-assets/index.tsx
-import { useRef as useRef13 } from "react";
+import { useRef as useRef14 } from "react";
 
 // src/ui/components/sealed-media/styles.module.css
 var styles_module_default33 = {
@@ -11757,8 +11827,8 @@ function NamedAssets({
   macroHint = true
 }) {
   const bag = normalizeNamed(value);
-  const fileRef = useRef13(null);
-  const replaceId = useRef13(null);
+  const fileRef = useRef14(null);
+  const replaceId = useRef14(null);
   const commit = (items) => onChange(normalizeNamed({ items }));
   const addFiles = async (files) => {
     if (!files?.length)
@@ -12900,7 +12970,7 @@ function PaletteControl({ value, onChange, styles, twoField }) {
 }
 
 // src/ui/components/render-box/index.tsx
-import { useEffect as useEffect12, useMemo as useMemo5, useRef as useRef14, useState as useState21 } from "react";
+import { useEffect as useEffect13, useMemo as useMemo5, useRef as useRef15, useState as useState21 } from "react";
 
 // node_modules/marked/lib/marked.esm.js
 function M() {
@@ -14491,8 +14561,8 @@ function SanitizedHtml({
   className,
   onClick
 }) {
-  const ref = useRef14(null);
-  useEffect12(() => {
+  const ref = useRef15(null);
+  useEffect13(() => {
     const el = ref.current;
     if (!el)
       return;
@@ -14926,7 +14996,7 @@ var TAG_CATEGORY_STYLE = {
 };
 
 // src/ui/apps/workbench/controls/field-control-composites.tsx
-import { useRef as useRef15, useState as useState23 } from "react";
+import { useRef as useRef16, useState as useState23 } from "react";
 
 // src/ui/apps/workbench/controls/option-cards.tsx
 import { jsxDEV as jsxDEV52 } from "react/jsx-dev-runtime";
@@ -16054,7 +16124,7 @@ function AssetGallery({
   assets,
   setAssets
 }) {
-  const latest = useRef15(assets);
+  const latest = useRef16(assets);
   latest.current = assets;
   const [readNote, setReadNote] = useState23(null);
   const update = (i2, patch) => setAssets(assets.map((a, j2) => j2 === i2 ? { ...a, ...patch } : a));
@@ -17881,10 +17951,10 @@ function FlowView(props) {
 }
 
 // src/ui/apps/workbench/workshop/view.tsx
-import { useEffect as useEffect15, useMemo as useMemo8, useState as useState27 } from "react";
+import { useEffect as useEffect16, useMemo as useMemo8, useState as useState27 } from "react";
 
 // src/ui/components/tour-guide/index.tsx
-import { useEffect as useEffect13, useState as useState25 } from "react";
+import { useEffect as useEffect14, useState as useState25 } from "react";
 
 // src/ui/_shared/new-character.ts
 async function createAndOpenCharacter(ctx) {
@@ -17937,7 +18007,7 @@ function TourGuide({ tour, ctx, onClose }) {
   const [highlightLive, setHighlightLive] = useState25(null);
   const pos = positionAt(tour, index);
   const anchor2 = pos.step?.anchor;
-  useEffect13(() => {
+  useEffect14(() => {
     const act = pos.step?.act;
     if (!act)
       return;
@@ -17959,7 +18029,7 @@ function TourGuide({ tour, ctx, onClose }) {
       })();
     }
   }, [pos.step?.id]);
-  useEffect13(() => {
+  useEffect14(() => {
     if (!anchor2) {
       setHighlightLive(null);
       return;
@@ -18122,7 +18192,7 @@ function exportLossWarning(args) {
 }
 
 // src/ui/components/sealed-html-preview/index.tsx
-import { useEffect as useEffect14, useMemo as useMemo6, useRef as useRef16 } from "react";
+import { useEffect as useEffect15, useMemo as useMemo6, useRef as useRef17 } from "react";
 
 // src/core/render/seal-policy.ts
 var SEALED_FORBID_TAGS = [
@@ -18210,7 +18280,7 @@ function buildBackdropSrcDoc(html2, css = "") {
   return `<!doctype html><html><head>` + `<meta charset="utf-8"/>` + `<meta http-equiv="Content-Security-Policy" content="${SEALED_PREVIEW_CSP}"/>` + `<style>${cleanCss}</style>` + `</head><body>${cleanHtml}</body></html>`;
 }
 function useFocusStaysOutside(ref) {
-  useEffect14(() => {
+  useEffect15(() => {
     let queued = 0;
     const onBlur = () => {
       if (document.activeElement !== ref.current)
@@ -18234,7 +18304,7 @@ function SealedHtmlPreview({
   fill = false
 }) {
   const srcDoc = useMemo6(() => buildBackdropSrcDoc(html2, css), [html2, css]);
-  const frameRef = useRef16(null);
+  const frameRef = useRef17(null);
   useFocusStaysOutside(frameRef);
   return /* @__PURE__ */ jsxDEV67("iframe", {
     ref: frameRef,
@@ -20999,7 +21069,7 @@ function WorkshopView({
   const [luaBusy, setLuaBusy] = useState27(false);
   const [recipeSnap, setRecipeSnap] = useState27(null);
   const [tourOpen, setTourOpen] = useState27(false);
-  useEffect15(() => {
+  useEffect16(() => {
     if (!ctx)
       return;
     if (hasSeenTour(ctx.prefs.get(tourSeenKey("workshop"))))
@@ -21451,7 +21521,7 @@ function buildEditorBodyViews(opts) {
 }
 
 // src/ui/components/ticket-window/index.tsx
-import { useRef as useRef17, useState as useState28 } from "react";
+import { useRef as useRef18, useState as useState28 } from "react";
 
 // src/ui/components/ticket-window/styles.module.css
 var styles_module_default46 = {
@@ -21511,8 +21581,8 @@ function TicketWindow({
   onHang,
   onAdd
 }) {
-  const pickRef = useRef17(null);
-  const addRef = useRef17(null);
+  const pickRef = useRef18(null);
+  const addRef = useRef18(null);
   const [dragOver, setDragOver] = useState28(false);
   const canEdit = typeof onPick === "function";
   const hangFirst = async (files) => {
@@ -21859,7 +21929,7 @@ function PortraitCard({
 }
 
 // src/ui/apps/workbench/lore/KnowledgeRail.tsx
-import { useEffect as useEffect16, useState as useState30 } from "react";
+import { useEffect as useEffect17, useState as useState30 } from "react";
 
 // src/ui/components/attach-lore-dialog/index.tsx
 import { useMemo as useMemo9, useState as useState29 } from "react";
@@ -22011,7 +22081,7 @@ import { jsxDEV as jsxDEV87 } from "react/jsx-dev-runtime";
 function KnowledgeRail({ ctx, refs, onChange }) {
   const [books, setBooks] = useState30([]);
   const [dialogOpen, setDialogOpen] = useState30(false);
-  useEffect16(() => {
+  useEffect17(() => {
     ctx.api.listEntities("lorebook").then(setBooks).catch(() => setBooks([]));
   }, [ctx]);
   const known = new Set(books.map((b3) => b3.id));
@@ -22256,7 +22326,7 @@ async function runEditorSave(d2) {
 }
 
 // src/ui/apps/workbench/use-editor-guards.ts
-import { useEffect as useEffect17, useRef as useRef18, useState as useState31 } from "react";
+import { useEffect as useEffect18, useRef as useRef19, useState as useState31 } from "react";
 
 // src/ui/apps/workbench/autosave-core.ts
 var AUTOSAVE_PREF = "workbench.autosave";
@@ -22271,13 +22341,13 @@ var autosaveStoppedNote = (attempts) => attempts >= AUTOSAVE_TRIES ? "autosave s
 // src/ui/apps/workbench/use-editor-guards.ts
 function useEditorGuards(ctx, piece, dirty, save, savable = true) {
   const autosave = ctx.prefs.get(AUTOSAVE_PREF) === true;
-  const saveRef = useRef18(save);
+  const saveRef = useRef19(save);
   saveRef.current = save;
   const [attempts, setAttempts] = useState31(0);
-  useEffect17(() => {
+  useEffect18(() => {
     setAttempts(0);
   }, [piece.id, piece.kind]);
-  useEffect17(() => {
+  useEffect18(() => {
     if (!shouldAutosave({ enabled: autosave, dirty, saving: false, savable }))
       return;
     if (attempts >= AUTOSAVE_TRIES)
@@ -22294,11 +22364,11 @@ function useEditorGuards(ctx, piece, dirty, save, savable = true) {
       clearTimeout(timer);
     };
   }, [autosave, dirty, savable, attempts, piece.id, piece.kind]);
-  useEffect17(() => {
+  useEffect18(() => {
     if (!dirty)
       setAttempts(0);
   }, [dirty]);
-  useEffect17(() => {
+  useEffect18(() => {
     const onKey = (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
         event.preventDefault();
@@ -22316,7 +22386,7 @@ function useEditorGuards(ctx, piece, dirty, save, savable = true) {
       window.removeEventListener("beforeunload", onBeforeUnload);
     };
   }, [dirty, save]);
-  useEffect17(() => {
+  useEffect18(() => {
     ctx.workbench.setDirty(piece.id, piece.kind, dirty);
   }, [dirty, piece.id, piece.kind]);
   return { stalled: attempts >= AUTOSAVE_TRIES, retry: () => setAttempts(0) };
@@ -22556,7 +22626,7 @@ var SCALE_MIN = 0.5;
 var SCALE_MAX = 2;
 var SCALE_STEP = 0.1;
 function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef19(revision);
+  const revisionRef = useRef20(revision);
   const [init] = useState32(() => {
     const ent = rec8(entity);
     const baseline2 = structuredClone(rec8(ent.body));
@@ -22577,7 +22647,7 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
   const [originalDraft, setOriginalDraft] = useState32(() => structuredClone(initOriginal()));
   const [nativeBaseline, setNativeBaseline] = useState32(() => structuredClone(initOriginal()));
   const [order] = useState32(init.order);
-  const orderBaselineRef = useRef19(init.order);
+  const orderBaselineRef = useRef20(init.order);
   const [saving, setSaving] = useState32(false);
   const [mode, setModeState] = useState32(() => ctx.prefs.get(PREF_EDITOR_MODE) === "grid" ? "grid" : "interview");
   const setMode = (m2) => {
@@ -22591,9 +22661,9 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
   const [spritesFocusLabel, setSpritesFocusLabel] = useState32(null);
   const [namedOpen, setNamedOpen] = useState32(false);
   const [packCatalog, setPackCatalog] = useState32([]);
-  const activeCardRef = useRef19(null);
+  const activeCardRef = useRef20(null);
   const [splitPct, setSplitPct] = useState32(42);
-  const quizRef = useRef19(null);
+  const quizRef = useRef20(null);
   const onSplitDown = (e) => {
     e.preventDefault();
     const move = (ev) => {
@@ -22611,11 +22681,11 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
   };
-  useEffect18(() => {
+  useEffect19(() => {
     activeCardRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [flowIndex]);
   const [artAccent, setArtAccent] = useState32(null);
-  useEffect18(() => {
+  useEffect19(() => {
     if (!piece.hasPortrait) {
       setArtAccent(null);
       return;
@@ -22651,7 +22721,7 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
     return "hide";
   });
   const [editorScale, setEditorScaleState] = useState32(() => parseScale(ctx.prefs.get(PREF_EDITOR_SCALE)));
-  const scaleRef = useRef19(editorScale);
+  const scaleRef = useRef20(editorScale);
   const setEditorScale = (next) => {
     const clamped = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round(next * 100) / 100));
     scaleRef.current = clamped;
@@ -22665,7 +22735,7 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
     ctx.prefs.set(PREF_EDITOR_LAYOUT, l3);
   };
   const onboarded = hasSeenTour(ctx.prefs.get(tourSeenKey("workbench")));
-  useEffect18(() => {
+  useEffect19(() => {
     ctx.api.coverage().then(setCoverage).catch(() => setCoverage([]));
   }, []);
   const orderDirty = JSON.stringify(order) !== JSON.stringify(orderBaselineRef.current);
@@ -22713,7 +22783,7 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
   }, [ctx, dirty, baseDraft, originalDraft, init.ent, init.hadOrder, order, saving]);
   useEditorGuards(ctx, piece, dirty, doSave, str17(readPath(baseDraft, "identity.name")).trim().length > 0);
   const missingChips = chips.filter(([, ok]) => !ok).map(([label]) => label.toLowerCase()).join(" · ");
-  useEffect18(() => {
+  useEffect19(() => {
     ctx.setStatus(missingChips === "" ? `${doneCount}/${chips.length} · piece complete` : `${doneCount}/${chips.length} · needs ${missingChips}`);
   }, [doneCount, missingChips]);
   const toggleTarget = (id) => {
@@ -22745,7 +22815,7 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
   const applyNamed = (value) => {
     setOriginalDraft((o) => originalWithNamedBag(o, value));
   };
-  useEffect18(() => {
+  useEffect19(() => {
     if (!spritesOpen)
       return;
     let cancelled = false;
@@ -22927,7 +22997,7 @@ function CharacterEditor({ entity, revision, ctx, piece, topRight }) {
 }
 
 // src/ui/apps/workbench/PackEditor.tsx
-import { useCallback as useCallback6, useEffect as useEffect19, useRef as useRef20, useState as useState33 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect20, useRef as useRef21, useState as useState33 } from "react";
 
 // src/ui/apps/workbench/pack-editor-core.ts
 var record3 = (value) => value !== null && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -22969,7 +23039,7 @@ var PackEditor_module_default = {
 // src/ui/apps/workbench/PackEditor.tsx
 import { jsxDEV as jsxDEV90 } from "react/jsx-dev-runtime";
 function PackEditor({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef20(revision);
+  const revisionRef = useRef21(revision);
   const init = packEditorDocument(entity);
   const [name, setName] = useState33(init.body.name);
   const [brief, setBrief] = useState33(init.body.brief ?? "");
@@ -23011,7 +23081,7 @@ function PackEditor({ entity, revision, ctx, piece, topRight }) {
     }
   }, [saving, name, brief, pack5, groups, original, ctx, piece.id]);
   useEditorGuards(ctx, piece, dirty, doSave);
-  useEffect19(() => {
+  useEffect20(() => {
     ctx.setStatus(dirty ? `pack · ${name || piece.name} · unsaved` : `pack · ${name || piece.name} · ${pack5.items.length} faces`);
   }, [dirty, name, pack5.items.length, piece.name]);
   const cover = resolvePackFace(pack5, pack5.defaultLabel)?.ref ?? pack5.items[0]?.ref ?? null;
@@ -23106,7 +23176,7 @@ function PackEditor({ entity, revision, ctx, piece, topRight }) {
 }
 
 // src/ui/apps/workbench/LorebookEditor.tsx
-import { useCallback as useCallback9, useEffect as useEffect27, useMemo as useMemo18, useRef as useRef27, useState as useState51 } from "react";
+import { useCallback as useCallback9, useEffect as useEffect28, useMemo as useMemo18, useRef as useRef28, useState as useState51 } from "react";
 
 // src/core/lore/platform-fields.ts
 var LORE_CORE_KEYS = [
@@ -26024,13 +26094,13 @@ function reconcileLoreAfterSave(args) {
 }
 
 // src/ui/apps/workbench/lore/entry-page.tsx
-import { useEffect as useEffect22, useRef as useRef22, useState as useState38 } from "react";
+import { useEffect as useEffect23, useRef as useRef23, useState as useState38 } from "react";
 
 // src/ui/apps/workbench/lore/trigger-editor.tsx
 import { useState as useState36 } from "react";
 
 // src/ui/components/lore-special-triggers/index.tsx
-import { useEffect as useEffect20, useRef as useRef21, useState as useState34 } from "react";
+import { useEffect as useEffect21, useRef as useRef22, useState as useState34 } from "react";
 
 // src/ui/components/lore-special-triggers/styles.module.css
 var styles_module_default49 = {
@@ -26137,8 +26207,8 @@ function LoreSpecialTriggers({
   advanced = false
 }) {
   const [open, setOpen] = useState34(false);
-  const rootRef = useRef21(null);
-  useEffect20(() => {
+  const rootRef = useRef22(null);
+  useEffect21(() => {
     if (!open)
       return;
     const onDoc = (ev) => {
@@ -26894,7 +26964,7 @@ var card2 = {
 var sillytavern_default2 = card2;
 
 // src/ui/apps/workbench/lore/platforms/rolecall.tsx
-import { useEffect as useEffect21, useState as useState37 } from "react";
+import { useEffect as useEffect22, useState as useState37 } from "react";
 import { jsxDEV as jsxDEV96, Fragment as Fragment30 } from "react/jsx-dev-runtime";
 var SIDE_EFFECT_FIELDS = [
   {
@@ -26926,7 +26996,7 @@ var SIDE_EFFECT_FIELDS = [
 ];
 function Component2({ entry, show, styles: styles2, onPatch }) {
   const [seRows, setSeRows] = useState37(() => rowsFromSideEffects(entry.sideEffects));
-  useEffect21(() => {
+  useEffect22(() => {
     setSeRows(rowsFromSideEffects(entry.sideEffects));
   }, [entry.id]);
   const patchSe = (rows, only, clear) => {
@@ -28258,10 +28328,10 @@ function LoreEntryPage({
   prefs
 }) {
   const [folds, setFolds] = useState38(() => loadEntryFolds(prefs));
-  const prefsRef = useRef22(prefs);
-  const mountedRef = useRef22(false);
+  const prefsRef = useRef23(prefs);
+  const mountedRef = useRef23(false);
   prefsRef.current = prefs;
-  useEffect22(() => {
+  useEffect23(() => {
     if (!mountedRef.current) {
       mountedRef.current = true;
       return;
@@ -28754,7 +28824,7 @@ function LoreBulkBar({
 }
 
 // src/ui/apps/workbench/lore/entry-toc-mode.tsx
-import { useEffect as useEffect23, useRef as useRef23, useState as useState40 } from "react";
+import { useEffect as useEffect24, useRef as useRef24, useState as useState40 } from "react";
 
 // node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 import { forwardRef as forwardRef2, createElement as createElement3 } from "react";
@@ -29154,10 +29224,10 @@ function ModeSelect({
   onChange
 }) {
   const [open, setOpen] = useState40(false);
-  const wrap = useRef23(null);
+  const wrap = useRef24(null);
   const current = MODE_OPTS.find((o) => o.mode === mode) ?? MODE_OPTS[0];
   const CurIcon = current.Icon;
-  useEffect23(() => {
+  useEffect24(() => {
     if (!open)
       return;
     const onDoc = (ev) => {
@@ -29234,7 +29304,7 @@ function ModeSelect({
 }
 
 // src/ui/apps/workbench/lore/entry-toc-item.tsx
-import { useEffect as useEffect24, useRef as useRef24, useState as useState41 } from "react";
+import { useEffect as useEffect25, useRef as useRef25, useState as useState41 } from "react";
 import { jsxDEV as jsxDEV105 } from "react/jsx-dev-runtime";
 function EntryTocItem({
   entry,
@@ -29248,7 +29318,7 @@ function EntryTocItem({
   onOpenBeside
 }) {
   const [showMove, setShowMove] = useState41(false);
-  const moveRef = useRef24(null);
+  const moveRef = useRef25(null);
   const show = (key) => fieldVisible(writeFor, key);
   const mode = entryFireMode(entry);
   const vectorOk = show("vectorized");
@@ -29258,7 +29328,7 @@ function EntryTocItem({
   const canPri = show("priority");
   const canScan = show("scanDepth");
   const hasChromRead = canOrder || canPri || canScan;
-  useEffect24(() => {
+  useEffect25(() => {
     if (!showMove)
       return;
     const onDoc = (ev) => {
@@ -30984,7 +31054,7 @@ function CardsView({
 }
 
 // src/ui/apps/workbench/lore/web-view.tsx
-import { useEffect as useEffect25, useMemo as useMemo12, useRef as useRef25, useState as useState45 } from "react";
+import { useEffect as useEffect26, useMemo as useMemo12, useRef as useRef26, useState as useState45 } from "react";
 
 // src/ui/apps/workbench/lore/web-view.module.css
 var web_view_module_default = {
@@ -31042,12 +31112,12 @@ function WebView({ body, onSelect, onFallbackCards }) {
     return layoutEdgesAll.filter((e) => keep.has(e.from) && keep.has(e.to));
   }, [entryIds, layoutEdgesAll]);
   const overCap = allIds.length > WEB_NODE_CAP;
-  const svgRef = useRef25(null);
+  const svgRef = useRef26(null);
   const [nodes, setNodes] = useState45([]);
   const [running, setRunning] = useState45(false);
   const [hover, setHover] = useState45(null);
-  const drag = useRef25(null);
-  useEffect25(() => {
+  const drag = useRef26(null);
+  useEffect26(() => {
     if (overCap) {
       setRunning(false);
       return;
@@ -31056,7 +31126,7 @@ function WebView({ body, onSelect, onFallbackCards }) {
     setNodes(seedLayout(entryIds, layoutEdges, bounds));
     setRunning(true);
   }, [entryIds, layoutEdges, overCap]);
-  useEffect25(() => {
+  useEffect26(() => {
     if (overCap || !running)
       return;
     let raf = 0;
@@ -31542,7 +31612,7 @@ function ChangesPane({
 }
 
 // src/ui/apps/workbench/lore/rehearsal-pane.tsx
-import { useMemo as useMemo15, useRef as useRef26, useState as useState47 } from "react";
+import { useMemo as useMemo15, useRef as useRef27, useState as useState47 } from "react";
 
 // src/ui/apps/workbench/lore/playback-tab.tsx
 import { useState as useState46 } from "react";
@@ -31816,7 +31886,7 @@ function RehearsalPane({
   const [cannedAt, setCannedAt] = useState47(0);
   const [last, setLast] = useState47(null);
   const [budgetPreset, setBudgetPreset] = useState47(body.tokenBudget > 0 ? "book" : "off");
-  const rngRef = useRef26(cryptoUnit);
+  const rngRef = useRef27(cryptoUnit);
   const budgetLine = useMemo15(() => {
     if (!last?.budget.limit)
       return null;
@@ -32935,7 +33005,7 @@ var binderStyles = {
 };
 
 // src/ui/apps/library/lore-workshop-dialog.tsx
-import { useCallback as useCallback8, useEffect as useEffect26, useMemo as useMemo17, useState as useState50 } from "react";
+import { useCallback as useCallback8, useEffect as useEffect27, useMemo as useMemo17, useState as useState50 } from "react";
 
 // src/ui/components/transfer-bench/index.tsx
 import { useState as useState49 } from "react";
@@ -33214,7 +33284,7 @@ function LoreWorkshopDialog({
   const [leftIds, setLeftIds] = useState50([]);
   const [rightIds, setRightIds] = useState50([]);
   const [name, setName] = useState50("");
-  useEffect26(() => {
+  useEffect27(() => {
     let cancelled = false;
     (async () => {
       try {
@@ -33496,7 +33566,7 @@ function bodyFromEntity(entity) {
 }
 var WRITE_FOR_PREF = "lorebook.writeFor";
 function LorebookEditor({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef27(revision);
+  const revisionRef = useRef28(revision);
   const initBody = useMemo18(() => bodyFromEntity(entity), [entity]);
   const [baseline, setBaseline] = useState51(() => structuredClone(initBody));
   const [session, setSession] = useState51(() => normalizeSession(initBody));
@@ -33511,7 +33581,7 @@ function LorebookEditor({ entity, revision, ctx, piece, topRight }) {
   const [writeFor, setWriteForState] = useState51(() => parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)));
   const [importBaseline] = useState51(() => structuredClone(initBody));
   const folders = useMarinaraFolders({ entity, session, setSession, writeFor, styles: binderStyles });
-  useEffect27(() => {
+  useEffect28(() => {
     const focus = piece.params?.focusEntry;
     if (!focus)
       return;
@@ -33587,7 +33657,7 @@ function LorebookEditor({ entity, revision, ctx, piece, topRight }) {
     }
   }, [saving, dirty, session.body, ctx, piece.id, entity, folders]);
   useEditorGuards(ctx, piece, dirty, doSave, session.body.name.trim().length > 0);
-  useEffect27(() => {
+  useEffect28(() => {
     const onKey = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         const t = e.target;
@@ -33604,7 +33674,7 @@ function LorebookEditor({ entity, revision, ctx, piece, topRight }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [session, ctx]);
-  useEffect27(() => {
+  useEffect28(() => {
     const warn = health.filter((h) => h.level === "warn").length;
     ctx.setStatus(`${summary.entryCount} entries · ${summary.enabledCount} on · ${summary.keyCount} keys` + (warn > 0 ? ` · ${warn} tip${warn === 1 ? "" : "s"}` : ""));
   }, [summary.entryCount, summary.enabledCount, summary.keyCount, health.length]);
@@ -33903,9 +33973,9 @@ function LorebookEditor({ entity, revision, ctx, piece, topRight }) {
 import {
   useCallback as useCallback10,
   useDeferredValue,
-  useEffect as useEffect31,
+  useEffect as useEffect32,
   useMemo as useMemo24,
-  useRef as useRef30,
+  useRef as useRef31,
   useState as useState59
 } from "react";
 
@@ -38235,7 +38305,7 @@ function RulePage({
 }
 
 // src/ui/apps/workbench/regex/rule-rail.tsx
-import { useEffect as useEffect28, useMemo as useMemo22, useState as useState56 } from "react";
+import { useEffect as useEffect29, useMemo as useMemo22, useState as useState56 } from "react";
 
 // src/ui/apps/workbench/regex/run-in-worker.ts
 var HARD_TIMEOUT_MS = 750;
@@ -38342,7 +38412,7 @@ function RuleRail({ rule, styles: styles2, onOpenBench, findings, onOpenHealth }
   const [sample, setSample] = useState56(DEFAULT_SAMPLE);
   const [preview, setPreview] = useState56(null);
   const hasPattern = rule.find.trim() !== "";
-  useEffect28(() => {
+  useEffect29(() => {
     if (!hasPattern) {
       setPreview(null);
       return;
@@ -38495,10 +38565,10 @@ function RuleRail({ rule, styles: styles2, onOpenBench, findings, onOpenHealth }
 }
 
 // src/ui/apps/workbench/regex/bench-pane.tsx
-import { useEffect as useEffect30, useMemo as useMemo23, useState as useState58 } from "react";
+import { useEffect as useEffect31, useMemo as useMemo23, useState as useState58 } from "react";
 
 // src/ui/apps/workbench/regex/bench-import.tsx
-import { useEffect as useEffect29, useRef as useRef28, useState as useState57 } from "react";
+import { useEffect as useEffect30, useRef as useRef29, useState as useState57 } from "react";
 
 // src/ui/apps/workbench/regex/bench-core.ts
 var CHAIN_PHASES = [
@@ -38653,7 +38723,7 @@ function BenchImport({
   const [error, setError] = useState57(null);
   const [dragOver, setDragOver] = useState57(false);
   const [effects, setEffects] = useState57(() => new Map);
-  const inputRef = useRef28(null);
+  const inputRef = useRef29(null);
   const takeFile = async (file) => {
     setBusy(true);
     setError(null);
@@ -38697,7 +38767,7 @@ function BenchImport({
       return next;
     });
   };
-  useEffect29(() => {
+  useEffect30(() => {
     const controller = new AbortController;
     if (!detected) {
       setEffects(new Map);
@@ -38971,12 +39041,12 @@ function BenchPane({
   const [copied, setCopied] = useState58(false);
   const [result, setResult] = useState58({ text: sample, traces: [], overlays: [] });
   const [runError, setRunError] = useState58(null);
-  useEffect30(() => {
+  useEffect31(() => {
     const id = setTimeout(() => setDebounced(sample), 140);
     return () => clearTimeout(id);
   }, [sample]);
   const currentPhaseLabel = phaseLabel2(phase);
-  useEffect30(() => {
+  useEffect31(() => {
     const controller = new AbortController;
     runRegexSandboxed(debounced, rules, { phase, signal: controller.signal }).then((run) => {
       if (run.ok) {
@@ -39687,7 +39757,7 @@ function bodyFromEntity2(entity) {
 }
 var WRITE_FOR_PREF2 = "regex.writeFor";
 function RegexSetEditor({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef30(revision);
+  const revisionRef = useRef31(revision);
   const initBody = useMemo24(() => bodyFromEntity2(entity), [entity]);
   const [baseline, setBaseline] = useState59(() => structuredClone(initBody));
   const [session, setSession] = useState59(() => normalizeSession2(initBody));
@@ -39766,7 +39836,7 @@ function RegexSetEditor({ entity, revision, ctx, piece, topRight }) {
     }
   }, [saving, dirty, session.body, ctx, piece.id, entity]);
   useEditorGuards(ctx, piece, dirty, doSave, session.body.name.trim().length > 0);
-  useEffect31(() => {
+  useEffect32(() => {
     ctx.setStatus(`${count} rule${count === 1 ? "" : "s"} · ${enabledCount} on`);
   }, [count, enabledCount]);
   const monogram = (session.body.name.trim().charAt(0) || "R").toUpperCase();
@@ -39940,7 +40010,7 @@ function RegexSetEditor({ entity, revision, ctx, piece, topRight }) {
   }, undefined, true, undefined, this);
 }
 // src/ui/apps/workbench/persona/persona-editor.tsx
-import { useCallback as useCallback11, useMemo as useMemo26, useRef as useRef31, useState as useState61 } from "react";
+import { useCallback as useCallback11, useMemo as useMemo26, useRef as useRef32, useState as useState61 } from "react";
 
 // src/core/persona/platform-fields.ts
 var PERSONA_CORE_KEYS = ["name", "brief", "content"];
@@ -40573,7 +40643,7 @@ function bodyFromEntity3(entity) {
   return { name: "Untitled persona", content: "" };
 }
 function PersonaEditorView({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef31(revision);
+  const revisionRef = useRef32(revision);
   const initBody = useMemo26(() => bodyFromEntity3(entity), [entity]);
   const [baseline, setBaseline] = useState61(() => structuredClone(initBody));
   const [body, setBody] = useState61(() => structuredClone(initBody));
@@ -40781,7 +40851,7 @@ function PersonaEditor(props) {
 }
 
 // src/ui/apps/workbench/htmldoc-editor.tsx
-import { useCallback as useCallback12, useEffect as useEffect32, useMemo as useMemo27, useRef as useRef32, useState as useState62 } from "react";
+import { useCallback as useCallback12, useEffect as useEffect33, useMemo as useMemo27, useRef as useRef33, useState as useState62 } from "react";
 
 // node_modules/zod/v4/classic/external.js
 var exports_external = {};
@@ -55167,12 +55237,12 @@ function bodyFromEntity4(entity) {
 }
 var same = (a, b3) => JSON.stringify(a) === JSON.stringify(b3);
 function HtmlDocEditor({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef32(revision);
+  const revisionRef = useRef33(revision);
   const initBody = useMemo27(() => bodyFromEntity4(entity), [entity]);
   const [baseline, setBaseline] = useState62(() => structuredClone(initBody));
   const [body, setBody] = useState62(() => structuredClone(initBody));
   const [saving, setSaving] = useState62(false);
-  const splitRef = useRef32(null);
+  const splitRef = useRef33(null);
   const [split, setSplit] = useState62(() => readSplit(ctx.prefs.get(SPLIT_KEY)));
   const [sourceOpen, setSourceOpen] = useState62(() => ctx.prefs.get(SOURCE_KEY) !== false);
   const moveSplit = useCallback12((next) => {
@@ -55185,7 +55255,7 @@ function HtmlDocEditor({ entity, revision, ctx, piece, topRight }) {
       return;
     moveSplit(splitFromPointer(clientX, room.left, room.width, split));
   }, [moveSplit, split]);
-  const frameRef = useRef32(null);
+  const frameRef = useRef33(null);
   const [big, setBig] = useState62(false);
   const goBig = useCallback12(async () => {
     setBig(true);
@@ -55195,7 +55265,7 @@ function HtmlDocEditor({ entity, revision, ctx, piece, topRight }) {
     setBig(false);
     await exitFullscreen();
   }, []);
-  useEffect32(() => {
+  useEffect33(() => {
     if (!big)
       return;
     const onKey = (e) => {
@@ -55405,7 +55475,7 @@ function HtmlDocEditor({ entity, revision, ctx, piece, topRight }) {
 }
 
 // src/ui/apps/workbench/preset/preset-editor.tsx
-import { useCallback as useCallback14, useMemo as useMemo31, useRef as useRef35, useState as useState70 } from "react";
+import { useCallback as useCallback14, useMemo as useMemo31, useRef as useRef36, useState as useState70 } from "react";
 
 // src/core/preset/platform-fields.ts
 var PRESET_CORE_KEYS = ["name", "description", "prompts"];
@@ -57502,7 +57572,7 @@ function BulkBar({ count, onClear, onEnable, onDisable, onDuplicate, onDelete })
 import { useState as useState65 } from "react";
 
 // src/ui/apps/workbench/preset/linked-sets.tsx
-import { useEffect as useEffect33, useState as useState64 } from "react";
+import { useEffect as useEffect34, useState as useState64 } from "react";
 
 // src/ui/apps/workbench/preset/linked-sets.module.css
 var linked_sets_module_default = {
@@ -57555,7 +57625,7 @@ function Group({
 }
 function LinkedSets(props) {
   const [rows, setRows] = useState64([]);
-  useEffect33(() => {
+  useEffect34(() => {
     let live = true;
     props.ctx.api.listEntities().then((items) => {
       if (live)
@@ -59502,7 +59572,7 @@ function LivePreview({ body, onPatchContent, onSelect }) {
 }
 
 // src/ui/components/split-pane/index.tsx
-import { useCallback as useCallback13, useEffect as useEffect34, useRef as useRef33, useState as useState68 } from "react";
+import { useCallback as useCallback13, useEffect as useEffect35, useRef as useRef34, useState as useState68 } from "react";
 
 // src/ui/components/split-pane/split-core.ts
 var MIN_PANE_PX = 220;
@@ -59551,14 +59621,14 @@ function SplitPane({
   onSplit,
   label: label2 = "Resize panels"
 }) {
-  const hostRef = useRef33(null);
+  const hostRef = useRef34(null);
   const [split, setSplit] = useState68(() => parseSplit(stored) ?? defaultSplit);
   const [dragging, setDragging] = useState68(false);
   const commit = useCallback13((next) => {
     setSplit(next);
     onSplit?.(next);
   }, [onSplit]);
-  useEffect34(() => {
+  useEffect35(() => {
     const host = hostRef.current;
     if (!host || typeof ResizeObserver === "undefined")
       return;
@@ -59637,12 +59707,12 @@ function SplitPane({
 }
 
 // src/ui/apps/workbench/use-reseed.ts
-import { useEffect as useEffect35, useRef as useRef34, useState as useState69 } from "react";
+import { useEffect as useEffect36, useRef as useRef35, useState as useState69 } from "react";
 function useReseedOnReread(revision, dirty, reseed) {
   const [seen, setSeen] = useState69(revision);
-  const reseedRef = useRef34(reseed);
+  const reseedRef = useRef35(reseed);
   reseedRef.current = reseed;
-  useEffect35(() => {
+  useEffect36(() => {
     if (revision === seen)
       return;
     if (dirty)
@@ -59870,7 +59940,7 @@ function bodyFromEntity5(entity) {
   return { name: "Untitled preset", prompts: [] };
 }
 function PresetEditorView({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef35(revision);
+  const revisionRef = useRef36(revision);
   const initBody = useMemo31(() => bodyFromEntity5(entity), [entity]);
   const [baseline, setBaseline] = useState70(() => structuredClone(initBody));
   const [body, setBody] = useState70(() => structuredClone(initBody));
@@ -60141,7 +60211,7 @@ function PresetEditor(props) {
 }
 
 // src/ui/apps/workbench/quickreply/editor.tsx
-import { useCallback as useCallback15, useMemo as useMemo32, useRef as useRef36, useState as useState71 } from "react";
+import { useCallback as useCallback15, useMemo as useMemo32, useRef as useRef37, useState as useState71 } from "react";
 
 // src/ui/apps/workbench/quickreply/session.ts
 var addReply = (body) => ({
@@ -60189,7 +60259,7 @@ function bodyFromEntity6(entity) {
   return { name: "Untitled quick replies", replies: [] };
 }
 function QuickReplyEditor({ entity, revision, ctx, piece, topRight }) {
-  const revisionRef = useRef36(revision);
+  const revisionRef = useRef37(revision);
   const initial = useMemo32(() => bodyFromEntity6(entity), [entity]);
   const [baseline, setBaseline] = useState71(() => structuredClone(initial));
   const [body, setBody] = useState71(() => structuredClone(initial));
@@ -60382,7 +60452,7 @@ var paneKey = (id, kind, focusEntry) => focusEntry ? `${kind}:${id}@${focusEntry
 var paneKeyOf = (p) => paneKey(p.id, p.kind, p.params?.focusEntry);
 
 // src/ui/apps/workbench/agent-surface.ts
-import { useEffect as useEffect36, useRef as useRef37 } from "react";
+import { useEffect as useEffect37, useRef as useRef38 } from "react";
 var WORKBENCH_AGENT_SURFACE = {
   describe: "The bench where pieces are edited. Open pieces are the tab strip above; one is being edited, " + "and any of them may carry edits that are not on disk yet.",
   actions: [
@@ -60436,9 +60506,9 @@ function usePublishWorkbenchSurface(ctx, input) {
   const dirtyKeys = Object.keys(dirtyPieces).filter((k) => dirtyPieces[k] === true);
   const piecesKey = pieces.map(paneKeyOf).join(",");
   const dirtyKey = [...dirtyKeys].sort().join(",");
-  const ctxRef = useRef37(ctx);
+  const ctxRef = useRef38(ctx);
   ctxRef.current = ctx;
-  useEffect36(() => {
+  useEffect37(() => {
     ctxRef.current.agent.publish(workbenchAgentState({ pieces, activeKey, besideKey, dirty: new Set(dirtyKeys) }));
   }, [piecesKey, dirtyKey, activeKey, besideKey]);
 }
@@ -60509,7 +60579,7 @@ function EditablePane({
       cancelled = true;
     };
   }, [piece.id, piece.kind]);
-  useEffect37(() => load(), [load]);
+  useEffect38(() => load(), [load]);
   useReopenOnStudioChange(piece, ctx.workbench.dirty()[keyOf2(piece.id, piece.kind)] === true, () => {
     load();
   });
@@ -60603,7 +60673,7 @@ function RecentsRail({ ctx, entities }) {
   const [open, setOpen] = useState72(() => ctx.prefs.get(PREF_RAIL_OPEN) !== false);
   const active = ctx.workbench.active();
   const activeKey = active ? keyOf2(active.id, active.kind) : "";
-  useEffect37(() => {
+  useEffect38(() => {
     if (activeKey)
       setOpen(false);
   }, [activeKey]);
@@ -60647,13 +60717,13 @@ function RecentsRail({ ctx, entities }) {
 }
 function useWorkbenchTick(ctx) {
   const [, setTick] = useState72(0);
-  useEffect37(() => ctx.workbench.onChange(() => setTick((t) => t + 1)), [ctx]);
+  useEffect38(() => ctx.workbench.onChange(() => setTick((t) => t + 1)), [ctx]);
 }
 function WorkbenchRoom({ ctx }) {
   useWorkbenchTick(ctx);
   const [entities, setEntities] = useState72([]);
   const { focused, toggle: toggle2 } = useFocusMode();
-  useEffect37(() => {
+  useEffect38(() => {
     ctx.api.listEntities().then(setEntities).catch(() => ctx.setStatus("could not load the shelf list · the studio may be unreachable"));
   }, []);
   const pieces = ctx.workbench.pieces();
@@ -60664,7 +60734,7 @@ function WorkbenchRoom({ ctx }) {
   const editablePieces = pieces.filter((p) => p.kind === "character" || p.kind === "pack" || p.kind === "lorebook" || p.kind === "regex" || p.kind === "persona" || p.kind === "preset" || p.kind === "quickreply" || p.kind === "htmldoc");
   const splitOn = besideKey !== "" && editablePieces.some((p) => paneKeyOf(p) === besideKey);
   usePublishWorkbenchSurface(ctx, { pieces, activeKey, besideKey: splitOn ? besideKey : "" });
-  useEffect37(() => {
+  useEffect38(() => {
     if (active)
       return;
     ctx.setStatus(pieces.length === 0 ? "the workbench is clear" : `${pieces.length} open`);
