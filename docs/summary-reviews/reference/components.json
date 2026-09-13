@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:ed1e43aad461fc8d1bc1a19fa20697b19c603e23c4d5061d965886d61a5c0bce",
-  "semanticSummaryHash": "sha256:9366efd1e5ee93daf0f287d6603289771491c925d5131e8b57f47fc1194ba775",
+  "sourceHash": "sha256:3f8f5b73b360bf0fcf15df3d01fa0bd9cf20a48a16741506f929afe6a38825a3",
+  "semanticSummaryHash": "sha256:852a431d8f0079c29a575bd449c79533fc0ce23232d5136254a8e86c1598d793",
   "verdict": "APPROVE",
-  "reviewer": "review_current_release_tranche",
-  "notes": "Complete generated catalog and both summary sections re-read; summary accurately describes the generator, TSX inventory including Connections, QuickReplyEditor, LinkedSets and LivePreview, and shared helper table.",
-  "reviewedAt": "2026-09-13T02:03:41.065Z"
+  "reviewer": "pages-adversarial-review",
+  "notes": "Independent regenerated-catalog review: Docs component style tokens match the current CSS module, BottomSheet's generated signature/doc/style row remains accurate, and the semantic sidecar fully represents the catalog's lookup-only contract.",
+  "reviewedAt": "2026-09-13T17:51:54.381Z"
 }

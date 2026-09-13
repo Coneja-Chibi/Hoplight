@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:4dc5995233293d214318a2854e30d51b98a9af42b496d843d85a90645e80f192",
+  "sourceHash": "sha256:df44633c4910bc7e3aca529bb20600247ae4aa2fecd50fecba16c569e4b38d34",
   "summary": "Complete contributor map of the installed Studio, its static browser edition, separately gated remote listeners, and Kit's terminal companion. The GitHub Pages edition reuses the React shell, apps, adapters, shared inspect/export engine, and indexed docs while holding all mutable state in page memory; reload clears it and host-owned operations refuse explicitly. Kit covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes reload, provenance, storage, receipts, and revision-checked HTTP writes. Library owns importing and staging while reporting damaged files without changing them. Workbench owns editors for all eight canonical kinds, split panes, preset links to regex and quick-reply sets, and explicit revision-checked saves. Press owns staged export runs, linked riders, single-file and zip delivery, and honest unknown-loss reporting. Settings derives Appearance, Models, Connections, Studio, Workbench, Remote access, Updates, and About. Security distinguishes loopback, static-page, and opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized marks.",
   "topics": [
     "Kit conversational terminal",
@@ -291,14 +291,17 @@
       "slug": "help-docs-catalog-only---the-corpus-in-the-app",
       "title": "Help / Docs (catalog-only - the corpus, in the app)",
       "level": 2,
-      "sourceHash": "sha256:b8853f75ccbdaca4758e4d3c2132c1154b519f2249ccee2e98d2ffbf42b3f1f1",
-      "summary": "The committed documentation corpus presented as a first-class room, read from the same source GitHub serves so the app and the repository can never disagree about what a page says. It reads the generated index at docs/generated/docs-index.json rather than crawling the documentation tree, which has a consequence worth knowing: a page whose semantic sidecar is missing, stale or unapproved stays out of the app exactly as it stays out of CI, because both read that one index. Keeping documentation inside the app means somebody can answer a question without leaving the studio, and means the docs gates protect what users read rather than only what the repository ships.",
+      "sourceHash": "sha256:d621b2a13b848bb05737a4902696f9e12ab60c155e7d56a64067258f6bb8d247",
+      "summary": "The committed documentation corpus is a first-class room, read from the same source GitHub serves so the app and repository cannot disagree about a page. It reads docs/generated/docs-index.json rather than crawling the tree, so missing, stale, or unapproved semantic sidecars keep a page out of both the app and CI. The reader starts as one mobile article column: Browse and Sections open the shared bottom sheet, which contains keyboard focus, closes on Escape, and restores the trigger. Container breakpoints add the catalog rail at 40rem and the current-page heading rail at 62rem, making the same room adapt correctly inside a phone or split pane without viewport assumptions.",
       "topics": [
         "committed corpus as a room",
         "same source as GitHub",
         "reads the generated index",
         "unapproved pages stay out",
-        "docs gates protect readers"
+        "docs gates protect readers",
+        "mobile bottom-sheet navigation",
+        "container-responsive documentation rails",
+        "modal keyboard focus"
       ],
       "children": [],
       "shortSource": ""

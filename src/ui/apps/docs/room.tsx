@@ -2,10 +2,14 @@
 import { useEffect, useRef, useState, type JSX } from "react";
 import type { AppContext } from "../../app-contract";
 import type { DocFigure, DocRecord, DocsIndex } from "../../docs-types";
+import { BottomSheet } from "../../components/bottom-sheet";
 import { DocContent } from "./doc-content";
 import { DocNav } from "./doc-nav";
 import { DocToc } from "./doc-toc";
+import { displayDocTitle } from "./docs-core";
 import styles from "./styles.module.css";
+
+type MobilePanel = "browse" | "sections" | null;
 
 export function DocsRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   const ctxRef = useRef(ctx);
@@ -16,6 +20,7 @@ export function DocsRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   const [anchor, setAnchor] = useState("");
   const [body, setBody] = useState("");
   const [query, setQuery] = useState("");
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,20 +83,71 @@ export function DocsRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   if (error) return <div className={styles.message}>{error}</div>;
   if (!docs || !activeId) return <div className={styles.message}>Opening Help / Docs…</div>;
   const active = docs.find((doc) => doc.id === activeId) ?? docs[0]!;
+  const mobilePick = (id: string, nextAnchor = ""): void => {
+    pick(id, nextAnchor);
+    setMobilePanel(null);
+  };
 
   return (
-    <div className={styles.room}>
-      <DocNav docs={docs} activeId={active.id} query={query} onQuery={setQuery} onPick={pick} />
-      <DocContent
-        doc={active}
-        docs={docs}
-        figures={figures}
-        body={body}
-        anchor={anchor}
-        loading={loading}
-        onPick={pick}
-      />
-      <DocToc anchors={active.anchors} activeSlug={anchor} onJump={(slug) => pick(active.id, slug)} />
+    <div className={styles.host}>
+      <div className={styles.room}>
+        <header className={styles.mobileHead}>
+          <button
+            type="button"
+            className={styles.mobileAction}
+            aria-controls="docs-mobile-browse"
+            aria-expanded={mobilePanel === "browse"}
+            onClick={() => setMobilePanel("browse")}
+          >
+            Browse
+          </button>
+          <span className={styles.mobileTitle}>
+            <b>{displayDocTitle(active)}</b>
+            <small>{active.audience === "user" ? "User docs" : "Developer docs"}</small>
+          </span>
+          <button
+            type="button"
+            className={styles.mobileAction}
+            aria-controls="docs-mobile-sections"
+            aria-expanded={mobilePanel === "sections"}
+            disabled={active.anchors.length === 0}
+            onClick={() => setMobilePanel("sections")}
+          >
+            Sections
+          </button>
+        </header>
+
+        <div className={styles.desktopNav}>
+          <DocNav docs={docs} activeId={active.id} query={query} onQuery={setQuery} onPick={pick} />
+        </div>
+        <DocContent
+          doc={active}
+          docs={docs}
+          figures={figures}
+          body={body}
+          anchor={anchor}
+          loading={loading}
+          onPick={pick}
+        />
+        <div className={styles.desktopToc}>
+          <DocToc anchors={active.anchors} activeSlug={anchor} onJump={(slug) => pick(active.id, slug)} />
+        </div>
+
+        {mobilePanel === "browse" && (
+          <BottomSheet title="Browse docs" ariaLabel="Browse documentation" onDismiss={() => setMobilePanel(null)}>
+            <div id="docs-mobile-browse" className={styles.mobileSheet}>
+              <DocNav docs={docs} activeId={active.id} query={query} onQuery={setQuery} onPick={mobilePick} />
+            </div>
+          </BottomSheet>
+        )}
+        {mobilePanel === "sections" && (
+          <BottomSheet title="On this page" onDismiss={() => setMobilePanel(null)}>
+            <div id="docs-mobile-sections" className={styles.mobileSheet}>
+              <DocToc anchors={active.anchors} activeSlug={anchor} onJump={(slug) => mobilePick(active.id, slug)} />
+            </div>
+          </BottomSheet>
+        )}
+      </div>
     </div>
   );
 }

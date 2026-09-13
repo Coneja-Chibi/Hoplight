@@ -350,9 +350,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "review_current_release_tranche",
-      "sourceHash": "sha256:ed1e43aad461fc8d1bc1a19fa20697b19c603e23c4d5061d965886d61a5c0bce",
-      "semanticSummaryHash": "sha256:9366efd1e5ee93daf0f287d6603289771491c925d5131e8b57f47fc1194ba775"
+      "reviewer": "pages-adversarial-review",
+      "sourceHash": "sha256:3f8f5b73b360bf0fcf15df3d01fa0bd9cf20a48a16741506f929afe6a38825a3",
+      "semanticSummaryHash": "sha256:852a431d8f0079c29a575bd449c79533fc0ce23232d5136254a8e86c1598d793"
     },
     {
       "docId": "reference/concepts/bundles",
@@ -903,8 +903,8 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "pages-adversarial-review",
-      "sourceHash": "sha256:4dc5995233293d214318a2854e30d51b98a9af42b496d843d85a90645e80f192",
-      "semanticSummaryHash": "sha256:ba649f3723b6e0120f435a8caedd86b3399c85ee51333c56fc57ebd65207ac61"
+      "sourceHash": "sha256:df44633c4910bc7e3aca529bb20600247ae4aa2fecd50fecba16c569e4b38d34",
+      "semanticSummaryHash": "sha256:6aa7e70c6bf17bed557386ffd92615ab553500433accd0cd443d9e07f937c511"
     },
     {
       "docId": "reference/updates",

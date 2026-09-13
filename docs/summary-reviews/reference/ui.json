@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:4dc5995233293d214318a2854e30d51b98a9af42b496d843d85a90645e80f192",
-  "semanticSummaryHash": "sha256:ba649f3723b6e0120f435a8caedd86b3399c85ee51333c56fc57ebd65207ac61",
+  "sourceHash": "sha256:df44633c4910bc7e3aca529bb20600247ae4aa2fecd50fecba16c569e4b38d34",
+  "semanticSummaryHash": "sha256:6aa7e70c6bf17bed557386ffd92615ab553500433accd0cd443d9e07f937c511",
   "verdict": "APPROVE",
   "reviewer": "pages-adversarial-review",
-  "notes": "Independent source and sidecar review: browser lifetime, host-only limits, and sandbox refusal are accurate.",
-  "reviewedAt": "2026-09-13T16:55:29.594Z"
+  "notes": "Independent post-fix review: BottomSheet initial focus, visible-control Tab wrapping in both directions, Escape dismissal, trigger restoration, and the Help/Docs mobile/container behavior are accurately represented.",
+  "reviewedAt": "2026-09-13T17:44:27.824Z"
 }

@@ -32,7 +32,14 @@ const index = {
       title: "Studio UI",
       audience: "dev",
       summary: "The app shell.",
-      tags: [], related: [], anchors: [],
+      tags: [], related: [], anchors: [{
+        text: "Help / Docs",
+        slug: "help--docs",
+        level: 2,
+        summary: "The documentation reader.",
+        topics: ["docs"],
+        children: [],
+      }],
     },
   ],
 };
@@ -94,6 +101,47 @@ describe("DocsRoom stability", () => {
 
     expect(document.querySelector('button[aria-current="page"]')?.textContent).toBe("Studio application & local API");
     expect(indexRequests).toBe(1);
+
+    const browse = [...document.querySelectorAll("button")].find((button) => button.textContent === "Browse")!;
+    expect(browse.getAttribute("aria-expanded")).toBe("false");
+    browse.focus();
+    flushSync(() => browse.click());
+    const browseDialog = document.querySelector<HTMLElement>('[role="dialog"][aria-label="Browse documentation"]')!;
+    expect(browseDialog).not.toBeNull();
+    expect(document.activeElement).toBe(browseDialog);
+    flushSync(() => browseDialog.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Tab", bubbles: true })));
+    expect((document.activeElement as HTMLElement).getAttribute("aria-label")).toBe("Close");
+    browseDialog.querySelector("details")!.open = false;
+    const focusable = [...browseDialog.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), summary")];
+    const hidden = focusable.find((element) => {
+      const details = element.closest("details:not([open])");
+      return details && !details.querySelector(":scope > summary")?.contains(element);
+    });
+    expect(hidden).not.toBeUndefined();
+    const visible = focusable.filter((element) => {
+      const details = element.closest("details:not([open])");
+      return !details || details.querySelector(":scope > summary")?.contains(element);
+    });
+    visible.at(-1)!.focus();
+    flushSync(() => document.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Tab" })));
+    expect(document.activeElement).toBe(visible[0]!);
+    visible[0]!.focus();
+    flushSync(() => document.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Tab", shiftKey: true })));
+    expect(document.activeElement).toBe(visible.at(-1)!);
+    expect(browse.getAttribute("aria-expanded")).toBe("true");
+    flushSync(() => document.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape" })));
+    await Promise.resolve();
+    expect(document.querySelector('[role="dialog"][aria-label="Browse documentation"]')).toBeNull();
+    expect(document.activeElement).toBe(browse);
+
+    const sections = [...document.querySelectorAll("button")].find((button) => button.textContent === "Sections")!;
+    expect(sections.disabled).toBe(false);
+    flushSync(() => sections.click());
+    const sectionsDialog = document.querySelector('[role="dialog"][aria-label="On this page"]')!;
+    expect(sectionsDialog).not.toBeNull();
+    const heading = [...sectionsDialog.querySelectorAll("button")].find((button) => button.textContent === "Help / Docs")!;
+    flushSync(() => heading.click());
+    expect(document.querySelector('[role="dialog"][aria-label="On this page"]')).toBeNull();
     flushSync(() => root.unmount());
   });
 });

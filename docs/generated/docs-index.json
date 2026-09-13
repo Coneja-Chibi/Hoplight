@@ -14349,13 +14349,16 @@
           "text": "Help / Docs (catalog-only - the corpus, in the app)",
           "slug": "help-docs-catalog-only---the-corpus-in-the-app",
           "level": 2,
-          "summary": "The committed documentation corpus presented as a first-class room, read from the same source GitHub serves so the app and the repository can never disagree about what a page says. It reads the generated index at docs/generated/docs-index.json rather than crawling the documentation tree, which has a consequence worth knowing: a page whose semantic sidecar is missing, stale or unapproved stays out of the app exactly as it stays out of CI, because both read that one index. Keeping documentation inside the app means somebody can answer a question without leaving the studio, and means the docs gates protect what users read rather than only what the repository ships.",
+          "summary": "The committed documentation corpus is a first-class room, read from the same source GitHub serves so the app and repository cannot disagree about a page. It reads docs/generated/docs-index.json rather than crawling the tree, so missing, stale, or unapproved semantic sidecars keep a page out of both the app and CI. The reader starts as one mobile article column: Browse and Sections open the shared bottom sheet, which contains keyboard focus, closes on Escape, and restores the trigger. Container breakpoints add the catalog rail at 40rem and the current-page heading rail at 62rem, making the same room adapt correctly inside a phone or split pane without viewport assumptions.",
           "topics": [
             "committed corpus as a room",
             "same source as GitHub",
             "reads the generated index",
             "unapproved pages stay out",
-            "docs gates protect readers"
+            "docs gates protect readers",
+            "mobile bottom-sheet navigation",
+            "container-responsive documentation rails",
+            "modal keyboard focus"
           ],
           "children": []
         },

@@ -1,13 +1,102 @@
-/* Help / Docs room. The three-pane wireframe adapts to its canvas container, never the viewport. */
-.room {
+/* Help / Docs room. Mobile is a reader with sheets; wider containers progressively add rails. */
+.host {
   container-type: inline-size;
-  display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr) 13rem;
+  display: flex;
   flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.room {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  flex: 1;
+  width: 100%;
   height: 100%;
+  min-width: 0;
   min-height: 0;
   background: var(--canvas);
   color: var(--text);
+}
+
+.mobileHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--gap-s);
+  padding: 0.45rem 0.55rem;
+  background: var(--chrome);
+  border-bottom: var(--ink-border);
+}
+
+.mobileAction {
+  min-width: 4.25rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.55rem;
+  color: var(--text);
+  background: var(--face);
+  border: var(--ink-border);
+  box-shadow: 2px 2px 0 0 var(--seam);
+  cursor: pointer;
+  font-family: var(--font-big);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mobileAction[aria-expanded="true"] { border-color: var(--accent); }
+.mobileAction:disabled { opacity: 0.42; cursor: default; box-shadow: none; }
+
+.mobileTitle { min-width: 0; text-align: center; }
+.mobileTitle b,
+.mobileTitle small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileTitle b {
+  color: var(--text);
+  font-family: var(--font-big);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.mobileTitle small {
+  margin-top: 0.1rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.desktopNav,
+.desktopToc { display: none; min-height: 0; }
+
+.mobileSheet {
+  --canvas: var(--stage-panel);
+  --chrome: var(--stage-panel);
+  --face: var(--stage-row);
+  --ink: var(--stage-black);
+  --seam: var(--stage-seam);
+  --text: var(--stage-paper);
+  --text-soft: var(--stage-soft);
+  --text-dim: var(--stage-text-dim);
+  --text-faint: var(--stage-kicker);
+}
+
+.mobileSheet .nav,
+.mobileSheet .toc {
+  overflow: visible;
+  padding: 0;
+  background: transparent;
+  border: 0;
 }
 
 .nav {
@@ -116,16 +205,19 @@
 .message { padding: 2rem; }
 
 .main {
+  grid-row: 2;
+  min-width: 0;
   min-height: 0;
   overflow: auto;
-  padding: var(--gap-l) clamp(1rem, 3vw, 2.5rem) 3rem;
+  padding: var(--gap-m) 0.85rem 2.5rem;
   scroll-behavior: smooth;
 }
 
-.inner { max-width: 52rem; }
+.inner { max-width: 52rem; margin: 0 auto; }
 .crumb {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 0.85rem;
   color: var(--text-faint);
@@ -138,7 +230,7 @@
 .crumb > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .github {
   flex: none;
-  margin-left: auto;
+  min-height: 2.5rem;
   padding: 0.3rem 0.6rem;
   color: var(--text);
   background: var(--face);
@@ -169,6 +261,7 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .prose :global(h1) {
@@ -229,7 +322,7 @@
   box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--seam);
 }
 
-.prose :global(pre code) { padding: 0; color: var(--stage-soft); background: none; border: 0; }
+.prose :global(pre code) { padding: 0; color: var(--stage-soft); background: none; border: 0; overflow-wrap: normal; }
 .prose :global(table) { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 0.85rem; }
 .prose :global(th),
 .prose :global(td) { padding: 0.3rem 0.5rem; border: 2px solid var(--seam); text-align: left; }
@@ -284,15 +377,26 @@
 .tocLink.sub { padding-left: 1.2rem; }
 .tocLink.on { color: var(--accent); border-left-color: var(--accent); }
 
-@container (max-width: 62rem) {
-  .room { grid-template-columns: 15rem minmax(0, 1fr); }
-  .toc { display: none; }
+@container (min-width: 40rem) {
+  .room {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .mobileHead { display: none; }
+  .desktopNav { display: block; grid-column: 1; grid-row: 1; }
+  .desktopNav .nav { height: 100%; }
+  .main {
+    grid-column: 2;
+    grid-row: 1;
+    padding: var(--gap-l) clamp(1rem, 3vw, 2.5rem) 3rem;
+  }
+  .crumb { flex-wrap: nowrap; }
+  .github { margin-left: auto; }
 }
 
-@container (max-width: 40rem) {
-  .room { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
-  .nav { max-height: 13rem; border-right: 0; border-bottom: var(--ink-border); }
-  .main { padding-top: var(--gap-m); }
-  .crumb { align-items: flex-start; flex-direction: column; }
-  .github { margin-left: 0; }
+@container (min-width: 62rem) {
+  .room { grid-template-columns: 16rem minmax(0, 1fr) 13rem; }
+  .desktopToc { display: block; grid-column: 3; grid-row: 1; }
+  .desktopToc .toc { height: 100%; }
 }

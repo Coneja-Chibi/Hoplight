@@ -536,6 +536,12 @@ the app and the repository can never disagree about what a page says. It reads t
 (`docs/generated/docs-index.json`) rather than crawling the tree, which is why an unapproved or stale
 semantic sidecar keeps a page out of the app as well as out of CI.
 
+The room is mobile-first. A narrow pane shows one readable article column with **Browse** and
+**Sections** controls that open the shared bottom sheet. At 40rem the catalog becomes a persistent
+left rail; at 62rem the current page's heading rail appears on the right. Those breakpoints query the
+room's outer container, not the browser viewport, so split panes and phones follow the same rules.
+The sheet moves keyboard focus inside, traps Tab, closes on Escape, and restores focus to its trigger.
+
 ## The Macro Lab (catalog-only - what a macro actually does)
 A scratch pad for macro text, and the only surface here that needs no piece open to be useful. Two
 halves, kept apart on purpose because one of them is our model and the other is an engine.

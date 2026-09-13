@@ -52,11 +52,11 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CssWorkshop | src/ui/components/css-workshop/index.tsx | ({ value, onChange, defaultPackId = "universal", onPackChange, note = DEFAULT_NOTE, mode: modeProp, onModeChange, ini... | Main assisted CSS editor shell. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssWorkshopRoom | src/ui/apps/css-workshop/room.tsx | ({ ctx }: CssWorkshopRoomProps) | Full app canvas for the CSS Workshop dock tile. | .room .head .titles .eyebrow .title .lede .actions .modeToggle ... |
 | DamageNotice | src/ui/apps/library/damage-notice.tsx | (props: { entries: readonly StudioDamagedEntry[]; studioDir?: string; prefs?: { get(key: string): unknown; set(key: s... |  |  |
-| DocContent | src/ui/apps/docs/doc-content.tsx | ({ doc, docs, figures, body, anchor, loading, onPick }: DocContentProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
+| DocContent | src/ui/apps/docs/doc-content.tsx | ({ doc, docs, figures, body, anchor, loading, onPick }: DocContentProps) |  | .host .room .mobileHead .mobileAction .mobileTitle .desktopNav .desktopToc .mobileSheet ... |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
-| DocNav | src/ui/apps/docs/doc-nav.tsx | ({ docs, activeId, query, onQuery, onPick }: DocNavProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
-| DocsRoom | src/ui/apps/docs/room.tsx | ({ ctx }: { ctx: AppContext }) |  | .room .nav .search .shelves .shelf .on .group .section ... |
-| DocToc | src/ui/apps/docs/doc-toc.tsx | ({ anchors, activeSlug, onJump }: DocTocProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
+| DocNav | src/ui/apps/docs/doc-nav.tsx | ({ docs, activeId, query, onQuery, onPick }: DocNavProps) |  | .host .room .mobileHead .mobileAction .mobileTitle .desktopNav .desktopToc .mobileSheet ... |
+| DocsRoom | src/ui/apps/docs/room.tsx | ({ ctx }: { ctx: AppContext }) |  | .host .room .mobileHead .mobileAction .mobileTitle .desktopNav .desktopToc .mobileSheet ... |
+| DocToc | src/ui/apps/docs/doc-toc.tsx | ({ anchors, activeSlug, onJump }: DocTocProps) |  | .host .room .mobileHead .mobileAction .mobileTitle .desktopNav .desktopToc .mobileSheet ... |
 | DropVeil | src/ui/shell/DropVeil.tsx | () |  |  |
 | EditorConflict | src/ui/apps/workbench/editor-conflict.tsx | ({ what, onTakeTheirs, onKeepMine }: EditorConflictProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | EditorDialogs | src/ui/apps/workbench/presenters/editor-dialogs.tsx | ({ exportOpen, setExportOpen, spritesOpen, setSpritesOpen, setSpritesFocusLabel, spritesFocusLabel, namedOpen, setNam... |  |  |
