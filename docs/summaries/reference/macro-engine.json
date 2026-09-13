@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/macro-engine",
+  "sourcePath": "docs/reference/macro-engine.md",
+  "sourceHash": "sha256:d66daeb3340571361f26549053b10142aab1ae7ab57eea81e9f3646aad2b08ff",
+  "summary": "The closed-world macro interpreter under src/core/macros/, permitted by ADR-012 and shaped by the macro engine spec. It parses macro templates into a span-carrying AST via an offset-mapped normalization of the shorthand dialects, then evaluates them against a value-only context under enforced bounds: depth one hundred, an output ceiling, a step budget, seeded randomness and no ambient clock. Output is flat text plus segments that trace every rendered span back to the authored characters that produced it, which is the contract the editable preview stands on. The handler set covers bucket one plus two context-fed families: time macros reading a caller-supplied clock value and bucket-two chat macros reading a stub conversation; unknown names degrade to literal tags with an error entry, and a registry test proves every handler is data-only. Callers are exactly the ADR-012 list: the macro test bench, the transfer report, and prompt assembly surfaces such as live-render. Codecs and adapters never evaluate; macro text stays opaque payload at every import and conversion boundary.",
+  "topics": [
+    "closed world interpreter",
+    "span provenance",
+    "offset mapped normalization",
+    "bounded evaluation",
+    "seeded randomness",
+    "bucket one handler subset",
+    "editable preview segments",
+    "permitted callers only"
+  ],
+  "sections": [
+    {
+      "slug": "what-is-implemented",
+      "title": "What is implemented",
+      "level": 2,
+      "sourceHash": "sha256:59896358780085cccb10a341e2e6f4f7eca84750a53af5f3fef5d895b26d86ff",
+      "summary": "The parser is a span-carrying port of the reference clean-room parser: same classification cascade, same degradation rules for unmatched and malformed constructs, same deliberate quirks including never-floored negative depth and triple-brace folding. Normalization rewrites escaped braces, angle tokens, dot and dollar notation, space and single-colon forms into canonical syntax through an offset map, so every parsed node traces to its authored range. The evaluator enforces the ADR bounds during evaluation, draws randomness from mulberry32 over the context seed, honors readOnly, and degrades unknown names to literal tags plus an error entry. Handlers cover bucket one - identity, variables in all scopes, conditionals, text transforms, comments, the seeded volatile family - plus time macros reading the caller-supplied context.now (empty when no clock is given) and bucket-two chat macros reading a stub conversation, empty when absent. Lazy handlers, interceptors, templates and the characterization-corpus port are outstanding.",
+      "topics": [
+        "parser port with spans",
+        "degradation rules kept",
+        "offset mapped rewrites",
+        "bounds enforced during eval",
+        "bucket one subset",
+        "outstanding ports named"
+      ],
+      "children": []
+    },
+    {
+      "slug": "segments-the-editable-preview-contract",
+      "title": "Segments: the editable-preview contract",
+      "level": 2,
+      "sourceHash": "sha256:84a42b57ed2107d87c923a5e020fc6c4a901147bbd097b30ae2ed33ee1169856",
+      "summary": "Segments are the editable-preview contract: processMacros returns one segment per top-level node alongside the flat text. A literal segment's value is the authored slice verbatim, escaped braces unrestored and newline runs uncollapsed, so splicing an edited value into its source range can never corrupt the source; the restored, whitespace-collapsed rendering lives in the flat text, which is postprocessed once as a whole, and segments are provenance rather than a partition of it. A macro segment carries its raw authored expression, its resolved value, and for the choice family and block-if which option or branch fired, so a preview can offer branch-level edits instead of guessing at a flat string. live-render.ts layers this over buildPreview's engine-truth ordering, threading one variable context across blocks in build order and tagging every segment with its block id.",
+      "topics": [
+        "one segment per node",
+        "literal value is authored slice",
+        "segments are provenance not partition",
+        "branch detail carried",
+        "block id provenance",
+        "shared variable context"
+      ],
+      "children": []
+    },
+    {
+      "slug": "who-may-call-it",
+      "title": "Who may call it",
+      "level": 2,
+      "sourceHash": "sha256:6832dabbbcb3ba7080946612a2e847bcb77c478e2f0c27c86d6186c536151811",
+      "summary": "Who may call it is exactly the ADR-012 list: the user-invoked macro test bench, the transfer compatibility report, and prompt assembly or preview surfaces such as live-render. The external-engine renderer under src/core/preset/render/ remains the cross-check oracle: it answers what the real platform says, while this engine answers what the text says and where each character came from.",
+      "topics": [
+        "three permitted callers",
+        "external renderer as oracle"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -54,9 +54,9 @@ verbatim. Do not hand-edit a cell: improve the schema doc comment and regenerate
 ## Composition
 
 `PresetBody` has two required fields, `name` and `prompts` (the ordered manuscript of blocks), plus
-twelve optional fields: two further collections (`groups`, `choices`), seven settings sub-objects
+thirteen optional fields: two further collections (`groups`, `choices`), seven settings sub-objects
 (`samplers`, `systemPrompts`, `templates`, `behavior`, `apiOptions`, `media`, `generation`), two
-standalone scalars (`description`, `enabled`), and one link array (`behaviorRefs`). Grouping keeps
+standalone scalars (`description`, `enabled`), and two link arrays (`behaviorRefs`, `quickReplyRefs`). Grouping keeps
 related fields together and mirrors how a preset is authored, not how any one app stores it. The full
 `PresetBody` table is in [Full composition](#full-composition) at the end.
 
@@ -71,7 +71,8 @@ A `PresetPrompt` is one row in the manuscript. One block maps 1:1 to an ST promp
 Marinara section. `id` is the VERBATIM source identifier, never a fresh vaud-minted id, because
 prompt-order references, marker resolution, and `isDefault` all key off it; re-minting it would break
 every round-trip, so this field is exempt from the UUID regeneration the other entities apply. `role`
-(`PromptRole`) is one of `system`, `user`, or `assistant`.
+(`PromptRole`) is one of `system`, `user`, `assistant`, or `tool`. The last carries a tool-result
+message on platforms that support that standard role; adapters must preserve it or report the loss.
 
 Two fields are easy to confuse: the per-block `systemPrompt` flag (ST `system_prompt`, renders this one
 block as a system-role prompt-manager entry) is not the preset-level `systemPrompts` sub-object (the
@@ -290,6 +291,7 @@ only one effect leaves the others empty.
 | `generation?` | `PresetGeneration` | - |  |
 | `choices?` | `PresetChoice[]` | - | the CHOICES walkthrough (novel; authored now, run later). |
 | `behaviorRefs?` | `string[]` | - | linked canonical regex/script entity id(s) - a LINK, never a copy; export decides whether to embed, and reports a set that could not ride rather than dropping it. |
+| `quickReplyRefs?` | `string[]` | - | linked canonical quick-reply set ids; the Press exports each referenced set beside the preset. |
 
 ## Linked regex sets
 
@@ -297,6 +299,11 @@ only one effect leaves the others empty.
 [`CharacterBody.behaviorRefs`](character.md#composition-and-variants): it names standalone regex/script
 pieces by canonical id rather than copying their rules into the preset. The set stays its own
 editable piece, so editing it once changes every preset that links it.
+
+`quickReplyRefs` follows the same rule for quick-reply sets. The Workbench preset settings list both
+available regex sets and available quick-reply sets as explicit checkboxes. The Press resolves each
+reference by kind and id and exports the linked pieces beside the preset; the preset never embeds or
+duplicates their canonical bodies.
 
 The link is canonical; embedding is a per-format decision made at export, because the platforms do
 not agree on whether a preset can carry regex at all. SillyTavern and RoleCall carry the rows inside

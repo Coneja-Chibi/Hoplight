@@ -162,6 +162,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  margin-inline-start: min(calc(var(--preset-group-depth, 0) * 0.85rem), 2.55rem);
+}
+
+.section[data-depth="1"] .sectionHead {
+  border-left-width: 5px;
 }
 
 .sectionHead {

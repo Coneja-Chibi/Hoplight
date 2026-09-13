@@ -19,7 +19,7 @@ discovery remains part of the tool loop.
 
 ## Built lifecycle
 
-The capability foundation and all six canonical content bundles are connected to the live Kit
+The capability foundation and all eight canonical content kinds are connected to the live Kit
 session:
 
 - `src/entities/capabilities/` owns stable IDs, deterministic search, provider-safe names,
@@ -28,8 +28,8 @@ session:
   enable, and remove previews.
 - `src/entities/character/capabilities/` owns typed character identity, prompts, greetings,
   metadata, presentation, media, links, variants, settings, and sealed behavior-script previews.
-- Persona, preset, standalone regex, and media-pack folders own their corresponding semantic
-  settings and lifecycle operations.
+- Persona, preset, standalone regex, media-pack, quick-reply, and HTML-document folders own their
+  corresponding semantic settings and lifecycle operations.
 - Character base-path and variant edits live in entity-layer operations shared by Kit and the
   Workbench. Semantic field capabilities may target a named variant without exposing a raw patch
   tool.
@@ -50,7 +50,7 @@ session:
   A flat content `kind` is accepted, and `content/character` browse shorthand resolves to the
   character kind rather than an empty area.
 - `studio.<kind>.create` reveals a typed creation workflow for every canonical kind: character,
-  lorebook, persona, preset, regex, and pack. Each builds a canonical preview and does not write
+  lorebook, persona, preset, regex, quick-reply set, sprite pack, and HTML document. Each builds a canonical preview and does not write
   during composition.
 - `studio.piece.duplicate` copies one stored piece to a new id. A copy is a create, so it composes a
   preview-only draft and reaches storage through the same create-only compare. It carries `body`,
@@ -243,7 +243,7 @@ One provider-discovery catalog accepts `content`, `studio`, `transfer`, and `dia
 nothing should read its presence in the enum as a shipped workflow.
 Content capability metadata projects into that catalog; a non-content `HarnessTool` supplies the
 same validated discovery metadata beside its implementation. The live deferred inventory includes
-the content catalog and typed creation for all six canonical kinds under `studio/lifecycle`.
+the content catalog and typed creation for all eight canonical kinds under `studio/lifecycle`.
 Lifecycle, transfer, and diagnostic workflows join the same router instead of adding another
 meta-tool. Only restricted pure-content capabilities derive safe read or draft access from catalog
 metadata. General workflow tools remain unknown to the Gate until separately classified. Each
@@ -282,7 +282,8 @@ can traverse genuinely oversized content without guessing a path. Missing and ma
 fail closed.
 
 An unpaged piece over 64,000 characters is stored in the owning Kit session and returned as an
-opaque `result-N` handle plus a 4,096-character peek. Other result-producing tools retain the shared
+opaque `result-N` handle plus a 4,096-character peek. Other result-producing tools, including tools
+imported from external MCP servers, retain the shared
 4,096-character inline threshold. `result_query` provides `stat`, bounded `read`, and literal
 case-insensitive `search`. Handles contain no path and disappear with the session.
 Storage is capped at 24 results, 1,000,000 UTF-8 bytes per entry, and 4,000,000 UTF-8 bytes total.
@@ -355,6 +356,8 @@ future additions. The Web UI keeps its selection, focus, generated-ID, and undo 
 | Preset | Create, settings and samplers, prompt blocks, and groups |
 | Regex | Create, set settings, and stored rule lifecycle |
 | Pack | Create, pack settings, media items, and named groups |
+| Quick reply | Create a typed set; Workbench provides the set editor |
+| HTML document | Create and update the sealed drawing document |
 
 These operations share pure entity-layer reducers with the Workbench where the corresponding editor
 already exists. Regex and embedded behavior payloads remain sealed data and are never executed by a
@@ -502,10 +505,42 @@ every connected client with no edit here. There is no MCP SDK dependency: over s
 newline-delimited JSON-RPC with a handful of methods, and the official package carries seventeen
 transitive dependencies serving HTTP transport and OAuth that this never uses.
 
+## Wearing other people's belts
+
+The other direction: MCP servers configured in Settings > Connections join Kit's own belt. Saving,
+disabling, or removing a server synchronizes the live connections and invalidates the cached Kit
+session, so the next turn rebuilds the exact tool catalog without restarting Hoplight. The config is
+`~/.hoplight/mcp.json` - home-keyed beside the vault, because an entry names a COMMAND
+THIS MACHINE EXECUTES at the next session build, which is a fact about the machine and not about any
+studio. It is written only through the host-only `/api/mcp/*` routes (a tailed-in device offered
+that surface would hold remote code execution wearing a settings screen), parsed fail-closed per
+entry with rejects named, and a server's `env` block - where API keys ride - goes in and never comes
+back: listings carry key names only, and a save with env omitted keeps the stored values.
+
+One connection manager per process (`src/kit/mcp/connections.ts`) spawns each enabled server once,
+reuses it across sessions, restarts it when its recipe changes, and kills every child on exit -
+sessions must never each spawn their own copy. A server that fails to connect is a named failure in
+Settings, never a broken session; a tool call that hangs is an error result the model reads, not a
+dead turn; and under the test runner nothing connects at all unless a test opts in by name
+(`HOPLIGHT_MCP=on`), because session-building tests share the real `~/.hoplight`.
+
+External tools wear the name `mcp_<server>_<tool>` (folded to the belt's alphabet, collisions
+dropped and counted) and carry the server's own JSON Schema to the model via `schemaOverride` -
+round-tripping it through Zod would be lossy, and the far server is the real validator. Every such
+tool is classified `egress` BY EXACT ENUMERATED NAME at the moment it joins the belt
+(`assembleBelt` returns the tools and the trust entries from the same breath, so they cannot
+drift): the danger tier that confirms at the Gate and can at most be allowed for a session. The
+`CatalogToolAccess` seam deliberately cannot grant `write`, `delete` or `exec`, and an external
+name that was never enumerated stays on the unknown floor - deny by absence. Effect is `apply`,
+because "we cannot know what it does" must never skip an ask. The serving side never re-exports
+them: `hoplight mcp` builds from `discoverTools()` alone, so two Hoplights pointed at each other do
+not echo. External results cross the same bounded store as first-party observations: large values
+return an opaque handle and peek, while values beyond the store cap are omitted with a named error.
+
 ## Verification status
 
 Unit and integration proof covers catalog parity, all discovery domains, compact discovery calls,
-progressive exposure, six-kind creation discovery and preview, media schema descriptions, whole-card
+progressive exposure, eight-kind creation discovery and preview, media schema descriptions, whole-card
 reads, bounded oversized result storage, JSON Pointer traversal, complete draft evidence,
 read-effect isolation, canonical draft composition, create collision refusal, stale update refusal,
 one-save apply, post-save verification, and a full fake-provider rename journey through the real

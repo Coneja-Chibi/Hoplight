@@ -20,7 +20,7 @@ import { ALL_PATTERNS, type BlockPattern } from "./patterns";
 export interface BlockSkeleton {
   readonly identifier: string;
   readonly name: string;
-  readonly role: "system" | "user" | "assistant";
+  readonly role: "system" | "user" | "assistant" | "tool";
   readonly content: string;
   /** True for a reserved engine slot, whose content is meant to stay empty. */
   readonly marker?: boolean;

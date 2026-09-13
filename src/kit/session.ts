@@ -37,7 +37,7 @@ import type { DraftReview, RailSnapshot } from "./tools/tool";
 import { reviewChangeDraft } from "./changes/review";
 import { crossingForExport } from "./changes/crossing-preview";
 import { createCapabilityFindTool } from "./tools/capability-find";
-import { offerableTools } from "./belt";
+import { assembleBelt } from "./belt";
 import { createChangeApplyTool } from "./tools/change-apply";
 import { createChangeDiscardTool } from "./tools/change-discard";
 import { createPresetCopyBlocksTool } from "./tools/preset-copy-blocks";
@@ -199,8 +199,9 @@ export async function createSession(
     discoverTools(),
     discoverCapabilities(),
   ]);
-  // Offer only what this machine can run, engine folders included. See belt.ts.
-  const directTools = await offerableTools(discovered, bridge.studioDir);
+  // Offer only what this machine can run - engine folders and connected MCP servers included.
+  const belt = await assembleBelt(discovered, bridge.studioDir);
+  const directTools = belt.tools;
   const changes = createChangeSession();
   const results = createResultStore();
   const folders = createGrantBook();
@@ -241,9 +242,12 @@ export async function createSession(
   const lifecycleSpecs = toolSpecs(lifecycleTools);
   const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));
   const activities = new Map(tools.map((tool) => [tool.name, tool.activity]));
-  const accessFor = createAccessResolver(
-    contentCapabilityAccess(runtime.descriptors()),
-  );
+  const accessFor = createAccessResolver([
+    ...contentCapabilityAccess(runtime.descriptors()),
+    // External MCP tools, by exact enumerated name, as egress: confirmed at the Gate, allowable
+    // for a session, never silently run. Enumerated at the same moment they joined the belt.
+    ...belt.externalAccess,
+  ]);
 
   /** The narrow read art-lookup needs, adapted from the bridge once rather than at each call site. */
   const artSource = {

@@ -17,7 +17,7 @@ const promptShape = {
   id: z.string().min(1),
   name: z.string(),
   content: z.string(),
-  role: z.enum(["system", "user", "assistant"]),
+  role: z.enum(["system", "user", "assistant", "tool"]),
   enabled: z.boolean(),
   systemPrompt: z.boolean(),
   marker: z.boolean(),
@@ -37,7 +37,7 @@ const block = z.strictObject(promptShape);
 const patch = nonEmptyPatch({
   name: z.string().optional(),
   content: z.string().optional(),
-  role: z.enum(["system", "user", "assistant"]).optional(),
+  role: z.enum(["system", "user", "assistant", "tool"]).optional(),
   enabled: z.boolean().optional(),
   systemPrompt: z.boolean().optional(),
   marker: z.boolean().optional(),

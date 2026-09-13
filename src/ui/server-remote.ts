@@ -86,6 +86,13 @@ export function isHostOnlyRoute(p: string, method: string): boolean {
      * host-only: it answers questions about the host's filesystem.
      */
     p.startsWith("/api/macro-lab/") ||
+    /**
+     * MCP CONNECTIONS, and this one is not a judgement call: a server entry is a command this
+     * machine executes at the next session build. Accepting one from a tailed-in or LAN device
+     * would be remote code execution wearing a settings screen. Even the GET is host-only - it
+     * names commands, paths and env key names on the owner's machine.
+     */
+    p.startsWith("/api/mcp/") ||
     p === "/api/open" ||
     p === "/api/shutdown" ||
     p === "/api/restart" ||

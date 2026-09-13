@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/architecture",
   "sourcePath": "docs/reference/architecture.md",
-  "sourceHash": "sha256:763c94ed8f9ebc966347a9c782e7efc90795a41d5c170255e1131cd34b80fe52",
-  "semanticSummaryHash": "sha256:da1fa4453b27a9220c3b32f93720f0b76c5397837de56436938ab8e4765086f5",
+  "sourceHash": "sha256:896b95efeb35f1e68cafbe9a91542013c4d1701f613678f0682a95b853ddca4f",
+  "semanticSummaryHash": "sha256:bd27faf449d66db72628a869e0aa1db20f1e703cec3a4f9e5fed54b11af544a6",
   "verdict": "APPROVE",
-  "reviewer": "codex-credibility-semantic-reviewer",
-  "notes": "Source and sidecar accurately describe five adapter-backed kinds plus canonical pack, semantic rather than universal byte round trips, strict six-kind canonical decoding, folder discovery, bundles, capability discovery and durable apply, and the primary-loopback plus optional-remote topology. The repaired recursive-any claim is typecheck-proven, and CLI validate now crosses canonical decoding. No material semantic omission or invented claim found.",
-  "reviewedAt": "2026-07-26T10:36:52.907Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete source and every section re-read; summary correctly covers all eight kinds, six adapter-backed kinds, eight runtime decoders, escrow, discovery, capabilities, and layering.",
+  "reviewedAt": "2026-09-13T02:03:40.844Z"
 }

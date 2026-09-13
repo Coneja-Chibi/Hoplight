@@ -187,6 +187,16 @@ export interface HarnessTool<Input = unknown> {
   discovery?: ToolDiscoveryMetadata;
   /** Zod schema for the args; the single parse-once, fail-closed boundary. */
   input: z.ZodType<Input>;
+  /**
+   * The JSON Schema the MODEL sees, when it did not originate in zod.
+   *
+   * Only for tools whose contract lives outside this process - an external MCP server advertises
+   * JSON Schema directly, and round-tripping it through zod would be lossy in both directions.
+   * `input` still runs at dispatch (a permissive shape there is deliberate: the far server is the
+   * real validator, and rejecting here what it would accept would be inventing a second authority).
+   * First-party tools must never set this; their zod schema IS the contract.
+   */
+  schemaOverride?: Record<string, unknown>;
   /** Calls sharing a key serialize when the scheduler supports batching. */
   concurrencyKey(args: Input): string;
   /** Run the tool over already-validated args. Read tools never mutate; write tools gate first. */

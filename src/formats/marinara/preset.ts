@@ -89,7 +89,7 @@ const placementToWire = (p: PromptPlacement): string =>
   p === "in_chat" || p === "append" ? "depth" : "ordered";
 
 const roleFromWire = (v: unknown): PromptRole =>
-  v === "user" || v === "assistant" ? v : "system";
+  v === "user" || v === "assistant" || v === "tool" ? v : "system";
 
 function sectionToPrompt(s: Rec): PresetPrompt {
   const marker = boolWire(s.isMarker);

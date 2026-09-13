@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:bf7da77ec86e621a7b157ba3b5b5988a20fbf9be246c4da44adc887b11b7e5b4",
-  "semanticSummaryHash": "sha256:c796244b381de89e2a51063a58917f489d575b5713aa58da6ba365a2b4389f8e",
+  "sourceHash": "sha256:ed1e43aad461fc8d1bc1a19fa20697b19c603e23c4d5061d965886d61a5c0bce",
+  "semanticSummaryHash": "sha256:9366efd1e5ee93daf0f287d6603289771491c925d5131e8b57f47fc1194ba775",
   "verdict": "APPROVE",
-  "reviewer": "fullscreen-fill-review",
-  "notes": "Regenerated catalog only: SealedHtmlPreview's signature gains fill, HtmlView's class list gains the fullscreen classes. Both read against the files. Not an independent pass: written and approved in one turn.",
-  "reviewedAt": "2026-08-12T20:31:03.849Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete generated catalog and both summary sections re-read; summary accurately describes the generator, TSX inventory including Connections, QuickReplyEditor, LinkedSets and LivePreview, and shared helper table.",
+  "reviewedAt": "2026-09-13T02:03:41.065Z"
 }

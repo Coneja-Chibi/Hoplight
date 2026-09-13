@@ -23,7 +23,7 @@ const promptShape = defineExhaustiveShape<PresetPrompt>()({
   id: z.string(),
   name: z.string(),
   content: z.string(),
-  role: z.enum(["system", "user", "assistant"]),
+  role: z.enum(["system", "user", "assistant", "tool"]),
   enabled: z.boolean(),
   systemPrompt: z.boolean(),
   marker: z.boolean(),
@@ -170,6 +170,8 @@ const bodyShape = defineExhaustiveShape<PresetBody>()({
   // Linked regex/script sets. Optional and additive: a preset saved before this field existed still
   // parses, which is what keeps the schema change from being a migration.
   behaviorRefs: z.array(z.string().min(1)).optional(),
+  // Linked quick-reply sets, the same additive shape for the same reason.
+  quickReplyRefs: z.array(z.string().min(1)).optional(),
 });
 
 export const presetBodySchema = z.strictObject(bodyShape);

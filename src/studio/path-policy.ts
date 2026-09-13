@@ -14,6 +14,7 @@ export const STUDIO_ENTITY_KINDS = [
   "regex",
   "preset",
   "htmldoc",
+  "quickreply",
 ] as const;
 export type StudioEntityKind = (typeof STUDIO_ENTITY_KINDS)[number];
 

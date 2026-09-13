@@ -1,6 +1,6 @@
 {
-  "generated": "2026-08-13",
-  "count": 113,
+  "generated": "2026-09-13",
+  "count": 115,
   "docs": [
     {
       "id": "01-VISION",
@@ -1064,14 +1064,119 @@
       ]
     },
     {
+      "id": "decisions/ADR-012-macro-evaluation-boundary",
+      "path": "docs/decisions/ADR-012-macro-evaluation-boundary.md",
+      "title": "ADR-012: Macro evaluation is a closed-world interpreter, not a second script sandbox",
+      "audience": "dev",
+      "summary": "**Status:** accepted, 2026-08-23 (proposed 2026-07-26) **Context owners:** `src/core/preset/macros/`, `src/sandbox/`, a future `src/core/macros/` **Supersedes nothing. Constrains:** any implementation of `specs/engine/macro-engine.md`",
+      "tags": [],
+      "related": [],
+      "semanticSummary": "Accepted on 2026-08-23, ADR-012 decides that macro evaluation is a closed-world interpreter rather than a second script sandbox. Hoplight cannot say whether a preset macro survives conversion because support.ts is name-level only: a missing name reliably dies, a present name proves nothing, and random with two arguments means different things on SillyTavern and RoleCall. Closing that gap needs the tokenizer, parser and tree-walking evaluator the macro engine spec designs, which collides with project rule 3 naming macros alongside Lua and regex as sealed payloads. The ADR narrows rule 3 in writing to Lua and regex, which keep ADR-009 isolation, and permits an in-process macro interpreter under bounded depth, output and steps, with no host surface, seeded randomness and clock, and unknown names degrading to literal text. Conversion still never evaluates: the Round-Trip Law boundary is promoted from spec text to accepted decision. Handlers are data-only, enforced by a registry test. Rejection means macro behavior can never be proven, only compared by name.",
+      "topics": [
+        "closed world interpreter",
+        "rule 3 narrowed",
+        "Lua regex keep isolation",
+        "conversion never evaluates",
+        "bounded depth output steps",
+        "no host surface",
+        "handlers data only",
+        "rejection consequence stated"
+      ],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2,
+          "summary": "Context establishes the question Hoplight cannot answer today: whether a preset macro still works after conversion to another platform format. support.ts is name-level only by its own header, so a name missing from the target engine reliably dies while a name present proves nothing about syntax or meaning, and random with two arguments picks from a list on SillyTavern but is a numeric range on RoleCall. Closing that gap requires the tokenizer, parser and tree-walking evaluator that the macro engine spec already designs. That collides with project rule 3, which names macros alongside Lua and regex as sealed payloads, permits execution only in the user-invoked test benches on the ADR-009 sandbox origin, and forbids adding another execution path. Read widely the rule forbids the very engine the specs describe; read narrowly it governs only imported script payloads. The rule cannot be reinterpreted in a code comment by whoever implements the evaluator first, so it needs a decision.",
+          "topics": [
+            "name level only",
+            "random collision",
+            "spec collides with rule 3",
+            "widest versus narrowest reading",
+            "cannot reinterpret silently"
+          ],
+          "children": []
+        },
+        {
+          "text": "The distinction this ADR draws",
+          "slug": "the-distinction-this-adr-draws",
+          "level": 2,
+          "summary": "The distinction separates two hazards that rule 3 currently covers in one sentence. Sealed scripts are code in a general-purpose language: Lua is Turing-complete, regex carries catastrophic backtracking, both would reach an arbitrary host surface without isolation, and their failure modes are escape, exfiltration and hang. Macro templates are text with token substitutions whose expressive power is limited to whatever a registered handler does, whose reachable host surface is none because no handler touches filesystem, network or process, and whose failure modes are wrong text and unbounded expansion. A Lua interpreter runs whatever the payload says; a macro evaluator runs only handlers Hoplight wrote, selected by name from a closed registry, with an unrecognized name emitted as literal text. Applying one mitigation to both is not conservatism but a category error that would place a pure text-substitution pass behind a cross-origin worker for no security gain.",
+          "topics": [
+            "two different hazard classes",
+            "code versus substitution",
+            "closed registry of handlers",
+            "no reachable host surface",
+            "category error named"
+          ],
+          "children": []
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2,
+          "summary": "The decision has five parts. Rule 3 is narrowed in writing to sealed script payloads, meaning Lua and regex, which keep ADR-009 isolation and remain the only execution paths that get it, with the AGENTS.md rule text updated in the same change that accepts this ADR. Macro evaluation is permitted as an in-process closed-world interpreter under src/core/macros subject to the stated constraints. Conversion still never evaluates: the macro engine spec edge case forbidding a codec from calling the evaluator during parse or serialize is promoted from spec text to accepted decision, so macro text stays opaque payload to every adapter. The evaluator is reachable from exactly three callers without a further ADR: the user-invoked test bench, the transfer compatibility report, and future prompt assembly. Handlers are data-only, with filesystem, network, process, timer and dynamic-code operations prohibited and enforced by a registry test rather than by review alone.",
+          "topics": [
+            "rule 3 narrowed to Lua regex",
+            "interpreter permitted in core",
+            "codecs never evaluate",
+            "three permitted callers",
+            "handlers data only enforced"
+          ],
+          "children": []
+        },
+        {
+          "text": "Constraints on the evaluator",
+          "slug": "constraints-on-the-evaluator",
+          "level": 2,
+          "summary": "Constraints on the evaluator are acceptance criteria rather than aspirations, and an implementation missing any of them does not satisfy the ADR. Recursion is bounded at depth one hundred, with a runaway subtree returning empty rather than throwing or hanging. Output is bounded by a hard ceiling on expanded characters enforced during evaluation rather than checked afterward, because expansion bombs are the realistic denial vector for a substitution engine and depth alone does not stop them. Steps are bounded by a node-evaluation budget so a wide template cannot substitute for a deep one. There is no ambient clock or randomness by default: volatile macros read a seed and a caller-supplied clock, since a test that cannot pin them cannot characterize them. The readOnly context makes side-effect macros no-ops. Unknown names remain literal and never throw or abort, while returned diagnostics may still name them as unresolved. MacroContext carries values only.",
+          "topics": [
+            "acceptance criteria not aspirations",
+            "bounded depth output steps",
+            "expansion bombs named",
+            "seeded clock and randomness",
+            "unknown degrades to literal"
+          ],
+          "children": []
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2,
+          "summary": "Consequences are stated in both directions. The macro program becomes schedulable rather than blocked on an unresolved rule. The sandbox directory stays exactly as it is, gaining no capability and losing none. The security posture that actually matters is unchanged, because nothing imported from another platform is ever executed as code, at import or at conversion. A reviewer gains a specific checklist to hold an implementation against instead of arguing about whether rule 3 applies to macros. If the ADR is rejected the consequence is concrete and deliberately stated rather than left implicit: Hoplight can never prove macro behavior and can only compare macro names, so the transfer report stays permanently at the name-level honesty it has today.",
+          "topics": [
+            "macro program unblocked",
+            "sandbox unchanged",
+            "import never executes",
+            "reviewer checklist",
+            "rejection cost stated"
+          ],
+          "children": []
+        },
+        {
+          "text": "What this ADR does not decide",
+          "slug": "what-this-adr-does-not-decide",
+          "level": 2,
+          "summary": "What this ADR does not decide is kept explicit so its scope cannot drift in later reading. It does not decide whether the Risu bracket CBS dialect or Agnai named-slot templates get modeled at all, because that is a scope question rather than a safety one and it is blocked on source availability rather than on this evaluation boundary. It also does not decide whether the evaluator is ever exposed to the model as a callable tool: a user-invoked test bench and a model-callable evaluation tool are separate exposure decisions, and only the former is contemplated here.",
+          "topics": [
+            "scope kept explicit",
+            "Risu Agnai undecided",
+            "blocked on sources not safety",
+            "tool exposure separate"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
       "id": "FORMAT-SUPPORT",
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-08-12.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-09-13.",
       "tags": [],
       "related": [],
-      "semanticSummary": "Auto-generated format support matrix from live adapters via bun run scripts/format-matrix.ts, canonical schema version 1. It lists every registered adapter by content kind with id, writes extensions, and human labels. How to use shows Hoplight formats, inspect, convert, and validate, and names SillyTavern CCv3 as the default portable character shape for thin hosts such as C.AI Tools dumps and Crushon import. Characters currently has nine adapters including agnai, backyard, byaf, lumiverse, pygmalion, risu, rolecall, sillytavern, and vaud-json. Lorebooks has six: agnai, marinara, novelai, risu, rolecall, and sillytavern world info. Personas has four: lumiverse, marinara, rolecall, and sillytavern. Presets has four: lumiverse, marinara, rolecall, and sillytavern. Regex script sets has five: lumiverse, marinara, risu, rolecall, and sillytavern. Sprite packs has zero adapters; the studio edits the pack kind but no import or export format exists yet. Notes require content-sniff detection not extension alone, same-format lossless round-trips where fixtures prove them, honest cross-format drops, and Default CCv3 via sillytavern for skipped host-native bags. Samples lists per-platform fixture folders under samples/.",
+      "semanticSummary": "Auto-generated format support matrix from the live adapter registry, grouped by canonical content kind with adapter id, output extensions, and human label. It documents CLI listing, inspection, conversion, and validation, with SillyTavern CCv3 as the default portable character shape for thin hosts. The current registry has nine character, six lorebook, four persona, four preset, five regex-set, and one quick-reply adapter. The quick-reply row is SillyTavern's version 2 qrList JSON format and promises semantic JSON preservation, not byte identity. Sprite packs and HTML documents remain canonical studio kinds with no foreign format adapters; HTML documents are intentionally canonical-only drawings. Notes explain content-sniff detection, fixture-proven same-format round trips, honest cross-format loss reporting, and sample locations. Because the page is generated, counts and rows change only with the registry.",
       "topics": [
         "format support matrix",
         "live adapter registry",
@@ -1195,6 +1300,19 @@
             "htmldoc canonical only",
             "no foreign saved-page format",
             "HTML View draws it sealed"
+          ],
+          "children": []
+        },
+        {
+          "text": "Quick replies (1)",
+          "slug": "quick-replies-1",
+          "level": 2,
+          "summary": "The live matrix lists one quick-reply adapter. sillytavern-quickreply reads and writes JSON files for SillyTavern Quick Reply sets, using the version 2 qrList container. It is a dedicated quickreply adapter rather than a character, preset, or regex reader, and its declared output extension is JSON. The matrix derives this row from the registered adapter, so the section count, id, kind, writable extension, and descriptive label change only when the runtime registry changes.",
+          "topics": [
+            "sillytavern-quickreply",
+            "qrList version 2 wire",
+            "escrowed switches",
+            "preset quickReplyRefs"
           ],
           "children": []
         },
@@ -3878,7 +3996,7 @@
           "text": "The canonical entity",
           "slug": "the-canonical-entity",
           "level": 2,
-          "summary": "src/core/canonical.ts defines the shared wrapper: schemaVersion identifies the canonical revision, kind selects the entity family, id is the stable identity, body contains interoperable content, profiles hold sparse per-platform overrides, and original holds source escrow. Character, lorebook, persona, preset, and regex are adapter-backed kinds; canonical schemas also define pack entities. Body details live in their entity folders rather than in the wrapper. The superset rule limits body fields to meaning represented by at least one real wire format. Values that exist only in one application's memory or have no portable producer remain in escrow instead of acquiring a misleading canonical slot.",
+          "summary": "src/core/canonical.ts defines the shared wrapper: schemaVersion identifies the canonical revision, kind selects the entity family, id is the stable identity, body contains interoperable content, profiles hold sparse per-platform overrides, and original holds source escrow. Character, lorebook, persona, preset, regex, and quickreply are adapter-backed kinds; canonical schemas also define pack and htmldoc entities. Body details live in their entity folders rather than in the wrapper. The superset rule limits body fields to meaning represented by at least one real wire format. Values that exist only in one application's memory or have no portable producer remain in escrow instead of acquiring a misleading canonical slot.",
           "topics": [
             "canonical wrapper",
             "adapter-backed entity kinds",
@@ -3920,12 +4038,12 @@
           "text": "The adapter contract",
           "slug": "the-adapter-contract",
           "level": 2,
-          "summary": "src/core/adapter.ts defines a kind-discriminated union of open format plugins whose character, lorebook, persona, preset, and regex branches convert to and from matching canonical entities. Adapter output carries text or bytes, extension, and a SerializeReport naming escrowed, dropped, shadowed, and warning paths. Canonical JSON crosses storage and HTTP through src/entities/runtime-schema.ts, which composes six strict per-kind decoders. Each adjacent runtime schema uses defineExhaustiveShape<T>() to infer concrete schemas before requiring exact input and output parity; missing or extra keys, narrowed unions, coercion, any at any nesting depth, and never fail typecheck. Unknown same-version keys fail except in declared open bags such as raw, unmapped, extras, and structured metadata. Kind-matched profiles are shallow partial bodies whose present fields receive complete validation. Storage, HTTP save, format-corpus verification, and Kit drafts share this ADR-011 boundary.",
+          "summary": "src/core/adapter.ts defines a kind-discriminated union of open format plugins whose character, lorebook, persona, preset, regex, and quickreply branches convert to and from matching canonical entities. Adapter output carries text or bytes, extension, and a SerializeReport naming escrowed, dropped, shadowed, and warning paths. An adapter normally owns the source twin under its own id; escrowFormatIds explicitly declares family-keyed twins when a narrower wire adapter owns one, such as rolecall-preset owning original.rolecall. Loss reporting can therefore exclude genuine same-format escrow without hiding unrelated foreign data. Canonical JSON crosses storage and HTTP through src/entities/runtime-schema.ts, which composes eight strict per-kind decoders. Each adjacent runtime schema uses defineExhaustiveShape<T>() to require exact input and output parity; missing or extra keys, narrowed unions, coercion, any, and never fail typecheck. Unknown same-version keys fail except in declared open bags. Kind-matched profiles are shallow partial bodies whose present fields receive complete validation. Storage, HTTP save, format-corpus verification, and Kit drafts share this ADR-011 boundary.",
           "topics": [
             "kind-discriminated union",
             "toCanonical fromCanonical",
-            "EmitContext",
             "SerializeReport",
+            "escrowFormatIds source twin ownership",
             "open formats closed kinds",
             "exhaustive runtime decoders",
             "strict keys and open bags",
@@ -4330,7 +4448,7 @@
           "text": "Components (React, `.tsx`)",
           "slug": "components-react-tsx",
           "level": 2,
-          "summary": "Primary table of React .tsx exports that power the studio under ADR-008. Rows span shell chrome (App, Dock, DropVeil, BootErrorScreen, FollowDialog, and the dirty-tab ClosePieceDialog/ClosePiecePrompt), shared components under src/ui/components (forms, dialogs, lens rail, export dialog, CSS workshop panes, sprite and expression tooling, write-for strip, bento cards, and many field editors), app-scoped presenters under src/ui/apps, and Settings sections including the remote-access helper card (HelperMissingCard, HelperInstalledLine). Workbench dominates: revision-aware character, lorebook, pack, persona, preset, and regex editors plus workshop rails, panes, bulk bars, health and changes surfaces, and mode chrome. Library contributes import and damaged-file notices plus lore and regex workshops; settings contributes LAN and update dialogs; docs contributes its room, navigation, contents, and table of contents. Each row is Name, source File, TypeScript Signature, optional Doc one-liner, and Styles class tokens. Prefer matching an existing name and file path over adding a parallel control; empty Doc cells still count as cataloged exports that the reuse rule covers.",
+          "summary": "Primary table of React .tsx exports that power the studio under ADR-008. Rows span shell chrome, shared components under src/ui/components, app-scoped presenters, and every Settings section including ConnectionsSection for MCP configuration. Workbench includes revision-aware character, lorebook, pack, persona, preset, regex, and quick-reply editors plus their rails, panes, health surfaces, LivePreview, and the LinkedSets control that attaches regex and quick-reply pieces to presets. Library contributes creation, import, and damaged-file controls; settings contributes model, connection, remote, and update controls; docs contributes its room and navigation. Each generated row records Name, source File, TypeScript Signature, optional Doc one-liner, and Styles class tokens. Prefer matching an existing name and path over adding a parallel control; empty Doc cells still identify reusable exports.",
           "topics": [
             "React tsx exports",
             "shell Dock App",
@@ -6465,7 +6583,7 @@
       "related": [
         "reference/architecture"
       ],
-      "semanticSummary": "Preset entity is the field-meaning authority for CanonicalPreset as CanonicalEntity preset PresetBody modeling the SillyTavern chat-completion prompt-manager family of ordered prompt blocks samplers and settings that RoleCall Marinara and Lumiverse dialects center on. Other ST preset subtypes context instruct sysprompt text-completion reasoning are out of scope. PresetAdapter is in the FormatAdapter union and four adapters read and write presets (SillyTavern RoleCall Marinara Lumiverse); no dedicated CLI preset subcommand, presets ride the generic inspect and convert commands, and Library and Workbench also author PresetBody directly. LiveBuild preview orders enabled blocks and counts tokens chars/4 without resolving macros groups or choices and never evals. How to read the field tables and Composition introduce generated tables. Prompt blocks and groups cover PresetPrompt verbatim ids markers placement and Groups. Sampler and generation settings System prompts templates and behavior API and media options Choices walkthrough Full composition Linked regex sets What rides escrow not a field and See also complete the map.",
+      "semanticSummary": "Preset entity is the field-meaning authority for CanonicalPreset and PresetBody, the canonical prompt-manager model shared by the SillyTavern, RoleCall, Marinara, and Lumiverse adapters. It covers ordered prompt blocks, system, user, assistant, and tool roles, hierarchical groups, sampler and generation settings, templates, behavior, API and media options, and interactive choices. Generic CLI commands, Library, Workbench, and Kit lifecycle tools operate on the same body. LiveBuild preview orders enabled blocks and estimates tokens without resolving macros, groups, or choices. behaviorRefs links standalone regex sets, while quickReplyRefs links standalone quick-reply sets; Press resolves both by kind and id when exporting a preset bundle. Escrow remains reserved for source-wire details that editors do not author.",
       "topics": [
         "CanonicalPreset prompt manager",
         "PresetPrompt blocks",
@@ -6493,7 +6611,7 @@
           "text": "Composition",
           "slug": "composition",
           "level": 2,
-          "summary": "PresetBody requires name and prompts ordered manuscript plus twelve optional fields: groups and choices collections; samplers systemPrompts templates behavior apiOptions media generation settings sub-objects; description and enabled scalars; behaviorRefs link array. Grouping mirrors authoring not app storage. Full table lives under Full composition. Tables come from docs/generated/fields.preset.md.",
+          "summary": "PresetBody requires a name and ordered prompts manuscript plus thirteen optional fields: groups and choices collections; samplers, systemPrompts, templates, behavior, apiOptions, media, and generation sub-objects; description and enabled scalars; and behaviorRefs plus quickReplyRefs link arrays. Grouping mirrors authoring rather than app storage. The complete generated field table lives under Full composition.",
           "topics": [
             "name prompts required",
             "groups choices optional",
@@ -6506,7 +6624,7 @@
           "text": "Prompt blocks and groups",
           "slug": "prompt-blocks-and-groups",
           "level": 2,
-          "summary": "PresetPrompt is one manuscript row mapping 1:1 to ST RC or Marinara sections. id is the VERBATIM source identifier never vaud-minted because order refs markers and isDefault key off it exempt from UUID regeneration. role is system user assistant. Per-block systemPrompt flag is not preset-level systemPrompts. placement follows position-picker law with relative in_chat append append_preset prepend_preset open union legality in platform-fields. marker structural placeholders use markerSlot. injectionDepth injectionOrder forbidOverrides injectionTrigger isDefault groupId wrapInXml xmlTagName extras complete the block. Groups child first-classes PresetGroup folders; ST derives divider ids from group id and escrows original divider only for imported ST groups so edits never invent escrow.",
+          "summary": "PresetPrompt is one manuscript row mapping directly to SillyTavern, RoleCall, or Marinara sections. id remains the verbatim source identifier because ordering, references, markers, and isDefault depend on it. role accepts system, user, assistant, or tool; adapters must preserve a supported tool role or report its loss instead of silently coercing it. Per-block systemPrompt differs from preset-level systemPrompts. placement uses the shared position-picker union, while marker blocks use markerSlot. Injection, grouping, XML wrapping, trigger, default, and extras fields complete the block. PresetGroup first-classes authored folders; SillyTavern derives divider ids for native drafts and escrows original divider ids only for imported groups.",
           "topics": [
             "verbatim prompt id",
             "PromptPlacement stops",
@@ -6649,7 +6767,7 @@
           "text": "Full composition",
           "slug": "full-composition",
           "level": 2,
-          "summary": "PresetBody top shape: name description enabled shelf switch read as enabled not false so off presets skip export like off sets; prompts ordered real blocks never divider rows; groups categories; samplers systemPrompts templates behavior apiOptions media generation; choices walkthrough authored now run later; behaviorRefs linked regex ids. Dividers are never blocks; groups model structure.",
+          "summary": "PresetBody contains name, description, enabled state, ordered prompt blocks, group categories, samplers, systemPrompts, templates, behavior, apiOptions, media, generation, and choices. behaviorRefs links canonical regex sets and quickReplyRefs links canonical quick-reply sets without copying either payload into the stored preset. Disabled presets skip export. Dividers are never prompt blocks; groups model structure directly.",
           "topics": [
             "enabled shelf switch",
             "prompts not dividers",
@@ -6663,7 +6781,7 @@
           "text": "Linked regex sets",
           "slug": "linked-regex-sets",
           "level": 2,
-          "summary": "behaviorRefs is the preset counterpart of CharacterBody.behaviorRefs: it names standalone regex/script pieces by canonical id instead of copying their rules, so the set stays one editable piece shared by every preset that links it. The link is canonical; embedding is decided per format at export. SillyTavern and RoleCall carry rows inside the preset file under extensions.regex_scripts, so their adapters embed a linked set. Lumiverse attaches by preset_id on the script instead, and Marinara has no preset-level attachment at all, so nothing rides inside those files. Each adapter's embedRegex owns its answer, and emitPresetBundle reports a set that could not ride rather than dropping it silently.",
+          "summary": "behaviorRefs names standalone regex pieces by canonical id, keeping each set independently editable. SillyTavern and RoleCall can embed linked regex rows under extensions.regex_scripts; Lumiverse attaches scripts by preset_id; Marinara has no preset-level regex attachment. Each adapter owns that decision, and Press reports links that cannot ride instead of dropping them silently. quickReplyRefs applies the same canonical link model to quick-reply sets. Workbench exposes both link collections as checkboxes, and Press resolves every rider by kind and id so identical ids across different content kinds cannot collide.",
           "topics": [
             "link not copy",
             "extensions.regex_scripts",
@@ -8872,7 +8990,7 @@
         "reference/architecture",
         "reference/ui"
       ],
-      "semanticSummary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Twenty direct tools begin each turn, studio_delete among them, plus the preset-authoring belt (block_lookup, preset_verify, regex_lab), the shared-folder pair (folder_search, folder_import), rail_open, studio_art, and ask_choice. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
+      "semanticSummary": "Kit content tools separates model-facing runtime tools from terminal slash commands. Its lifecycle covers all eight canonical kinds through pure previews, one four-domain discovery catalog, complete draft evidence, guarded semantic review, documentation query, whole-piece reads, and bounded result handles. Twenty-six direct tools start a turn, or twenty-five without an engine checkout; search reveals up to five deferred schemas, browse reveals none, and exact describe reveals one. Typed creation covers character, lorebook, persona, preset, regex, pack, quick-reply set, and HTML document without an existing target. Duplicate retains escrow, delete is explicitly classified, and transfer previews adapter costs without writing. External MCP tools join the same exact-name egress gate and bounded result store, and connection changes invalidate the cached session. Guarded apply uses the application review card; atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists, while a real-provider terminal run remains outstanding.",
       "topics": [
         "runtime tools vs slash",
         "workflow discovery lifecycle",
@@ -8890,7 +9008,7 @@
           "text": "Built lifecycle",
           "slug": "built-lifecycle",
           "level": 2,
-          "summary": "Built lifecycle connects six canonical capability bundles to Kit: entities capabilities owns ids, search and exposure, kit capabilities adapts them into a registry. Six lifecycle tools draft creation without a write; duplicate carries body, profiles, escrow. studio_delete alone destroys canonical content, has no discovery descriptor because the runtime refuses deferred applies, and reports a miss as stale without writing. studio_transfer serializes through another adapter without writing. preset_verify renders through the real engine where a checkout exists; regex_lab tries, races, explains and lints. htmldoc.document.update is the edit half drawings lacked, patching one that exists rather than refusing at an occupied id. regex_from_drawing transcribes a drawing into a replacement - flattened, dollars escaped, slots made captures - then runs the pair for real, calling a pattern that matched nothing a failure; html_will_draw names what the seal strips. folder_search reads inside shared folders and the studio, reconciling each resolved path against its real one; folder_import is the one-way door in. rail_open, given a name of another kind, says which kind it is and where it opens. kit changes retains baseline and escrow.",
+          "summary": "Built lifecycle connects all eight canonical content kinds to Kit. Entity capability folders own stable IDs, search, exposure, and pure semantic operations; Kit discovers and adapts them into one registry. Eight typed create workflows draft without writing: character, lorebook, persona, preset, regex, pack, quick-reply set, and HTML document. Duplicate carries body, profiles, and escrow. studio_delete alone destroys canonical content and remains direct because deferred apply workflows are rejected. studio_transfer previews another adapter without writing. Preset verification, regex diagnostics, drawing-to-regex transcription, shared-folder search and import, rail opening, whole-piece reads, and HTML document update complete the live lifecycle. The change session retains one baseline, composed operations, warnings, platform impact, and escrow until a separately authorized apply.",
           "topics": [
             "six content bundles",
             "duplicate carries escrow",
@@ -8922,7 +9040,7 @@
           "text": "Apply and authorization",
           "slug": "apply-and-authorization",
           "level": 2,
-          "summary": "The safety subsystem owns exact-name access classification and never trusts prefixes, discovery metadata, or a claimed runtime effect. Pure content capabilities derive read or preview-only draft access from validated catalog metadata. Each of the six creation workflows has a separate safety-owned exact-name draft classification. Guarded apply pauses in an application-owned semantic review card. Update apply compares the expected revision under a per-path lock. Create apply uses a distinct atomic create-only operation that refuses an occupied ID rather than overwriting or minting a sibling. Stale state and collisions write nothing. Both modes re-read and verify canonical fields and non-Studio escrow. Unreadable or mismatched verification reports failure without retry.",
+          "summary": "The safety subsystem owns exact-name access classification and never trusts prefixes, discovery metadata, or a claimed runtime effect. Pure content capabilities derive read or preview-only draft access from validated catalog metadata. Each of the eight creation workflows has a separate safety-owned exact-name draft classification. Guarded apply pauses in an application-owned semantic review card. Update apply compares the expected revision under a per-path lock. Create apply uses a distinct atomic create-only operation that refuses an occupied ID rather than overwriting or minting a sibling. Stale state and collisions write nothing. Both modes re-read and verify canonical fields and non-Studio escrow. Unreadable or mismatched verification reports failure without retry.",
           "topics": [
             "catalog name classify",
             "read vs draft least privilege",
@@ -9009,7 +9127,7 @@
           "text": "Other canonical bundles",
           "slug": "other-canonical-bundles",
           "level": 2,
-          "summary": "Persona creation separates shelf brief from injected content and accepts sections, traits, identity, rating, and portrait. Preset creation accepts prompt blocks, sampler values, and media-inlining settings. Regex creation accepts stored rules with patterns, flags, replacements, phases, depth bounds, and ordering but never executes them. Pack creation accepts expression items with IDs, labels, refs, MIME types, enabled state, and default label. Existing capabilities continue editing each kind through shared entity reducers.",
+          "summary": "Persona creation separates shelf brief from injected content and accepts sections, traits, identity, rating, and portrait. Preset creation accepts prompt blocks, samplers, and media settings. Regex creation accepts stored rules but never executes them. Pack creation accepts expression items and groups. Quick-reply creation accepts labeled messages, and Workbench owns later editing. HTML-document creation stores sealed markup, while htmldoc.document.update edits an existing drawing. Existing semantic capabilities edit supported kinds through shared entity reducers.",
           "topics": [
             "persona identity profile",
             "preset blocks samplers",
@@ -9123,10 +9241,26 @@
           "children": []
         },
         {
+          "text": "Wearing other people's belts",
+          "slug": "wearing-other-peoples-belts",
+          "level": 2,
+          "summary": "MCP servers configured in Settings Connections join Kit's belt. The host-only API writes fail-closed machine-local mcp.json entries; environment values never return, and omitting env preserves stored values. Saving, disabling, or removing a server synchronizes the shared connection manager and invalidates the cached Kit session, so the next turn sees the exact new belt without restarting. One manager per process reuses enabled servers, restarts changed recipes, and kills children on exit. External names and schemas come from the server, collisions are dropped, and every enumerated name receives exact egress classification in the same assembly step. Unknown names remain denied, external tools cannot gain write, delete, or exec classification, and Hoplight does not re-export them. Large external results use the shared bounded store, returning a handle and peek or a named omission beyond its cap.",
+          "topics": [
+            "mcp.json home-keyed",
+            "host-only api mcp",
+            "env write-only",
+            "one manager per process",
+            "egress by enumeration",
+            "schemaOverride to the model",
+            "no re-export echo"
+          ],
+          "children": []
+        },
+        {
           "text": "Verification status",
           "slug": "verification-status",
           "level": 2,
-          "summary": "Verification status separates proof from gaps. Unit and integration tests cover discovery, creation preview, draft evidence, collision and stale refusal, one-save apply, and post-save verification. Lifecycle and transfer add delete safety, escrow-carrying duplication, structural export containment, create-only refusal, and a RoleCall to SillyTavern preset journey onto a real filesystem. An oracle checks macro catalogs against each engine registry; SillyTavern alone lacks one. Live verification against a real provider remains outstanding.",
+          "summary": "Unit and integration tests cover catalog parity, discovery for all eight create workflows, whole-card reads, bounded first-party and MCP results, draft evidence, stale and collision refusal, verified apply, and a fake-provider rename through the real store. Lifecycle tests cover delete, escrow-preserving duplicate, export containment, and a real-filesystem preset transfer. Macro catalogs are checked against available engine registries; SillyTavern lacks an oracle. A running Kit session against a real provider remains outstanding.",
           "topics": [
             "proof separated from gaps",
             "lifecycle and transfer covered",
@@ -9135,6 +9269,69 @@
             "oracle backed macro claims",
             "SillyTavern unverified",
             "live session still owed"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "reference/macro-engine",
+      "path": "docs/reference/macro-engine.md",
+      "title": "reference/macro-engine",
+      "audience": "dev",
+      "summary": "",
+      "tags": [],
+      "related": [],
+      "semanticSummary": "The closed-world macro interpreter under src/core/macros/, permitted by ADR-012 and shaped by the macro engine spec. It parses macro templates into a span-carrying AST via an offset-mapped normalization of the shorthand dialects, then evaluates them against a value-only context under enforced bounds: depth one hundred, an output ceiling, a step budget, seeded randomness and no ambient clock. Output is flat text plus segments that trace every rendered span back to the authored characters that produced it, which is the contract the editable preview stands on. The handler set covers bucket one plus two context-fed families: time macros reading a caller-supplied clock value and bucket-two chat macros reading a stub conversation; unknown names degrade to literal tags with an error entry, and a registry test proves every handler is data-only. Callers are exactly the ADR-012 list: the macro test bench, the transfer report, and prompt assembly surfaces such as live-render. Codecs and adapters never evaluate; macro text stays opaque payload at every import and conversion boundary.",
+      "topics": [
+        "closed world interpreter",
+        "span provenance",
+        "offset mapped normalization",
+        "bounded evaluation",
+        "seeded randomness",
+        "bucket one handler subset",
+        "editable preview segments",
+        "permitted callers only"
+      ],
+      "anchors": [
+        {
+          "text": "What is implemented",
+          "slug": "what-is-implemented",
+          "level": 2,
+          "summary": "The parser is a span-carrying port of the reference clean-room parser: same classification cascade, same degradation rules for unmatched and malformed constructs, same deliberate quirks including never-floored negative depth and triple-brace folding. Normalization rewrites escaped braces, angle tokens, dot and dollar notation, space and single-colon forms into canonical syntax through an offset map, so every parsed node traces to its authored range. The evaluator enforces the ADR bounds during evaluation, draws randomness from mulberry32 over the context seed, honors readOnly, and degrades unknown names to literal tags plus an error entry. Handlers cover bucket one - identity, variables in all scopes, conditionals, text transforms, comments, the seeded volatile family - plus time macros reading the caller-supplied context.now (empty when no clock is given) and bucket-two chat macros reading a stub conversation, empty when absent. Lazy handlers, interceptors, templates and the characterization-corpus port are outstanding.",
+          "topics": [
+            "parser port with spans",
+            "degradation rules kept",
+            "offset mapped rewrites",
+            "bounds enforced during eval",
+            "bucket one subset",
+            "outstanding ports named"
+          ],
+          "children": []
+        },
+        {
+          "text": "Segments: the editable-preview contract",
+          "slug": "segments-the-editable-preview-contract",
+          "level": 2,
+          "summary": "Segments are the editable-preview contract: processMacros returns one segment per top-level node alongside the flat text. A literal segment's value is the authored slice verbatim, escaped braces unrestored and newline runs uncollapsed, so splicing an edited value into its source range can never corrupt the source; the restored, whitespace-collapsed rendering lives in the flat text, which is postprocessed once as a whole, and segments are provenance rather than a partition of it. A macro segment carries its raw authored expression, its resolved value, and for the choice family and block-if which option or branch fired, so a preview can offer branch-level edits instead of guessing at a flat string. live-render.ts layers this over buildPreview's engine-truth ordering, threading one variable context across blocks in build order and tagging every segment with its block id.",
+          "topics": [
+            "one segment per node",
+            "literal value is authored slice",
+            "segments are provenance not partition",
+            "branch detail carried",
+            "block id provenance",
+            "shared variable context"
+          ],
+          "children": []
+        },
+        {
+          "text": "Who may call it",
+          "slug": "who-may-call-it",
+          "level": 2,
+          "summary": "Who may call it is exactly the ADR-012 list: the user-invoked macro test bench, the transfer compatibility report, and prompt assembly or preview surfaces such as live-render. The external-engine renderer under src/core/preset/render/ remains the cross-check oracle: it answers what the real platform says, while this engine answers what the text says and where each character came from.",
+          "topics": [
+            "three permitted callers",
+            "external renderer as oracle"
           ],
           "children": []
         }
@@ -12460,11 +12657,12 @@
           "text": "Map",
           "slug": "map",
           "level": 2,
-          "summary": "Start at architecture for the engine: canonical escrow adapters kinds registry folders bundles CLI. entities character and lorebook document supersets. concepts character-book covers embed extract re-embed. formats README is the coverage matrix; formats star pages cover detection maps escrow quirks and sources of truth.",
+          "summary": "Start at architecture for the engine: canonical escrow adapters kinds registry folders bundles CLI. entities character and lorebook document supersets. concepts character-book covers embed extract re-embed. macro-engine covers the closed-world interpreter permitted by ADR-012: span-carrying parser, bounded evaluator, and the segment contract behind the editable preview. formats README is the coverage matrix; formats star pages cover detection maps escrow quirks and sources of truth.",
           "topics": [
             "architecture start here",
             "character lorebook entities",
             "character-book concept",
+            "macro-engine interpreter",
             "formats matrix and pages"
           ],
           "children": []
@@ -13883,7 +14081,7 @@
       "summary": "uses. Optional remote listeners are separately enabled and gated. One engine, two shells - no format logic exists in the UI layer.",
       "tags": [],
       "related": [],
-      "semanticSummary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
+      "semanticSummary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and Kit's terminal companion. Kit covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes reload, provenance, storage, receipts, and revision-checked HTTP writes. Library owns importing and staging while reporting damaged files without changing them. Workbench owns persistent editors for all eight canonical kinds, split panes, preset links to regex and quick-reply sets, and explicit revision-checked saves. Press owns staged export runs, linked riders, bare single-file delivery, plural zip delivery, and honest unknown-loss reporting. Settings derives Appearance, Models, Connections, Studio, Workbench, Remote access, Updates, and About; Connections manages both directions of MCP. Security distinguishes loopback from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized marks.",
       "topics": [
         "Kit conversational terminal",
         "drop-in UI architecture",
@@ -14070,12 +14268,12 @@
           "text": "The Workbench room (home by default - the IDE)",
           "slug": "the-workbench-room-home-by-default---the-ide",
           "level": 2,
-          "summary": "Workbench is the shell-owned tabbed IDE for character, lorebook, persona, preset, regex, and pack entities; editors retain local drafts and save explicitly. Each editor loads a complete-entity revision and saves only against that revision, so an external write leaves the draft dirty and reports a conflict instead of being overwritten. One shared editor-guard hook publishes dirty state, owns Ctrl+S and window-close protection, and routes tab, keyboard, editor-back, and context-menu closes through a shell-owned discard-or-keep dialog. send and sendMany share ask/always/never follow behavior, while create and open-beside gestures navigate directly. Recents combines import and open times, excludes current tabs, caps history, and can collapse. Character editing preserves untouched body fields, persistent prose order, dirty state, and variant semantics shared with Kit operations. Split view supports any two kinds with tested focus, promotion, and close rules. Pane container queries, not viewport queries, drive responsive collapse. Lorebook editing centers one entry with searchable groups, trigger modes, timing, placement, passage, platform-specific cards, fine controls, match testing, and honest token estimates. The shell also persists a marks-only Dock mode.",
+          "summary": "Workbench is the shell-owned tabbed IDE for all eight canonical kinds: character, lorebook, persona, preset, regex, pack, quick-reply set, and HTML document. Editors keep local drafts, load a complete-entity revision, and compare it on explicit save; an external write leaves the draft dirty and reports a conflict. One shared guard owns dirty state, Ctrl+S, close protection, and discard confirmation. Character edits preserve untouched fields and variants through operations shared with Kit. Preset groups render hierarchically, and settings link independently stored regex and quick-reply sets by canonical id. The quick-reply editor manages ordered labels and messages with the same save contract. Split view pairs any two kinds with tested focus and close rules; pane container queries drive collapse. Lorebook editing focuses one searchable entry with triggers, timing, placement, text, platform fields, match tests, and token estimates.",
           "topics": [
             "shell-owned editor tabs",
-            "follow and direct-open paths",
             "recents ranking rail",
             "revision-checked explicit saves",
+            "hierarchical preset categories",
             "dirty close confirmation",
             "universal split view",
             "pane container queries",
@@ -14087,7 +14285,7 @@
           "text": "The Press room (batch export - the staged set prints)",
           "slug": "the-press-room-batch-export---the-staged-set-prints",
           "level": 2,
-          "summary": "Press exports only a shell-owned staged queue assembled from Library or its unstaged-piece rail, so queue state survives app switches and the room does not duplicate a studio browser. Characters automatically gather referenced lorebooks from the whole studio; riders may be dropped for one run, and an already staged riding book is not exported twice. Readiness compares characters with the target's live field-coverage claims and identifies lorebook entries that cannot fire, offering editor repair links without manufacturing green status when claims are absent. Export reports preserve that distinction: undeclared coverage is unknown with a null dropped count rather than false zero loss. Each run chooses one grouped platform target, declares filenames, text flavors, and skips before work, reports printed, skipped, or failed outcomes per row, and emits one zip. Delivery history, saved jobs, reorder, byte rehearsal, and readiness dots remain explicitly deferred.",
+          "summary": "Press exports only a shell-owned staged queue assembled from Library or its unstaged-piece rail, so queue state survives app switches and the room does not duplicate a studio browser. Linked pieces ride as bundles: characters gather referenced lorebooks, while presets gather behaviorRefs regex sets and quickReplyRefs quick-reply sets, resolved by both kind and id. Riders may be dropped for one run, and already staged riders are not duplicated. Readiness compares characters with the target's live coverage claims and identifies lorebook entries that cannot fire, offering repair links without manufacturing green status when claims are absent. Undeclared coverage remains unknown with a null dropped count. Each run chooses one platform target, declares names and skips before work, and reports each row honestly. One printed file is delivered bare under its own name; several are delivered as one zip. Delivery history, saved jobs, reorder, byte rehearsal, and readiness dots remain deferred.",
           "topics": [
             "shell-owned press queue",
             "character lorebook bundles",
@@ -14177,7 +14375,7 @@
           "text": "Settings (drop-in sections)",
           "slug": "settings-drop-in-sections",
           "level": 2,
-          "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance, Studio for home app, initial deck, publish targets and this machine's engine checkouts, Workbench, Remote access for tunnel and LAN setup, devices, host controls and the optional mesh-helper download, Updates, and About. Engine checkouts are the one control that is not a preference: a root is an absolute host path deciding where a subprocess is spawned, so it lives in engines.json beside settings.json and travels only over the host-only macro-lab roots route, since a settings GET is served to a tailed-in device and a path carries the owner's username and disk layout. It is normalized and marker-checked before storage, saves are serialized because the file holds both engines, an environment variable outranks it, and it is the file Kit reads when a session is built.",
+          "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance, Models, Connections, Studio for home app, initial deck, publish targets and this machine engine checkouts, Workbench, Remote access, Updates, and About. Connections manages MCP both ways: servers this machine runs join Kit belt, added with command, args and write-only env, tested by throwaway spawn, every external tool egress-gated, the whole api mcp surface host-only since an entry is a command this machine executes; and a card shows the one line registering Hoplight own belt in any client. Engine checkouts are similarly machine facts: a root lives in engines.json, travels only over the host-only macro-lab roots route, is normalized and marker-checked before storage, is outranked by an environment variable, and is the file Kit reads at session build.",
           "topics": [
             "drop-in SettingsSection",
             "registry-derived tabs",

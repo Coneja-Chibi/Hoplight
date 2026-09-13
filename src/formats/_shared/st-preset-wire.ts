@@ -253,7 +253,7 @@ function parseRealPrompt(r: Rec): PresetPrompt {
     id,
     name: str(r.name) ?? "",
     content: str(r.content) ?? "",
-    role: (role === "user" || role === "assistant" ? role : "system") as PromptRole,
+    role: (role === "user" || role === "assistant" || role === "tool" ? role : "system") as PromptRole,
     enabled: r.enabled !== false, // provisional; the global order pass overwrites (spec law)
     systemPrompt: r.system_prompt === true,
     marker,

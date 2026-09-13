@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:6e7c39f36460948836f70c2f7c1576bff8a1db0337f0c35f7d3f84d6eed341de",
-  "semanticSummaryHash": "sha256:5027d1651d58d557fbc9e34439ee655bb954ce9173711597b8e4f79b3ef565c4",
+  "sourceHash": "sha256:2c75bacaa39d5e44d1e4128b0c17145e4d6d4b109c2f87c51f4357f9bc7ff436",
+  "semanticSummaryHash": "sha256:7df306bc386bb4a7b057fab440890df7352407424cc7ce3f272aff4b08e07b2c",
   "verdict": "APPROVE",
-  "reviewer": "agent-surface-bundle-review",
-  "notes": "Two defects found by driving a real studio in a browser, not by reading. First: the agent room imported agent/live-state directly, and every app under /apps is a separate bundle, so it read its own permanently empty copy - mounted as an app it said 'no screen has described itself yet' from every screen while the identical component in the floating panel worked. Reproduced before the fix and re-proved after: from the Library it now says 'Standing on The Library', from Docs 'Standing on Help / Docs'. Second: only five of eleven apps ever call ctx.agent.publish, so from the other six there was no reading at all; the shell now publishes a bare snapshot on mount, excluding the agent itself. The room.test.tsx double was rewritten to drive the seam through ctx - the old one published into the module the room imported, which is why it certified a room nobody could use. Not an independent pass: written and approved in one turn.",
-  "reviewedAt": "2026-08-12T22:59:04.498Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete UI reference and all section summaries re-read; summary accurately distinguishes all eight Workbench kinds, preset linkage, bare single-file versus plural zip Press delivery, MCP Connections, and proof limits.",
+  "reviewedAt": "2026-09-13T02:03:41.291Z"
 }

@@ -91,6 +91,7 @@ export interface ReportTarget {
   id: string;
   native?: boolean;
   coverage?: CoverageDecl;
+  escrowFormatIds?: readonly string[];
 }
 
 /**
@@ -103,12 +104,13 @@ export function buildSerializeReport(
 ): SerializeReport {
   if (target.native) return serializeReport(undefined, "native");
   const warnings: string[] = [];
+  const ownedEscrow = new Set([target.id, ...(target.escrowFormatIds ?? [])]);
   const dropped = target.coverage
     ? populatedPaths(entity.body).filter((path) => !coversPath(target.coverage!, path))
     : [];
   if (!target.coverage) warnings.push(`${target.id}: canonical field coverage is not declared`);
   for (const [formatId, entry] of Object.entries(entity.original ?? {})) {
-    if (formatId === target.id || formatId === "vaud-studio") continue;
+    if (ownedEscrow.has(formatId) || formatId === "vaud-studio") continue;
     if (entry?.raw !== undefined) dropped.push(`original.${formatId}.raw`);
     for (const key of Object.keys(entry?.unmapped ?? {})) {
       dropped.push(`original.${formatId}.unmapped.${key}`);

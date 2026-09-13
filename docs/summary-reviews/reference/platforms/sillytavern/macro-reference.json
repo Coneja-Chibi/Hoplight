@@ -5,7 +5,7 @@
   "sourceHash": "sha256:3bcc6cbf8f17d91741227f114c4e9e188299d5e2a68dde286112a27713758041",
   "semanticSummaryHash": "sha256:22bebd4507a51a1f1127e2d2f3c336ab755d098df9b99d6bd8d5a21fff08150f",
   "verdict": "APPROVE",
-  "reviewer": "codex-primary-self-review",
-  "notes": "Self-review: every macro named by the pinned official page is individually represented with signature, effect, mutation, and scope where applicable.",
-  "reviewedAt": "2026-07-26T02:21:30.494Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete pinned macro catalog and every section summary re-read; families, signatures, mutations, scope qualifications, structural forms, and live-discovery limits are represented accurately.",
+  "reviewedAt": "2026-09-13T02:03:42.419Z"
 }

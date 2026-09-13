@@ -2,7 +2,7 @@
 
 Auto-generated from live adapters (`bun run scripts/format-matrix.ts`).
 Canonical schema version: **1**.
-Generated: 2026-08-12.
+Generated: 2026-09-13.
 
 ## How to use
 
@@ -80,6 +80,12 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | id | kind | writes | label |
 | --- | --- | --- | --- |
 | (none yet) | htmldoc | | The studio edits this kind, but no import/export format exists yet. |
+
+## Quick replies (1)
+
+| id | kind | writes | label |
+| --- | --- | --- | --- |
+| `sillytavern-quickreply` | quickreply | .json | SillyTavern quick-reply set |
 
 ## Notes
 

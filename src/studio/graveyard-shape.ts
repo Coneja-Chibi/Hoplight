@@ -63,7 +63,7 @@ function parseBlock(raw: unknown): PresetPrompt | null {
   if (typeof id !== "string" || id === "") return null;
   if (typeof name !== "string") return null;
   if (typeof content !== "string") return null;
-  if (role !== "system" && role !== "user" && role !== "assistant") return null;
+  if (role !== "system" && role !== "user" && role !== "assistant" && role !== "tool") return null;
   return raw as unknown as PresetPrompt;
 }
 

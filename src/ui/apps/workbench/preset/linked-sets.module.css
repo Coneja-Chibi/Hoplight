@@ -1,0 +1,38 @@
+/** Linked regex and quick-reply set controls inside preset settings. */
+.groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+}
+
+.group {
+  border: 1px solid color-mix(in srgb, var(--stage-card) 18%, transparent);
+  padding: 0.6rem;
+}
+
+.title {
+  margin: 0 0 0.45rem;
+  color: var(--stage-soft);
+  font: 800 0.65rem var(--font-big);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.choices {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--stage-card);
+  font: 500 0.75rem var(--font-body);
+}
+
+.empty {
+  margin: 0;
+  color: var(--stage-text-dim);
+  font: 500 0.72rem var(--font-body);
+}

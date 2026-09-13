@@ -27,6 +27,8 @@ import { presetBodySchema, presetProfileSchema } from "./preset/runtime-schema";
 import type { CanonicalPreset } from "./preset/schema";
 import { htmlDocBodySchema, htmlDocProfileSchema } from "./htmldoc/runtime-schema";
 import type { CanonicalHtmlDoc } from "./htmldoc/schema";
+import { quickReplyBodySchema, quickReplyProfileSchema } from "./quickreply/runtime-schema";
+import type { CanonicalQuickReplySet } from "./quickreply/schema";
 import { regexBodySchema, regexProfileSchema } from "./regex/runtime-schema";
 import type { CanonicalRegexSet } from "./regex/schema";
 
@@ -109,6 +111,13 @@ const htmlDocEntityShape = defineExhaustiveShape<CanonicalHtmlDoc>()({
   profiles: z.record(z.string(), htmlDocProfileSchema).optional(),
 });
 const htmlDocEntitySchema = z.strictObject(htmlDocEntityShape);
+const quickReplyEntityShape = defineExhaustiveShape<CanonicalQuickReplySet>()({
+  ...sharedEnvelope,
+  kind: z.literal("quickreply"),
+  body: quickReplyBodySchema,
+  profiles: z.record(z.string(), quickReplyProfileSchema).optional(),
+});
+const quickReplyEntitySchema = z.strictObject(quickReplyEntityShape);
 
 export const canonicalEntitySchema = z.discriminatedUnion("kind", [
   characterEntitySchema,
@@ -118,6 +127,7 @@ export const canonicalEntitySchema = z.discriminatedUnion("kind", [
   regexEntitySchema,
   packEntitySchema,
   htmlDocEntitySchema,
+  quickReplyEntitySchema,
 ]);
 
 export type ParsedCanonicalEntity =
@@ -127,7 +137,8 @@ export type ParsedCanonicalEntity =
   | CanonicalPreset
   | CanonicalRegexSet
   | CanonicalPack
-  | CanonicalHtmlDoc;
+  | CanonicalHtmlDoc
+  | CanonicalQuickReplySet;
 
 /** Parse untrusted JSON once into the known canonical union. */
 export function parseCanonicalEntity(raw: unknown): ParsedCanonicalEntity {

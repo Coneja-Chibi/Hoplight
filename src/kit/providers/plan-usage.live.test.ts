@@ -1,7 +1,8 @@
 /**
  * Plan usage against the real services.
  *
- * Skipped without a login, since this reads somebody's own subscription state. The parsing is
+ * Opt-in only, via HOPLIGHT_LIVE_PLAN_USAGE=1, and skipped without a login. This reads somebody's
+ * own subscription state. The parsing is
  * covered exhaustively in plan-usage.test.ts; what only a live run can establish is that the shapes
  * this repo parses are still the shapes the services send, and that Hoplight is still allowed to ask
  * under its own name.
@@ -18,8 +19,9 @@ import { guardedFetch } from "./egress";
 import { claudeCredentialsPath, claudeUsage, readClaudeLogin, resetUsageCaches } from "./plan-usage-sources";
 
 const HAVE_CLAUDE = existsSync(claudeCredentialsPath());
+const RUN_LIVE = process.env.HOPLIGHT_LIVE_PLAN_USAGE === "1";
 
-describe.skipIf(!HAVE_CLAUDE)("Claude plan usage, live", () => {
+describe.skipIf(!HAVE_CLAUDE || !RUN_LIVE)("Claude plan usage, live", () => {
   test("reports real windows for the plan on this machine", async () => {
     resetUsageCaches();
     const outcome = await claudeUsage();

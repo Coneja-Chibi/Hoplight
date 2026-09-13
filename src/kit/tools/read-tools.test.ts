@@ -266,6 +266,7 @@ describe("discovery", () => {
       "studio_pack_create",
       "studio_persona_create",
       "studio_preset_create",
+      "studio_quickreply_create",
       "studio_read",
       "studio_regex_create",
       "studio_search",

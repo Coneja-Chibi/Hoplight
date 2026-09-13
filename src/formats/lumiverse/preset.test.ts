@@ -20,6 +20,7 @@ const WRAPPER = {
       { id: "b1", name: "Opening", content: "Set the scene.", role: "system", enabled: true, depth: 3, isLocked: true },
       { id: "chatHistory", name: "History", marker: "chat_history", enabled: true, depth: 2 },
       { id: "b2", name: "Disabled extra", content: "off", role: "user", enabled: false },
+      { id: "tool-result", name: "Tool result", content: "result", role: "tool", enabled: true },
       { id: "lumiverseVariableDefaults", name: "Sneaky collision", content: "x", enabled: true },
     ],
     promptBehavior: { impersonationPrompt: "Speak as {{user}}.", emptySendNudge: "go on" },
@@ -52,6 +53,7 @@ test("conversion: blocks map per the spec, collision guard namespaces, order car
     "b1",
     "chatHistory",
     "b2",
+    "tool-result",
     "__lumiverse_block_lumiverseVariableDefaults",
   ]);
   const divider = rows.find((r) => r.identifier === "cat-a")!;
@@ -62,6 +64,7 @@ test("conversion: blocks map per the spec, collision guard namespaces, order car
   expect(raw.temperature).toBe(0.8);
   expect(raw.openai_max_context).toBe(16000);
   expect(raw._lumiverse_empty_send_nudge).toBe("go on");
+  expect(rows.find((row) => row.identifier === "tool-result")?.role).toBe("tool");
   const order = (raw.prompt_order as { order: { identifier: string; enabled: boolean }[] }[])[0]!.order;
   expect(order.find((o) => o.identifier === "b2")!.enabled).toBe(false);
 });

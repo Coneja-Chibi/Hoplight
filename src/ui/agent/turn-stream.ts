@@ -67,7 +67,7 @@ export function studioSession(studioDir: string): Promise<Session> {
   return sessionOnce;
 }
 
-/** For tests, and for a studio-folder switch, which invalidates the belt's idea of what exists. */
+/** For tests and configuration changes that invalidate the session's captured tool belt. */
 export function resetAgentSession(): void {
   sessionOnce = null;
   bridgeOnce = null;

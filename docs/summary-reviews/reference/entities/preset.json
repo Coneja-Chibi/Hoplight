@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/entities/preset",
   "sourcePath": "docs/reference/entities/preset.md",
-  "sourceHash": "sha256:da988fa8440330140e8a348c6823096b5610460d24c7d9b7588e6c545af423b3",
-  "semanticSummaryHash": "sha256:9ca53db6064d8c557d5c1deaf28bc3619ca120196f9d2ea3ea25236652331701",
+  "sourceHash": "sha256:b8bdb2e90c8b106b58ef06e3d51ce2dd8a99d0f36a53afdc2af168d9a4bc4773",
+  "semanticSummaryHash": "sha256:2eaa34da11d92d556a1323c9395d3738ef62fb56a420682aace4eac0562d1d3b",
   "verdict": "APPROVE",
-  "reviewer": "chi",
-  "notes": "Verified against source and code: PresetAdapter is in the FormatAdapter union (src/core/adapter.ts:135-140) and four preset codecs ship (sillytavern, rolecall, marinara, lumiverse), so the page's 'no format adapter' claim was stale and is corrected; CLI still has no preset subcommand (validate/inspect/label/convert only). New Linked regex sets section matches embedRegex in the ST and RoleCall adapters and emitPresetBundle in src/convert.ts.",
-  "reviewedAt": "2026-08-04T22:19:04.411Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete preset entity reference and all section summaries re-read; summary accurately covers tool roles, linked regex and quick-reply sets, editor linkage, Press resolution, and escrow boundaries.",
+  "reviewedAt": "2026-09-13T02:03:41.513Z"
 }

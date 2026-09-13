@@ -12,6 +12,7 @@ import personaCreate from "./persona-create";
 import presetCreate from "./preset-create";
 import htmlDocCreate from "./htmldoc-create";
 import regexCreate from "./regex-create";
+import quickReplyCreate from "./quickreply-create";
 import type { HarnessTool } from "./tool";
 import { createCapabilityFindTool } from "./capability-find";
 
@@ -30,6 +31,7 @@ const cases = [
   [personaCreate, { name: "Chi", content: "I build worlds." }, "persona"],
   [presetCreate, { name: "Mythic prose" }, "preset"],
   [regexCreate, { name: "Cleanup" }, "regex"],
+  [quickReplyCreate, { name: "Commands", replies: [{ id: "go", label: "Go", message: "/send go" }] }, "quickreply"],
   // A drawing is a piece like any other, and this table is what proves it: same draft, same gate,
   // same refusal to write during a preview.
   [htmlDocCreate, { name: "Login wireframe", html: "<h1>Sign in</h1>" }, "htmldoc"],
@@ -75,7 +77,7 @@ test("creation schemas explain media refs and MIME fields to the model", () => {
   expect(schemas).toContain("expression");
 });
 
-test("studio lifecycle browse exposes creation for all seven kinds", async () => {
+test("studio lifecycle browse exposes creation for every canonical kind", async () => {
   const createTools = cases.map(([tool]) => tool as HarnessTool);
   const runtime = createCapabilityRuntime({
     capabilities: await discoverCapabilities(),
@@ -97,6 +99,7 @@ test("studio lifecycle browse exposes creation for all seven kinds", async () =>
     "studio.pack.create",
     "studio.persona.create",
     "studio.preset.create",
+    "studio.quickreply.create",
     "studio.regex.create",
   ]);
 });

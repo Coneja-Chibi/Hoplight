@@ -26,7 +26,7 @@ import {
   type RunRow,
 } from "./press-core";
 import { lorebookKeyGap, readiness, readinessLine } from "./readiness-core";
-import { groupBundles, knowledgeRefsOf, pieceKeyOf, runSet } from "./press-bundles";
+import { groupBundles, packageRun, pieceKeyOf, riderRefsOf, runSet, type RiderRef } from "./press-bundles";
 import { PRESS_AGENT_SURFACE, usePublishPressSurface } from "./agent-surface";
 import styles from "./styles.module.css";
 
@@ -92,10 +92,11 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
   }, []);
 
   const refsByOwner = useMemo(() => {
-    const out: Record<string, string[]> = {};
+    const out: Record<string, RiderRef[]> = {};
     for (const p of queue) {
-      if (p.kind !== "character") continue;
-      out[pieceKeyOf(p)] = knowledgeRefsOf(entities[pieceKeyOf(p)]);
+      // Owners by kind: characters link lorebooks; presets link regex and quick-reply sets.
+      const refs = riderRefsOf(p, entities[pieceKeyOf(p)]);
+      if (refs.length > 0) out[pieceKeyOf(p)] = refs;
     }
     return out;
   }, [queue, entities]);
@@ -225,8 +226,12 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
       setRows([...plan]);
     }
 
-    if (Object.keys(files).length > 0) {
-      const zipped = zipSync(files);
+    const packed = packageRun(files);
+    if (packed?.kind === "single") {
+      // One piece in, one file out: no zip ceremony around a single preset.
+      setZip({ blob: new Blob([packed.bytes as BlobPart]), filename: packed.filename });
+    } else if (packed) {
+      const zipped = zipSync(packed.files);
       const stamp = platform.friendly.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       setZip({ blob: new Blob([zipped], { type: "application/zip" }), filename: `vaude-press-${stamp}.zip` });
     }

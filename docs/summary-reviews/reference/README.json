@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/README",
   "sourcePath": "docs/reference/README.md",
-  "sourceHash": "sha256:7dbd642af1b49a077686908344f662ee152e434e16a76495a20bea214af3e035",
-  "semanticSummaryHash": "sha256:33372b5283785f4dd26229fb66d859899c1648a524989e508500030be0cada5b",
+  "sourceHash": "sha256:227917dcbcaf268d6514e01a2ce97dfd304f66fd4bbd64b984cf08931ca4a8d1",
+  "semanticSummaryHash": "sha256:99829ed105b13fabf516d904561c60a0f6f1431a628faf30c16f9a752001481f",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
-  "reviewedAt": "2026-07-25T15:35:27.193Z"
+  "reviewer": "adversarial-reviewer",
+  "notes": "No change since last review; Map row and sidecar summary remain faithful to the corrected macro-engine page, do not independently assert the segment/span claim, and are approved on that basis.",
+  "reviewedAt": "2026-08-23T04:28:52.821Z"
 }

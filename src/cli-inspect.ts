@@ -43,6 +43,12 @@ export function printEntitySummary(ent: ParsedCanonicalEntity, log: (line: strin
     log(`    summary  ${b.summary || "(none)"}`);
     log(`    size     ${b.html.length} characters`);
     log(`    tags     ${b.tags?.join(", ") || "(none)"}\n`);
+  } else if (ent.kind === "quickreply") {
+    const b = ent.body;
+    log(`    name     ${b.name || "(unnamed)"}`);
+    log(`    replies  ${b.replies.length}`);
+    const labels = b.replies.map((r) => r.label || "(icon)").slice(0, 6).join(", ");
+    if (labels) log(`    buttons  ${labels}${b.replies.length > 6 ? ", ..." : ""}\n`);
   } else {
     const b = ent.body;
     log(`    name     ${b.identity.name || "(unnamed)"}`);

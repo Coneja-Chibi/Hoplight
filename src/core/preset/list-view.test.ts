@@ -119,6 +119,74 @@ describe("groupSections", () => {
     expect(s.length).toBe(1);
     expect(s[0]!.prompts.length).toBe(4);
   });
+
+  test("renders categories depth-first with subcategories beneath their parent", () => {
+    const nested: PresetGroup[] = [
+      { id: "child-b", name: "Child B", parentGroupId: "root", order: 3 },
+      { id: "other", name: "Other", order: 0 },
+      { id: "root", name: "Root", order: 10 },
+      { id: "child-a", name: "Child A", parentGroupId: "root", order: 1 },
+    ];
+    const prompts = [
+      block({ id: "a", groupId: "child-a" }),
+      block({ id: "b", groupId: "child-b" }),
+    ];
+
+    const s = groupSections(prompts, nested);
+    expect(s.map((x) => x.group?.id ?? null)).toEqual([
+      null,
+      "other",
+      "root",
+      "child-a",
+      "child-b",
+    ]);
+    expect(s.map((x) => x.depth)).toEqual([0, 0, 0, 1, 1]);
+    expect(s.find((x) => x.group?.id === "child-a")?.ancestorIds).toEqual(["root"]);
+  });
+
+  test("parent totals include descendant prompts without duplicating direct membership", () => {
+    const nested: PresetGroup[] = [
+      { id: "root", name: "Root" },
+      { id: "child", name: "Child", parentGroupId: "root" },
+    ];
+    const prompts = [
+      block({ id: "direct", groupId: "root" }),
+      block({ id: "nested", groupId: "child" }),
+    ];
+
+    const s = groupSections(prompts, nested);
+    const root = s.find((x) => x.group?.id === "root");
+    const child = s.find((x) => x.group?.id === "child");
+    expect(root).toMatchObject({ depth: 0, hasChildren: true, totalPromptCount: 2 });
+    expect(root?.prompts.map((p) => p.id)).toEqual(["direct"]);
+    expect(child).toMatchObject({ depth: 1, hasChildren: false, totalPromptCount: 1 });
+  });
+
+  test("a collapsed parent hides all descendants but not sibling categories", () => {
+    const nested: PresetGroup[] = [
+      { id: "root", name: "Root" },
+      { id: "child", name: "Child", parentGroupId: "root" },
+      { id: "sibling", name: "Sibling" },
+    ];
+    const sections = groupSections([], nested);
+    const visible = sections.filter((section) =>
+      section.group === null || section.ancestorIds.every((id) => id !== "root"),
+    );
+    expect(visible.map((x) => x.group?.id ?? null)).toEqual([null, "root", "sibling"]);
+  });
+
+  test("orphaned and cyclic parent references remain visible at the root", () => {
+    const malformed: PresetGroup[] = [
+      { id: "orphan", name: "Orphan", parentGroupId: "missing" },
+      { id: "cycle-a", name: "Cycle A", parentGroupId: "cycle-b" },
+      { id: "cycle-b", name: "Cycle B", parentGroupId: "cycle-a" },
+    ];
+    const s = groupSections([], malformed);
+    expect(new Set(s.map((x) => x.group?.id).filter(Boolean))).toEqual(
+      new Set(["orphan", "cycle-a", "cycle-b"]),
+    );
+    expect(s.every((x) => x.depth >= 0)).toBe(true);
+  });
 });
 
 describe("visiblePrompts", () => {

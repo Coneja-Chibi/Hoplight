@@ -26,6 +26,7 @@ const DECKS: DeckMeta[] = [
   { kind: "pack", plural: "Sprite packs", short: "pack", accent: "var(--deck-pack)" },
   { kind: "preset", plural: "Presets", short: "set", accent: "var(--deck-preset)" },
   { kind: "regex", plural: "Regex sets", short: "rgx", accent: "var(--deck-regex)" },
+  { kind: "quickreply", plural: "Quick replies", short: "qr", accent: "var(--deck-preset)" },
 ];
 
 const BY_KIND = new Map(DECKS.map((d) => [d.kind, d]));

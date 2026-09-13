@@ -1,12 +1,12 @@
 {
-  "generated": "2026-08-13",
+  "generated": "2026-09-13",
   "targetChars": 90000,
-  "totalPages": 113,
-  "totalSourceChars": 1037984,
+  "totalPages": 115,
+  "totalSourceChars": 1056593,
   "batches": [
     {
       "id": "batch-001",
-      "sourceChars": 88250,
+      "sourceChars": 89403,
       "pages": [
         {
           "docId": "01-VISION",
@@ -113,11 +113,19 @@
           "status": "APPROVED"
         },
         {
+          "docId": "decisions/ADR-012-macro-evaluation-boundary",
+          "sourcePath": "docs/decisions/ADR-012-macro-evaluation-boundary.md",
+          "sidecarPath": "docs/summaries/decisions/ADR-012-macro-evaluation-boundary.json",
+          "sectionCount": 6,
+          "sourceChars": 6883,
+          "status": "APPROVED"
+        },
+        {
           "docId": "FORMAT-SUPPORT",
           "sourcePath": "docs/FORMAT-SUPPORT.md",
           "sidecarPath": "docs/summaries/FORMAT-SUPPORT.json",
-          "sectionCount": 10,
-          "sourceChars": 4570,
+          "sectionCount": 11,
+          "sourceChars": 4730,
           "status": "APPROVED"
         },
         {
@@ -175,7 +183,13 @@
           "sectionCount": 4,
           "sourceChars": 4817,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-002",
+      "sourceChars": 89311,
+      "pages": [
         {
           "docId": "guide/lorebooks",
           "sourcePath": "docs/guide/lorebooks.md",
@@ -183,13 +197,7 @@
           "sectionCount": 5,
           "sourceChars": 5890,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-002",
-      "sourceChars": 89070,
-      "pages": [
+        },
         {
           "docId": "guide/personas",
           "sourcePath": "docs/guide/personas.md",
@@ -277,7 +285,13 @@
           "sectionCount": 6,
           "sourceChars": 6461,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-003",
+      "sourceChars": 74906,
+      "pages": [
         {
           "docId": "guide/platforms/sillytavern",
           "sourcePath": "docs/guide/platforms/sillytavern.md",
@@ -285,13 +299,7 @@
           "sectionCount": 6,
           "sourceChars": 5649,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-003",
-      "sourceChars": 68763,
-      "pages": [
+        },
         {
           "docId": "guide/README",
           "sourcePath": "docs/guide/README.md",
@@ -337,7 +345,7 @@
           "sourcePath": "docs/reference/architecture.md",
           "sidecarPath": "docs/summaries/reference/architecture.json",
           "sectionCount": 12,
-          "sourceChars": 17041,
+          "sourceChars": 17535,
           "status": "APPROVED"
         },
         {
@@ -360,14 +368,14 @@
     },
     {
       "id": "batch-004",
-      "sourceChars": 89343,
+      "sourceChars": 89748,
       "pages": [
         {
           "docId": "reference/components",
           "sourcePath": "docs/reference/components.md",
           "sidecarPath": "docs/summaries/reference/components.json",
           "sectionCount": 2,
-          "sourceChars": 39597,
+          "sourceChars": 40002,
           "status": "APPROVED"
         },
         {
@@ -500,14 +508,14 @@
     },
     {
       "id": "batch-006",
-      "sourceChars": 81000,
+      "sourceChars": 81634,
       "pages": [
         {
           "docId": "reference/entities/preset",
           "sourcePath": "docs/reference/entities/preset.md",
           "sidecarPath": "docs/summaries/reference/entities/preset.json",
           "sectionCount": 17,
-          "sourceChars": 19164,
+          "sourceChars": 19798,
           "status": "APPROVED"
         },
         {
@@ -654,14 +662,22 @@
     },
     {
       "id": "batch-009",
-      "sourceChars": 85637,
+      "sourceChars": 86574,
       "pages": [
         {
           "docId": "reference/kit/tools",
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
-          "sectionCount": 17,
-          "sourceChars": 36612,
+          "sectionCount": 18,
+          "sourceChars": 39496,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/macro-engine",
+          "sourcePath": "docs/reference/macro-engine.md",
+          "sidecarPath": "docs/summaries/reference/macro-engine.json",
+          "sectionCount": 3,
+          "sourceChars": 4573,
           "status": "APPROVED"
         },
         {
@@ -711,7 +727,13 @@
           "sectionCount": 9,
           "sourceChars": 3746,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-010",
+      "sourceChars": 85286,
+      "pages": [
         {
           "docId": "reference/platforms/marinara/lorebooks",
           "sourcePath": "docs/reference/platforms/marinara/lorebooks.md",
@@ -719,13 +741,7 @@
           "sectionCount": 17,
           "sourceChars": 6520,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-010",
-      "sourceChars": 83670,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/marinara/macro-reference",
           "sourcePath": "docs/reference/platforms/marinara/macro-reference.md",
@@ -821,7 +837,13 @@
           "sectionCount": 4,
           "sourceChars": 5503,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-011",
+      "sourceChars": 73639,
+      "pages": [
         {
           "docId": "reference/platforms/sillytavern/personas-and-data-bank",
           "sourcePath": "docs/reference/platforms/sillytavern/personas-and-data-bank.md",
@@ -829,13 +851,7 @@
           "sectionCount": 4,
           "sourceChars": 4904,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-011",
-      "sourceChars": 86880,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/sillytavern/prompts-and-presets",
           "sourcePath": "docs/reference/platforms/sillytavern/prompts-and-presets.md",
@@ -881,7 +897,7 @@
           "sourcePath": "docs/reference/README.md",
           "sidecarPath": "docs/summaries/reference/README.json",
           "sectionCount": 3,
-          "sourceChars": 2613,
+          "sourceChars": 2795,
           "status": "APPROVED"
         },
         {
@@ -899,7 +915,13 @@
           "sectionCount": 12,
           "sourceChars": 16395,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-012",
+      "sourceChars": 80631,
+      "pages": [
         {
           "docId": "reference/security/regex-safety",
           "sourcePath": "docs/reference/security/regex-safety.md",
@@ -907,13 +929,7 @@
           "sectionCount": 8,
           "sourceChars": 18327,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-012",
-      "sourceChars": 76678,
-      "pages": [
+        },
         {
           "docId": "reference/security/remote-access",
           "sourcePath": "docs/reference/security/remote-access.md",
@@ -945,7 +961,13 @@
           "sectionCount": 12,
           "sourceChars": 16750,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-013",
+      "sourceChars": 74196,
+      "pages": [
         {
           "docId": "reference/security/untrusted-content",
           "sourcePath": "docs/reference/security/untrusted-content.md",
@@ -953,19 +975,13 @@
           "sectionCount": 5,
           "sourceChars": 14374,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-013",
-      "sourceChars": 57428,
-      "pages": [
+        },
         {
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 21,
-          "sourceChars": 49361,
+          "sourceChars": 51755,
           "status": "APPROVED"
         },
         {

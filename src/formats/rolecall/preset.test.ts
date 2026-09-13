@@ -2,6 +2,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { buildSerializeReport } from "../../core/reports";
 import rolecallPreset, { isRolecallPresetExport } from "./preset";
 
 const FIXTURE = readFileSync(join(import.meta.dir, "../../../samples/rolecall/presets/spec-walk.preset.json"), "utf8");
@@ -53,6 +54,11 @@ test("extractRegex still surfaces the bundle from the RC escrow key", () => {
   const set = rolecallPreset.extractRegex!(rolecallPreset.toCanonical(input));
   expect(set).not.toBeNull();
   expect(set!.body.rules.length).toBeGreaterThan(0);
+});
+
+test("serialize report recognizes the RoleCall preset's own escrow", () => {
+  const report = buildSerializeReport(rolecallPreset.toCanonical(input), rolecallPreset);
+  expect(report.dropped).toEqual([]);
 });
 
 test("from-scratch output carries a neutral RoleCall fingerprint and is self-readable", () => {

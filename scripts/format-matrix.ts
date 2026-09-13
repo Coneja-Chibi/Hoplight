@@ -21,8 +21,9 @@ const KIND_TITLES: Record<string, string> = {
   preset: "Presets",
   regex: "Regex script sets",
   pack: "Sprite packs",
+  quickreply: "Quick replies",
 };
-const KIND_ORDER = ["character", "lorebook", "persona", "preset", "regex", "pack"];
+const KIND_ORDER = ["character", "lorebook", "persona", "preset", "regex", "pack", "htmldoc", "quickreply"];
 const ENTITY_INFRA_FOLDERS = new Set(["capabilities"]);
 
 /**

@@ -29,6 +29,7 @@ const TRUST = new Map<string, ToolAccess>([
   ["studio_preset_create", "draft"],
   ["studio_regex_create", "draft"],
   ["studio_pack_create", "draft"],
+  ["studio_quickreply_create", "draft"],
   // A drawing is a preview-only create like the rest: it composes a document and shows it, and the
   // Gate is what turns that into a file.
   ["studio_htmldoc_create", "draft"],
@@ -101,7 +102,16 @@ const TRUST = new Map<string, ToolAccess>([
 export type AccessResolver = (name: string) => ToolAccess;
 export interface CatalogToolAccess {
   name: string;
-  access: "read" | "draft";
+  /**
+   * Supplied entries may name safe classes, or `egress` - and nothing else. The constraint's job
+   * is that nothing outside the trust map can hand a name a class that SKIPS asking: read and
+   * draft are the safe tiers, and egress is the DANGER tier that confirms at the Gate and can at
+   * most be allowed for a session. External MCP tools use it, enumerated by exact folded name at
+   * the moment they join the belt; without an entry they land on the unknown floor, which asks in
+   * every mode, caps its confirmation rounds, and made preset_copy_blocks permanently unusable.
+   * `write`, `delete` and `exec` stay unGRANTable here on purpose.
+   */
+  access: "read" | "draft" | "egress";
 }
 
 /**

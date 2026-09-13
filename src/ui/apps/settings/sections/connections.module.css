@@ -1,0 +1,157 @@
+/*
+ * Settings > Connections: the MCP server list and its add/edit form.
+ * Tokens only; the same table-of-facts layout as Models, because the job is the same - compare
+ * entries and act on one.
+ */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.empty {
+  color: var(--text-dim);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.8fr) minmax(10rem, 1.6fr) minmax(6rem, auto) auto;
+  gap: 0.5rem 0.7rem;
+  align-items: center;
+  border: 2px solid var(--edge);
+  background: var(--face);
+  padding: 0.5rem 0.65rem;
+}
+
+.name {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.command,
+.env,
+.tested {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+
+.state {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+/* The one place colour is spent: a server that answered is the point of the row. */
+.good {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.env,
+.tested {
+  grid-column: 1 / -1;
+}
+
+.acts {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.acts button,
+.add,
+.formActs button {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--face);
+  border: 2px solid var(--edge);
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.acts button:hover,
+.add:hover,
+.formActs button:hover {
+  color: var(--text);
+}
+
+.add {
+  align-self: flex-start;
+  border-width: 3px;
+  box-shadow: 3px 3px 0 0 var(--edge);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 34rem;
+  border: 2px solid var(--edge);
+  background: var(--face);
+  padding: 0.7rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.form input,
+.form textarea {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text);
+  background: var(--stage-row, var(--panel));
+  border: 2px solid var(--edge);
+  padding: 0.4rem 0.5rem;
+}
+
+.formActs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.snippet {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text);
+  background: var(--face);
+  border: 2px solid var(--edge);
+  padding: 0.45rem 0.6rem;
+  max-width: 30rem;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.problem {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--stage-danger-text, var(--text));
+}

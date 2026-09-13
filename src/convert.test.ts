@@ -90,6 +90,15 @@ function minimalEntity(kind: FormatAdapter["kind"]): ParsedCanonicalEntity {
           }],
         },
       };
+    case "quickreply":
+      return {
+        ...envelope,
+        kind,
+        body: {
+          name: "Conversion quick replies",
+          replies: [{ id: "conversion-reply", label: "Go", message: "/send go" }],
+        },
+      };
   }
 }
 

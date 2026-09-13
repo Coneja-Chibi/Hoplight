@@ -5,7 +5,7 @@
   "sourceHash": "sha256:918ed4f10ece3b541f7117a66015cbbf6bec54dcb5a6f13bddc53380ca2f5f15",
   "semanticSummaryHash": "sha256:e38971d5af2d0a215b6c390b8ecb5671c17c9c53e8d317c28f01fbc8b3a30a44",
   "verdict": "APPROVE",
-  "reviewer": "codex-primary-self-review",
-  "notes": "Self-review: conceptual macro model now explicitly routes to exhaustive name and operator references while retaining evaluation and portability context.",
-  "reviewedAt": "2026-07-26T02:21:30.272Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete conceptual macro guide and every section summary re-read; syntax, variable state, macro families, portability hazards, and sealed conversion behavior are represented accurately.",
+  "reviewedAt": "2026-09-13T02:03:42.652Z"
 }

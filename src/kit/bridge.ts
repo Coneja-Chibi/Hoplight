@@ -74,6 +74,7 @@ const DECK_LABELS: Record<StudioEntityKind, string> = {
   regex: "Regex",
   preset: "Presets",
   htmldoc: "Drawings",
+  quickreply: "Quick replies",
 };
 
 /** Bind a Kit session to a studio directory (defaults to the machine's studio). */

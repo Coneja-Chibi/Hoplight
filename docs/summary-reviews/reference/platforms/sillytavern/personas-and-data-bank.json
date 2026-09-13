@@ -5,7 +5,7 @@
   "sourceHash": "sha256:e1bd77243be82daaf880f1cd8ba41bfb409633376da8d235844aa2bf0d7ba24d",
   "semanticSummaryHash": "sha256:29038926323b2638358267972ccd6eb5c30076b95c75ba5092ca89b0752559b3",
   "verdict": "APPROVE",
-  "reviewer": "codex-primary-self-review",
-  "notes": "Self-review: persona precedence, backup omissions, Data Bank scopes, vector lifecycle, and current canonical limitations are represented.",
-  "reviewedAt": "2026-07-26T02:02:24.794Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete source and all section summaries re-read; persona precedence and backups, Data Bank scopes, vector index lifecycle, and current Hoplight boundaries are represented accurately.",
+  "reviewedAt": "2026-09-13T02:03:42.875Z"
 }

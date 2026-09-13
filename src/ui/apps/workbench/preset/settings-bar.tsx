@@ -11,7 +11,9 @@
 import { useState, type JSX } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { PresetBody, PresetSamplers } from "../../../../entities/preset";
+import type { AppContext } from "../../../app-contract";
 import { ExpandTextarea } from "../../../components/expand";
+import { LinkedSets } from "./linked-sets";
 import s from "./settings.module.css";
 import f from "./preset.module.css";
 
@@ -36,10 +38,13 @@ const SAMPLERS: readonly SamplerField[] = [
 
 export interface SettingsBarProps {
   body: PresetBody;
+  ctx: AppContext;
   /** false when the active Write-for lens cannot serialize samplers */
   showSamplers: boolean;
   onDescription: (v: string) => void;
   onSampler: (key: keyof PresetSamplers, value: number | undefined) => void;
+  onBehaviorRefs: (ids: string[]) => void;
+  onQuickReplyRefs: (ids: string[]) => void;
 }
 
 /** "" and junk both mean absent; a real 0 must survive. */
@@ -50,7 +55,15 @@ const parseSampler = (raw: string): number | undefined => {
   return Number.isFinite(n) ? n : undefined;
 };
 
-export function SettingsBar({ body, showSamplers, onDescription, onSampler }: SettingsBarProps): JSX.Element {
+export function SettingsBar({
+  body,
+  ctx,
+  showSamplers,
+  onDescription,
+  onSampler,
+  onBehaviorRefs,
+  onQuickReplyRefs,
+}: SettingsBarProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const samplers = body.samplers ?? {};
   const setCount = SAMPLERS.filter((x) => samplers[x.key] !== undefined).length;
@@ -78,6 +91,14 @@ export function SettingsBar({ body, showSamplers, onDescription, onSampler }: Se
               onChange={(e) => onDescription(e.target.value)}
             />
           </label>
+
+          <LinkedSets
+            ctx={ctx}
+            behaviorRefs={body.behaviorRefs ?? []}
+            quickReplyRefs={body.quickReplyRefs ?? []}
+            onBehaviorRefs={onBehaviorRefs}
+            onQuickReplyRefs={onQuickReplyRefs}
+          />
 
           {showSamplers ? (
             <>

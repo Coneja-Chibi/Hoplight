@@ -125,7 +125,7 @@ export function lumiverseToStRaw(wrapper: Rec): Rec {
     if (rawId === undefined) continue; // non-string id: skipped entirely (spec block model)
     const id = RESERVED_IDS.has(rawId) && b.marker !== "chat_history" ? `__lumiverse_block_${rawId}` : rawId;
     const enabled = b.enabled !== false;
-    const role = b.role === "user" || b.role === "assistant" ? b.role : "system";
+    const role = b.role === "user" || b.role === "assistant" || b.role === "tool" ? b.role : "system";
     if (b.marker === "chat_history") {
       push(
         {
@@ -187,6 +187,7 @@ export function lumiverseToStRaw(wrapper: Rec): Rec {
 const lumiversePreset: PresetAdapter = {
   id: FORMAT_ID,
   label: "Lumiverse preset (wrapper import; exports as an ST flat preset)",
+  escrowFormatIds: ["lumiverse"],
   outputExtensions: ["json"],
   kind: "preset",
 

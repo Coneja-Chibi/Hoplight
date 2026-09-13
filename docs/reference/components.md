@@ -111,10 +111,12 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LanCard | src/ui/apps/settings/sections/lan-card.tsx | ({ ctx, hidden, redacted, }: { ctx: AppContext; hidden: boolean; redacted: boolean; }) |  |  |
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |
 | LensRail | src/ui/components/lens-rail/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: LensRailProps) | One-line sideways-scrolling lens chips; Hoplight (full card) first, off-target mode at the tail. | .rail .scroll .chip .on .offt .fade |
+| LinkedSets | src/ui/apps/workbench/preset/linked-sets.tsx | (props: LinkedSetsProps) |  |  |
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
 | ListToolbar | src/ui/apps/workbench/preset/list-toolbar.tsx | ({ counts, query, onQuery, tab, onTab, onExpandAll, onCollapseAll, onAdd, onAddCategory, }: ListToolbarProps) |  |  |
 | LiveBuild | src/ui/apps/workbench/preset/live-build.tsx | ({ body, onSelect }: LiveBuildProps) |  |  |
+| LivePreview | src/ui/apps/workbench/preset/live-preview.tsx | ({ body, onPatchContent, onSelect }: LivePreviewProps) |  |  |
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, revision, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
 | LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, onMove, }: BulkBarProps) |  |  |
@@ -161,6 +163,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PreviewCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ xml, tokens, stopLabel }: { xml: string; tokens: number; stopLabel: string }) | Live preview: the REAL compiler's output + the shared token convention. |  |
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, writeFor, groups, onSetGroup, onClose, onPatch, }: PromptEditPanelProps) |  |  |
+| QuickReplyEditor | src/ui/apps/workbench/quickreply/editor.tsx | ({ entity, revision, ctx, piece, topRight }: QuickReplyEditorProps) |  |  |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | ReadingPane | src/ui/apps/macro-lab/reading-pane.tsx | ({ text, lens, }: { text: string; lens: MacroDialect; }) |  | .room .head .eyebrow .title .lede .lenses .lens .lensOn ... |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
@@ -184,7 +187,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | SectionCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, sectionKey, title, placeholder, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaW... | One canonical text section as a bento tile; Personality also carries the trait chips. |  |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .roomHost .room .tabs .tab .on .body .row .tx ... |
 | SendBar | src/ui/apps/library/send-bar.tsx | ({ staged, entities, onSend, onDelete, onSelectAll, onClear, }: SendBarProps) |  |  |
-| SettingsBar | src/ui/apps/workbench/preset/settings-bar.tsx | ({ body, showSamplers, onDescription, onSampler }: SettingsBarProps) |  |  |
+| SettingsBar | src/ui/apps/workbench/preset/settings-bar.tsx | ({ body, ctx, showSamplers, onDescription, onSampler, onBehaviorRefs, onQuickReplyRefs, }: SettingsBarProps) |  |  |
 | SettingsRow | src/ui/apps/settings/section-contract.tsx | ({ label, hint, children }: { label: string; hint: string; children: ReactNode }) | A titled control row: label + hint on the left, the control on the right. | .roomHost .room .tabs .tab .on .body .row .tx ... |
 | SetupWizard | src/ui/setup/wizard.tsx | ({ ctx, existing, onComplete }: SetupWizardProps) | Renders the wizard; calls onComplete with the draft (all keys filled) when OPEN VAUDE is pressed. |  |
 | SheetSlicePanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ sheetCols, sheetRows, sheetRef, onCols, onRows, onPick, onFile, }: { sheetCols: number; sheetRows: number; sheetRe... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |

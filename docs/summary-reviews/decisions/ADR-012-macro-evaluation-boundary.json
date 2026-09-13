@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-012-macro-evaluation-boundary",
+  "sourcePath": "docs/decisions/ADR-012-macro-evaluation-boundary.md",
+  "sourceHash": "sha256:1e34517cb93b14814f6d92d15c10d164a2c4362b3fdb8d4a8bdadad73d6110fa",
+  "semanticSummaryHash": "sha256:3a9a4b6fc5c5c893fb145891c90412abe626cf2ea646b5321b47a00addf28ec8",
+  "verdict": "APPROVE",
+  "reviewer": "review_current_release_tranche",
+  "notes": "ADR and sidecar consistently define a closed-world, bounded, data-only interpreter; unknown macros remain literal with optional diagnostics, codecs never evaluate, and the accepted exception is reflected in AGENTS.md.",
+  "reviewedAt": "2026-09-13T02:08:45.310Z"
+}

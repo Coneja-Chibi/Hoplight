@@ -6,12 +6,13 @@
 import type { SettingsSection } from "../section-contract";
 import about from "./about";
 import appearance from "./appearance";
+import connections from "./connections";
 import models from "./models";
 import remoteAccess from "./remote-access";
 import studio from "./studio";
 import updates from "./updates";
 import workbench from "./workbench";
 
-const SECTIONS: SettingsSection[] = [appearance, models, studio, workbench, remoteAccess, updates, about];
+const SECTIONS: SettingsSection[] = [appearance, models, connections, studio, workbench, remoteAccess, updates, about];
 
 export const settingsSections = (): SettingsSection[] => [...SECTIONS].sort((a, b) => a.order - b.order);

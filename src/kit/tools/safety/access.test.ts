@@ -22,6 +22,7 @@ describe("resolveAccess", () => {
     expect(resolveAccess("studio_preset_create")).toBe("draft");
     expect(resolveAccess("studio_regex_create")).toBe("draft");
     expect(resolveAccess("studio_pack_create")).toBe("draft");
+    expect(resolveAccess("studio_quickreply_create")).toBe("draft");
   });
 
   test("only catalog-supplied capability names become safe drafts", () => {

@@ -8,6 +8,7 @@ import type { CanonicalCharacter } from "../../entities/character/schema";
 import { embedCharacterBook } from "../_shared/character-book";
 import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
+import quickReplyCodec from "./quickreply";
 import regexCodec from "./regex";
 import personaCodec from "./persona";
 import presetCodec from "./preset";
@@ -203,4 +204,4 @@ export { adapter as characterAdapter };
  * (Marinara's Essentials packs) and a card's `extensions.regex_scripts`; a full character card
  * still wins detection (0.9) over the codec's card-home score (0.85), so cards keep importing as
  * characters, and a preset bundling regex wins the same way (preset 0.9 over 0.85). */
-export default [adapter, lorebookCodec, regexCodec, personaCodec, presetCodec];
+export default [adapter, lorebookCodec, regexCodec, quickReplyCodec, personaCodec, presetCodec];

@@ -342,7 +342,8 @@ plain-words receipts) lives here. Covers use `/api/studio/portrait` art when car
 
 ## The Workbench room (home by default - the IDE)
 Pieces are sent from the Library and open as tabs. The Workbench mounts a writable editor for every
-canonical kind: character, lorebook, persona, preset, regex set, and sprite pack. The shell owns tabs,
+canonical kind: character, lorebook, persona, preset, regex set, sprite pack, quick-reply set, and
+HTML document. The shell owns tabs,
 split view, recents, and focus; each editor owns its unsaved local draft and explicit save flow.
 Editor loads include a revision of the complete canonical entity. A save replaces that exact revision
 atomically; a newer disk write leaves the draft dirty and reports the conflict instead of overwriting it.
@@ -380,7 +381,20 @@ atomically; a newer disk write leaves the draft dirty and reports the conflict i
   shell-owned Discard changes / Keep editing dialog; only explicit discard unmounts the draft.
   Pure logic in `workbench/editor-core.ts` (tested), the React component in
   `workbench/Editor.tsx`. Lorebook, persona, preset, regex, and pack pieces dispatch to their own
-  writable editors from `workbench/index.tsx`.
+  writable editors from `workbench/index.tsx`. Quick-reply sets have their own editor for set name,
+  button label, hover title, hidden state, and inert message or slash-command text; they never fall
+  through to the character editor.
+- **Preset editor.** Canonical `body.groups` render as a depth-first category tree. A group carrying
+  `parentGroupId` is indented beneath its parent; collapsing a parent hides its complete descendant
+  subtree, and the parent count includes every prompt in that subtree. The prompt editor's Category
+  menu uses the same hierarchy and shows full paths such as `Astrolabes / Difficulty`, so two
+  identically named subcategories cannot be confused.
+  Preset settings also list regex and quick-reply pieces from the current studio. Checking a row
+  writes only its canonical id into `behaviorRefs` or `quickReplyRefs`; the linked piece stays
+  separately editable and the Press resolves it by kind and id.
+- **Quick-reply editor.** A quick-reply set opens as an ordered list of labeled messages. Add,
+  remove, reorder, label, and message edits stay in the local draft until explicit save, using the
+  same revision check and dirty-state guard as the other Workbench editors.
   Canonical path writes and variant lifecycle/override writes now delegate to the same entity-layer
   operations used by Kit's typed character capabilities, so base and variant semantics cannot drift.
 - **SPLIT VIEW - anything can sit beside anything.** The shell store carries a second visible key
@@ -435,10 +449,14 @@ The staging grammar applied to export: the Library browses, pieces get STAGED fo
 (right-click "Stage for the Press", or the room's own left rail of unstaged-piece stamps), and the
 room works only its staged queue - no studio browser inside. The queue is shell-store state
 (`pressQueue` + `ctx.press`), so it survives app switches.
-- **Bundles** (`press/press-bundles.ts`, pure + tested): a staged character travels as a bundle - his
-  `body.knowledgeRefs` lorebooks ride along automatically (resolved against the whole studio, even
-  when never staged), droppable per run ("drop from this run" / "ride again"); staged books already
-  riding a bundle are not doubled as solos. Everything else rides solo.
+- **Bundles** (`press/press-bundles.ts`, pure + tested): a staged piece with LINKS travels as a
+  bundle. A character's `body.knowledgeRefs` lorebooks ride along; a preset's `body.behaviorRefs`
+  regex sets and `body.quickReplyRefs` quick-reply sets ride the same way - the promise the preset
+  schema has carried since `behaviorRefs` landed, which the Press simply never read, so a preset's
+  regex left the building alone and the export looked "stripped". Riders resolve against the whole
+  studio by kind AND id (even when never staged), are droppable per run ("drop from this run" /
+  "ride again"), and staged pieces already riding a bundle are not doubled as solos. Everything
+  else rides solo.
 - **Readiness on every card** (`press/readiness-core.ts`, pure + tested): characters are read
   against the run target's coverage claims (`/api/coverage` carries - the same ground truth as the
   editor lens): "8 of 23 filled - empty: nickname, personality, +12 more" with an
@@ -449,8 +467,9 @@ room works only its staged queue - no studio browser inside. The queue is shell-
 - **One target per run** (`press/press-core.ts`: `groupPlatforms` folds extension-map hosts -
   Marinara/Chub print characters as a CCv3 card, their native character file), per-card filename +
   flavor (.json/.txt/.md only where the wire format is text), skip rows declared before the run,
-  per-row honest results (printed with carries / skipped with the reason / failed with the error),
-  one zip out.
+  per-row honest results (printed with carries / skipped with the reason / failed with the error).
+  A run that printed several files hands over one zip; a run that printed exactly ONE hands over
+  that file bare, under its own name - a zip with one thing in it was ceremony plus an unzip.
 - Deferred, stated: delivery ledger + saved jobs, drag reorder, rehearse-bytes drawer, offer-rail
   readiness dots.
 
@@ -549,10 +568,19 @@ Settings is built from section modules: one file in `src/ui/apps/settings/sectio
 `SettingsSection` (id, label, order, `Component: (props: { ctx }) => JSX.Element`);
 `sections/registry.ts` is the one stated seam. Tabs derive from the registry (`src/ui/apps/settings/
 index.tsx`); every control is call-and-response against live settings (theme/accent repaint
-instantly). Shipped sections: Appearance (theme and house accent), Studio (home app, Library first
-deck, publish targets, and the engine checkouts on this machine), Workbench (follow behavior),
-Remote access (tunnel and LAN setup, devices, host controls, and the optional mesh-helper download),
-Updates (release checks and version switching), and About.
+instantly). Shipped sections: Appearance (theme and house accent), Models (the provider vault),
+Connections (MCP in both directions), Studio (home app, Library first deck, publish targets, and
+the engine checkouts on this machine), Workbench (follow behavior), Remote access (tunnel and LAN
+setup, devices, host controls, and the optional mesh-helper download), Updates (release checks and
+version switching), and About.
+
+Connections manages MCP both ways. Consuming: servers this machine runs so their tools join Kit's
+belt - add a command, arguments and env (KEY=VALUE lines; values are write-only, listings show key
+names), Test spawns a throwaway connection and reports the tool count, and every external tool runs
+as `egress`, confirmed at the Gate. The whole `/api/mcp/*` surface is host-only, since an entry is
+a command this machine executes. Serving: the card shows the one line that registers Hoplight's own
+belt in any MCP client (`claude mcp add hoplight -- hoplight mcp "<studio>"`). The full story is in
+[kit/tools.md](kit/tools.md).
 
 Engine checkouts are the one Studio control that is not `ctx.prefs`. A root is an absolute path on
 the host's disk, and it decides which folder a subprocess is spawned against, so it is stored in

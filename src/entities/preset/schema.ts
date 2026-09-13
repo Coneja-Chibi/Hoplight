@@ -25,8 +25,8 @@ import type { CanonicalEntity } from "../../core/canonical";
  * (core/preset, P2) resolves order, splices markers, and applies macros against a rehearsal context.
  */
 
-/** OpenAI-standard message role; the triplet every engine shares. */
-export type PromptRole = "system" | "user" | "assistant";
+/** OpenAI-standard message role; system/user/assistant are the shared triplet, tool carries tool-call results. */
+export type PromptRole = "system" | "user" | "assistant" | "tool";
 
 /**
  * Where a block lands in the assembled request. Named OPEN union (the position-picker law: raw
@@ -289,6 +289,11 @@ export interface PresetBody {
    * embed, and reports a set that could not ride rather than dropping it.
    */
   behaviorRefs?: string[];
+  /**
+   * Linked quick-reply set entity id(s) - a LINK, never a copy, exactly as behaviorRefs. The Press
+   * prints linked sets beside the preset so the rig ships whole.
+   */
+  quickReplyRefs?: string[];
 }
 
 export type CanonicalPreset = CanonicalEntity<"preset", PresetBody>;

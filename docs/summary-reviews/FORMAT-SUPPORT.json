@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "FORMAT-SUPPORT",
   "sourcePath": "docs/FORMAT-SUPPORT.md",
-  "sourceHash": "sha256:cfec8c04249d153c7dacaf30d34ecacfaf8bc2fad4fcb8ccd03aa4d33003940c",
-  "semanticSummaryHash": "sha256:92ca4ed6252323e90c2821a8d5f38cd254b898752d02e692331414df5c87e77e",
+  "sourceHash": "sha256:1f9cf3029a9d6ae4c232317f795a387bc2fce8eb7fcdce6fb726f8b133da5817",
+  "semanticSummaryHash": "sha256:d43da270cef8e6f102e05f3d90752887b85a2360b9fbb8b229da533f0399802b",
   "verdict": "APPROVE",
-  "reviewer": "htmldoc-matrix-section-review",
-  "notes": "Regenerated matrix gained one section, Htmldocs (0), because a new canonical kind exists. Verified against the generated table: the count is genuinely zero and that is by design rather than pending work - htmldoc is canonical-only, authored in-app, with no foreign saved-page format to adapt from. The new section summary says so; every other section is unchanged.",
-  "reviewedAt": "2026-08-12T05:42:56.498Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Matrix and summary accurately enumerate the live adapter registry, including one SillyTavern quick-reply adapter with semantic JSON preservation, plus canonical-only pack and HTML-document kinds.",
+  "reviewedAt": "2026-09-13T02:07:50.329Z"
 }

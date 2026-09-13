@@ -1,0 +1,100 @@
+/** Quick-reply set editor layout. */
+.root {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--stage);
+  color: var(--stage-card);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.4fr) minmax(16rem, 1fr) auto;
+  gap: 0.65rem;
+  align-items: start;
+  padding: 0.75rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  box-shadow: 3px 3px 0 var(--stage-black);
+}
+
+.stack {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.label {
+  font: 700 0.625rem var(--font-big);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+}
+
+.field {
+  width: 100%;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-row);
+  color: var(--stage-card);
+  font: 500 0.78rem var(--font-body);
+  padding: 0.45rem 0.55rem;
+}
+
+.message {
+  min-height: 5rem;
+  resize: vertical;
+  font-family: var(--font-mono);
+}
+
+.actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.button {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  font: 800 0.625rem var(--font-big);
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+.button:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.add {
+  justify-self: start;
+}
+
+.empty {
+  color: var(--stage-text-dim);
+  font: 500 0.8rem var(--font-body);
+}
+
+@container (max-width: 42rem) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}

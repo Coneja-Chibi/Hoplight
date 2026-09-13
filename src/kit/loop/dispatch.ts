@@ -116,7 +116,9 @@ export function toolSpecs(tools: HarnessTool[]): ToolSpec[] {
   return tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
-    schema: providerSchema(tool.input),
+    // An external tool's contract is already JSON Schema; converting its permissive zod stand-in
+    // instead would advertise "any object" and the model would guess every argument. See tool.ts.
+    schema: tool.schemaOverride ?? providerSchema(tool.input),
   }));
 }
 

@@ -36,6 +36,16 @@ describe("loss reports", () => {
     expect(report.dropped).toEqual([]);
   });
 
+  test("adapter-owned escrow aliases are not reported as dropped", () => {
+    const target = {
+      id: "risu-preset",
+      escrowFormatIds: ["risu"],
+      coverage: { carries: ["identity", "behavior"] },
+    };
+    const report = buildSerializeReport(entity, target);
+    expect(report.dropped).toEqual([]);
+  });
+
   test("missing coverage reports unknown loss instead of a false zero", () => {
     const report = buildSerializeReport(entity, { id: "undeclared" });
     expect(report.coverage).toBe("unknown");

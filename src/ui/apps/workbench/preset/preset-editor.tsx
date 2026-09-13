@@ -29,6 +29,7 @@ import { BulkBar } from "./bulk-bar";
 import { SettingsBar } from "./settings-bar";
 import { PromptEditPanel } from "./prompt-edit-panel";
 import { LiveBuild } from "./live-build";
+import { LivePreview } from "./live-preview";
 import { SplitPane } from "../../../components/split-pane";
 import { useReseedOnReread } from "../use-reseed";
 import { EditorConflict } from "../editor-conflict";
@@ -64,10 +65,11 @@ const WRITE_FOR_PREF = "preset.writeFor";
 const PREF_SPLIT = "preset.split";
 
 /** The rail is the ONE place whole-preset truth lives (the locked wire's ruling), hence the tabs. */
-type RailTab = "edit" | "build";
+type RailTab = "edit" | "build" | "preview";
 const RAIL_TABS: ReadonlyArray<{ id: RailTab; label: string }> = [
   { id: "edit", label: "Edit Prompt" },
   { id: "build", label: "Live Build" },
+  { id: "preview", label: "Preview" },
 ];
 
 const isRec = (v: unknown): v is Record<string, unknown> =>
@@ -267,9 +269,12 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
 
       <SettingsBar
         body={body}
+        ctx={ctx}
         showSamplers={platformOwnsField(writeFor, "samplers")}
         onDescription={(v) => setBody((b) => ({ ...b, description: v }))}
         onSampler={(key, value) => setBody((b) => setSampler(b, key, value))}
+        onBehaviorRefs={(behaviorRefs) => setBody((b) => ({ ...b, behaviorRefs: behaviorRefs.length ? behaviorRefs : undefined }))}
+        onQuickReplyRefs={(quickReplyRefs) => setBody((b) => ({ ...b, quickReplyRefs: quickReplyRefs.length ? quickReplyRefs : undefined }))}
       />
 
       <SplitPane
@@ -357,9 +362,18 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
                 if (selectedId) setBody((b) => patchBlock(b, selectedId, patch));
               }}
             />
-          ) : (
+          ) : rail === "build" ? (
             <LiveBuild
               body={body}
+              onSelect={(id) => {
+                setSelectedId(id);
+                setRail("edit");
+              }}
+            />
+          ) : (
+            <LivePreview
+              body={body}
+              onPatchContent={(id, content) => setBody((b) => patchBlock(b, id, { content }))}
               onSelect={(id) => {
                 setSelectedId(id);
                 setRail("edit");

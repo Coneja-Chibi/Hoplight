@@ -3,6 +3,7 @@ import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalPersona } from "../entities/persona/schema";
 import type { CanonicalPreset } from "../entities/preset/schema";
+import type { CanonicalQuickReplySet } from "../entities/quickreply/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
 import type { CoverageDecl } from "./coverage";
 import type { FormatId } from "./canonical";
@@ -43,6 +44,8 @@ export interface EmitContext {
 interface AdapterBase {
   id: FormatId;
   label: string;
+  /** Source-escrow keys this adapter owns when its wire id and escrow family id differ. */
+  escrowFormatIds?: readonly FormatId[];
   /** File extensions this adapter writes (no dot), so the CLI can pick a target by output name. */
   outputExtensions: string[];
   /** 0..1 confidence that this adapter can read the given input. */
@@ -101,6 +104,13 @@ export interface RegexAdapter extends AdapterBase {
   fromCanonical(entity: CanonicalRegexSet): AdapterOutput;
 }
 
+/** An adapter that reads and writes quick-reply sets (pages of prepared-message buttons). */
+export interface QuickReplyAdapter extends AdapterBase {
+  kind: "quickreply";
+  toCanonical(input: AdapterInput): CanonicalQuickReplySet;
+  fromCanonical(entity: CanonicalQuickReplySet): AdapterOutput;
+}
+
 /** An adapter that reads and writes standalone chat presets (prompt/sampler configurations). */
 export interface PresetAdapter extends AdapterBase {
   kind: "preset";
@@ -137,4 +147,5 @@ export type FormatAdapter =
   | LorebookAdapter
   | PersonaAdapter
   | RegexAdapter
+  | QuickReplyAdapter
   | PresetAdapter;

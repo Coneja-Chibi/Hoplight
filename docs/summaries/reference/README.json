@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/README",
   "sourcePath": "docs/reference/README.md",
-  "sourceHash": "sha256:7dbd642af1b49a077686908344f662ee152e434e16a76495a20bea214af3e035",
+  "sourceHash": "sha256:227917dcbcaf268d6514e01a2ce97dfd304f66fd4bbd64b984cf08931ca4a8d1",
   "summary": "Reference documentation index for hoplight, the Vaudeville Studios converter for AI-roleplay content. Docs-as-code: lives in the repo, versioned with the code, updated in the same change that adds or alters a feature. If a doc and the code disagree the code is right and the doc is a bug to file. The contract: based in truth with claims checked against source field tables detect scores and mapping quirks, planned-but-not-built labeled, updated per feature in the same commit, one concept per file mirroring house code rules. Map routes to architecture engine start page, entities character and lorebook supersets, concepts character-book embed extract, formats README coverage matrix and per-format family pages. How to read the field tables: Field is canonical name in vaud-json output, Type is TypeScript from entities schema, Meaning is roleplay client use, Formats lists producers and consumers; a field with no producer would not exist as a canonical slot per escrow rule in architecture. Schema file is type truth; this doc is meaning truth.",
   "topics": [
     "docs-as-code truth",
@@ -32,12 +32,13 @@
       "slug": "map",
       "title": "Map",
       "level": 2,
-      "sourceHash": "sha256:f4c3ac8026a25000d30f34816584010c4f41754bd9db4b02503d6661386a9f43",
-      "summary": "Start at architecture for the engine: canonical escrow adapters kinds registry folders bundles CLI. entities character and lorebook document supersets. concepts character-book covers embed extract re-embed. formats README is the coverage matrix; formats star pages cover detection maps escrow quirks and sources of truth.",
+      "sourceHash": "sha256:c6287f69f8db6823018815177576078a80f74b2fce80f9a20d3b68fab06b88c7",
+      "summary": "Start at architecture for the engine: canonical escrow adapters kinds registry folders bundles CLI. entities character and lorebook document supersets. concepts character-book covers embed extract re-embed. macro-engine covers the closed-world interpreter permitted by ADR-012: span-carrying parser, bounded evaluator, and the segment contract behind the editable preview. formats README is the coverage matrix; formats star pages cover detection maps escrow quirks and sources of truth.",
       "topics": [
         "architecture start here",
         "character lorebook entities",
         "character-book concept",
+        "macro-engine interpreter",
         "formats matrix and pages"
       ],
       "children": [],

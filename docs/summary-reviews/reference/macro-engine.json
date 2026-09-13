@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/macro-engine",
+  "sourcePath": "docs/reference/macro-engine.md",
+  "sourceHash": "sha256:d66daeb3340571361f26549053b10142aab1ae7ab57eea81e9f3646aad2b08ff",
+  "semanticSummaryHash": "sha256:8d61ffdba2a2d99d586dfb30d82fc9df2dce1dddbf79988046f1d4e77005ae34",
+  "verdict": "APPROVE",
+  "reviewer": "adversarial-reviewer",
+  "notes": "Restamp reviewed for the TIME/CHAT handler-family addition: page paragraph and sidecar what-is-implemented section cross-checked line-by-line against handlers-context.ts, types.ts, live-render.ts, and live-preview.tsx. All claims (macro name lists, empty-on-absent-clock behavior, stub-message re-expansion, UI-only Date.now() boundary) verified true against source. No overclaim. Unchanged sections retained their prior sourceHash correctly. Approved.",
+  "reviewedAt": "2026-08-23T07:05:42.038Z"
+}

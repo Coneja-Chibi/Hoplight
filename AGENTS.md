@@ -67,10 +67,15 @@ starting.
    stored inside the saved piece. Code must not drop, rewrite, or reformat that escrow. Same-format
    round trips satisfy the semantic Round-Trip Law; byte identity is required only where the format
    spec explicitly declares a byte-level tier and fixtures prove it.
-3. **Imported scripts stay sealed.** Lua, macros, and regex payloads are data at every import and
+3. **Imported scripts stay sealed.** Lua and regex payloads are data at every import and
    conversion boundary. Execution is only user-invoked inside the Lua or regex test bench: Lua runs
    in wasmoon and regex runs in a terminable worker, both on the isolated sandbox origin described by
-   [ADR-009](docs/decisions/ADR-009-sandbox-origin.md). Do not add another execution path.
+   [ADR-009](docs/decisions/ADR-009-sandbox-origin.md). Do not add another execution path for
+   sealed scripts. Macro templates are governed separately by
+   [ADR-012](docs/decisions/ADR-012-macro-evaluation-boundary.md): a closed-world, in-process
+   interpreter under `src/core/macros/` may evaluate them, bounded and data-only, reachable only
+   from the macro test bench, the transfer report, and prompt assembly. Codecs still never
+   evaluate; macro text stays opaque payload at every import and conversion boundary.
 4. **Folders are the schema.** Apps, format adapters, settings sections, deck views, wizard
    steps, and tours are drop-in folders. Never register anything in a central list when a
    drop-in folder is possible.

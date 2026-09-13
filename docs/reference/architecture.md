@@ -40,7 +40,7 @@ touches no other format and no core code.**
 ```ts
 interface CanonicalEntity<Kind, Body> {
   schemaVersion: "1";
-  kind: Kind;          // "character" | "lorebook" | "persona" | "preset" | "regex" | "pack"
+  kind: Kind;          // character, lorebook, persona, preset, regex, quickreply, pack, or htmldoc
   id: string;          // stable slug derived from the name
   body: Body;          // the actual content, in the superset shape
   profiles?: ...;      // sparse per-app overrides (author once, differ per app)
@@ -48,7 +48,8 @@ interface CanonicalEntity<Kind, Body> {
 }
 ```
 
-Five adapter-backed kinds exist today: `character`, `lorebook`, `persona`, `preset`, and `regex`.
+Six adapter-backed kinds exist today: `character`, `lorebook`, `persona`, `preset`, `regex`, and
+`quickreply`.
 Their `Body`
 shapes are documented under [entities/](entities/), starting with
 [entities/character.md](entities/character.md) and [entities/lorebook.md](entities/lorebook.md). The
@@ -95,6 +96,7 @@ original["sillytavern"] = { raw: <the original card verbatim>, unmapped: { ... }
 interface AdapterBase {
   id: string;
   label: string;
+  escrowFormatIds?: readonly string[]; // owned source twins when the adapter id is more specific
   outputExtensions: string[];        // extensions this adapter writes
   detect(input): number;             // 0..1 confidence it can read this input
 }
@@ -118,13 +120,14 @@ interface LorebookAdapter extends AdapterBase {
   fromCanonical(entity): AdapterOutput;
 }
 
-// PersonaAdapter, PresetAdapter, and RegexAdapter follow the same kind-specific shape.
+// PersonaAdapter, PresetAdapter, RegexAdapter, and QuickReplyAdapter follow the same shape.
 type FormatAdapter =
   | CharacterAdapter
   | LorebookAdapter
   | PersonaAdapter
   | PresetAdapter
-  | RegexAdapter;
+  | RegexAdapter
+  | QuickReplyAdapter;
 ```
 
 The registry stores the union heterogeneously. A converter narrows on `kind` before it ever hands an
@@ -136,12 +139,17 @@ compile-time safety across the whole engine.
 Adapter-local reports are optional while the codecs migrate, but every orchestration boundary attaches
 a `SerializeReport` before output reaches the CLI, HTTP API, export dialog, or Press. Reports name
 escrowed, dropped, and shadowed paths plus warnings; their counts are derived from those lists. Canonical
-JSON is parsed through `src/entities/runtime-schema.ts` at storage and HTTP boundaries, so TypeScript
+source twins are normally keyed by the adapter id. A more specific wire adapter can declare
+`escrowFormatIds` when it owns a family-keyed twin instead: for example, `rolecall-preset` owns
+`original.rolecall`. The loss reporter then excludes that twin as same-format data while continuing to
+report every genuinely foreign escrow entry.
+
+Canonical JSON is parsed through `src/entities/runtime-schema.ts` at storage and HTTP boundaries, so TypeScript
 interfaces are not the runtime check. Each `src/entities/<kind>/runtime-schema.ts` module strictly
 decodes its complete handwritten domain type. `defineExhaustiveShape<T>()` infers each concrete schema
 before requiring exact input and output parity, so missing or extra keys, narrowed unions, coercion,
 `any` at any nesting depth, and `never` fail typecheck.
-`src/entities/runtime-schema.ts` composes those bodies into the six-kind discriminated union used by
+`src/entities/runtime-schema.ts` composes those bodies into the eight-kind discriminated union used by
 storage, HTTP save, format-corpus verification, and Kit draft validation.
 
 Unknown same-version keys fail instead of being stripped or carried silently. Openness is local and

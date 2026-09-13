@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "docId": "FORMAT-SUPPORT",
   "sourcePath": "docs/FORMAT-SUPPORT.md",
-  "sourceHash": "sha256:cfec8c04249d153c7dacaf30d34ecacfaf8bc2fad4fcb8ccd03aa4d33003940c",
-  "summary": "Auto-generated format support matrix from live adapters via bun run scripts/format-matrix.ts, canonical schema version 1. It lists every registered adapter by content kind with id, writes extensions, and human labels. How to use shows Hoplight formats, inspect, convert, and validate, and names SillyTavern CCv3 as the default portable character shape for thin hosts such as C.AI Tools dumps and Crushon import. Characters currently has nine adapters including agnai, backyard, byaf, lumiverse, pygmalion, risu, rolecall, sillytavern, and vaud-json. Lorebooks has six: agnai, marinara, novelai, risu, rolecall, and sillytavern world info. Personas has four: lumiverse, marinara, rolecall, and sillytavern. Presets has four: lumiverse, marinara, rolecall, and sillytavern. Regex script sets has five: lumiverse, marinara, risu, rolecall, and sillytavern. Sprite packs has zero adapters; the studio edits the pack kind but no import or export format exists yet. Notes require content-sniff detection not extension alone, same-format lossless round-trips where fixtures prove them, honest cross-format drops, and Default CCv3 via sillytavern for skipped host-native bags. Samples lists per-platform fixture folders under samples/.",
+  "sourceHash": "sha256:1f9cf3029a9d6ae4c232317f795a387bc2fce8eb7fcdce6fb726f8b133da5817",
+  "summary": "Auto-generated format support matrix from the live adapter registry, grouped by canonical content kind with adapter id, output extensions, and human label. It documents CLI listing, inspection, conversion, and validation, with SillyTavern CCv3 as the default portable character shape for thin hosts. The current registry has nine character, six lorebook, four persona, four preset, five regex-set, and one quick-reply adapter. The quick-reply row is SillyTavern's version 2 qrList JSON format and promises semantic JSON preservation, not byte identity. Sprite packs and HTML documents remain canonical studio kinds with no foreign format adapters; HTML documents are intentionally canonical-only drawings. Notes explain content-sniff detection, fixture-proven same-format round trips, honest cross-format loss reporting, and sample locations. Because the page is generated, counts and rows change only with the registry.",
   "topics": [
     "format support matrix",
     "live adapter registry",
@@ -145,6 +145,20 @@
       ],
       "children": [],
       "shortSource": ""
+    },
+    {
+      "slug": "quick-replies-1",
+      "title": "Quick replies (1)",
+      "level": 2,
+      "sourceHash": "sha256:6ba13f1a3910155e948066d9bae154241383aa99ccce1ee96784176328d5ba2f",
+      "summary": "The live matrix lists one quick-reply adapter. sillytavern-quickreply reads and writes JSON files for SillyTavern Quick Reply sets, using the version 2 qrList container. It is a dedicated quickreply adapter rather than a character, preset, or regex reader, and its declared output extension is JSON. The matrix derives this row from the registered adapter, so the section count, id, kind, writable extension, and descriptive label change only when the runtime registry changes.",
+      "topics": [
+        "sillytavern-quickreply",
+        "qrList version 2 wire",
+        "escrowed switches",
+        "preset quickReplyRefs"
+      ],
+      "children": []
     },
     {
       "slug": "notes",

@@ -25,7 +25,20 @@ async function shapeFiles(): Promise<string[]> {
 
 // LF normalization keeps the pin stable across Windows and CI.
 //
-// Updated deliberately for a NEW ENTITY KIND: `htmldoc`, an HTML document kept as a piece so the
+// Updated deliberately for a NEW ENTITY KIND plus one additive field: `quickreply` (SillyTavern
+// QuickReply sets as pieces, so a preset can link them and the Press prints them together) joins
+// the union as a new member - the count above goes 8 to 9 with its own runtime-schema.ts - and
+// PresetBody gains optional `quickReplyRefs`, the exact counterpart of `behaviorRefs`. Both are
+// additive and COMPATIBLE: nothing previously valid becomes invalid, and a preset saved before the
+// field existed parses byte-for-byte as it did. No schema-version bump, no SCHEMA_BUMPS entry.
+//
+// Previously updated for a COMPATIBLE WIDENING, in-flight on the working tree: PromptRole gained
+// "tool" (preset/schema.ts, its runtime schema, and the blocks capability's mirror). Additive union
+// member - every preset written before parses byte-for-byte as it did, and nothing previously valid
+// becomes invalid; a NARROWING would be the incompatible direction. No schema-version bump and no
+// SCHEMA_BUMPS entry.
+//
+// Previously updated for a NEW ENTITY KIND: `htmldoc`, an HTML document kept as a piece so the
 // existing rename/duplicate/delete/collection tools have something to act on. Additive and
 // COMPATIBLE - no existing kind's on-disk shape moved, and nothing previously valid becomes
 // invalid, because the discriminated union only gained a member. A file written before this exists
@@ -54,12 +67,12 @@ async function shapeFiles(): Promise<string[]> {
 //
 // And before that: PresetSamplers.promptPostProcessing gained the values SillyTavern actually
 // writes, and the per-group schemas were exported for the ST codec to read expected types off them.
-const PINNED_SHAPE_HASH = "da225049efb35b8b4e213e8848e894820fba921e596be8c583d75798106246e8";
+const PINNED_SHAPE_HASH = "92b7874f697d6669eda478111761d1d836e14e6061a4e033c49a0e20005fe300";
 
 test("storage-shape tripwire: an on-disk shape change must be a deliberate, version-aware act", async () => {
   const h = createHash("sha256");
   const files = await shapeFiles();
-  expect(files.filter((path) => path.includes("/runtime-schema.ts"))).toHaveLength(8);
+  expect(files.filter((path) => path.includes("/runtime-schema.ts"))).toHaveLength(9);
   for (const f of files) h.update((await Bun.file(f).text()).replace(/\r\n/g, "\n"));
   expect(h.digest("hex")).toBe(PINNED_SHAPE_HASH);
 });

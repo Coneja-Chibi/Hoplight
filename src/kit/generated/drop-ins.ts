@@ -50,47 +50,48 @@ import m38 from "../tools/pack-create";
 import m39 from "../tools/persona-create";
 import m40 from "../tools/preset-create";
 import m41 from "../tools/preset-verify";
-import m42 from "../tools/rail-open";
-import m43 from "../tools/read";
-import m44 from "../tools/regex-create";
-import m45 from "../tools/regex-from-drawing";
-import m46 from "../tools/regex-lab";
-import m47 from "../tools/result-query";
-import m48 from "../tools/search";
-import m49 from "../tools/studio-art";
-import m50 from "../tools/transfer";
-import m51 from "../doctor/checks/provider";
-import m52 from "../doctor/checks/studio";
-import m53 from "../doctor/checks/vault";
-import m54 from "../doctor/checks/version";
-import m55 from "../providers/spokes/anthropic";
-import m56 from "../providers/spokes/claude-sub";
-import m57 from "../providers/spokes/codex";
-import m58 from "../providers/spokes/custom";
-import m59 from "../providers/spokes/deepseek";
-import m60 from "../providers/spokes/google";
-import m61 from "../providers/spokes/groq";
-import m62 from "../providers/spokes/local";
-import m63 from "../providers/spokes/mistral";
-import m64 from "../providers/spokes/nanogpt";
-import m65 from "../providers/spokes/openai";
-import m66 from "../providers/spokes/openrouter";
-import m67 from "../render/notify/channels/bell";
-import m68 from "../render/notify/channels/desktop";
-import m69 from "../render/notify/channels/title";
+import m42 from "../tools/quickreply-create";
+import m43 from "../tools/rail-open";
+import m44 from "../tools/read";
+import m45 from "../tools/regex-create";
+import m46 from "../tools/regex-from-drawing";
+import m47 from "../tools/regex-lab";
+import m48 from "../tools/result-query";
+import m49 from "../tools/search";
+import m50 from "../tools/studio-art";
+import m51 from "../tools/transfer";
+import m52 from "../doctor/checks/provider";
+import m53 from "../doctor/checks/studio";
+import m54 from "../doctor/checks/vault";
+import m55 from "../doctor/checks/version";
+import m56 from "../providers/spokes/anthropic";
+import m57 from "../providers/spokes/claude-sub";
+import m58 from "../providers/spokes/codex";
+import m59 from "../providers/spokes/custom";
+import m60 from "../providers/spokes/deepseek";
+import m61 from "../providers/spokes/google";
+import m62 from "../providers/spokes/groq";
+import m63 from "../providers/spokes/local";
+import m64 from "../providers/spokes/mistral";
+import m65 from "../providers/spokes/nanogpt";
+import m66 from "../providers/spokes/openai";
+import m67 from "../providers/spokes/openrouter";
+import m68 from "../render/notify/channels/bell";
+import m69 from "../render/notify/channels/desktop";
+import m70 from "../render/notify/channels/title";
 
 /** Every drop-in Kit ships, in the same order the folder walk would return them. */
 export const KIT_DROP_INS = {
   /** 21 drop-in(s) from the commands folder(s). */
   commands: [m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18, m19, m20] as unknown[],
-  /** 30 drop-in(s) from the tools folder(s). */
-  tools: [m21, m22, m23, m24, m25, m26, m27, m28, m29, m30, m31, m32, m33, m34, m35, m36, m37, m38, m39, m40, m41, m42, m43, m44, m45, m46, m47, m48, m49, m50] as unknown[],
+  /** 31 drop-in(s) from the tools folder(s). */
+  tools: [m21, m22, m23, m24, m25, m26, m27, m28, m29, m30, m31, m32, m33, m34, m35, m36, m37, m38, m39, m40, m41, m42, m43, m44, m45, m46, m47, m48, m49, m50, m51] as unknown[],
   /** 4 drop-in(s) from the doctorChecks folder(s). */
-  doctorChecks: [m51, m52, m53, m54] as unknown[],
+  doctorChecks: [m52, m53, m54, m55] as unknown[],
   /** 12 drop-in(s) from the spokes folder(s). */
-  spokes: [m55, m56, m57, m58, m59, m60, m61, m62, m63, m64, m65, m66] as unknown[],
+  spokes: [m56, m57, m58, m59, m60, m61, m62, m63, m64, m65, m66, m67] as unknown[],
   /** 3 drop-in(s) from the notifyChannels folder(s). */
-  notifyChannels: [m67, m68, m69] as unknown[],
+  notifyChannels: [m68, m69, m70] as unknown[],
 } as const;
 
 export type KitDropIns = typeof KIT_DROP_INS;

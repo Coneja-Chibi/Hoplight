@@ -15,6 +15,7 @@ import { useMemo, type JSX } from "react";
 import type { PresetGroup, PresetPrompt, PromptRole } from "../../../../entities/preset";
 import {
   blockTokens,
+  groupSections,
   macroGroupsForProfile,
   PRESET_PLACEMENT_LABELS,
   type PresetWriteForProfile,
@@ -25,7 +26,7 @@ import { PROMPT_HELP } from "./help";
 import s from "./sidebar.module.css";
 import f from "./preset.module.css";
 
-const ROLES: readonly PromptRole[] = ["system", "user", "assistant"];
+const ROLES: readonly PromptRole[] = ["system", "user", "assistant", "tool"];
 const DEPTH_PLACEMENTS = new Set(["in_chat", "append"]);
 
 /** Faithful RC hint copy shown under the placement select for the non-relative stops. */
@@ -63,6 +64,17 @@ export function PromptEditPanel({
   onPatch,
 }: PromptEditPanelProps): JSX.Element {
   const macroGroups = useMemo(() => macroGroupsForProfile(writeFor), [writeFor]);
+  const categoryOptions = useMemo(() => {
+    const names = new Map(groups.map((group) => [group.id, group.name || "Untitled category"]));
+    return groupSections([], groups)
+      .filter((section) => section.group !== null)
+      .map((section) => ({
+        group: section.group!,
+        label: [...section.ancestorIds, section.group!.id]
+          .map((id) => names.get(id) ?? "Untitled category")
+          .join(" / "),
+      }));
+  }, [groups]);
   return (
     <>
       <div className={s.sideHead}>
@@ -122,9 +134,9 @@ export function PromptEditPanel({
                 onChange={(e) => onSetGroup(e.target.value === UNCATEGORIZED ? null : e.target.value)}
               >
                 <option value={UNCATEGORIZED}>Uncategorized</option>
-                {groups.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name || "Untitled category"}
+                {categoryOptions.map(({ group, label }) => (
+                  <option key={group.id} value={group.id}>
+                    {label}
                   </option>
                 ))}
               </select>

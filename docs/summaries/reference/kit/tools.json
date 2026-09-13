@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:762e73e2692504a3dfc6fce39ed791ef9379af3909fe954315efef5a9054c217",
-  "summary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Twenty direct tools begin each turn, studio_delete among them, plus the preset-authoring belt (block_lookup, preset_verify, regex_lab), the shared-folder pair (folder_search, folder_import), rail_open, studio_art, and ask_choice. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
+  "sourceHash": "sha256:d276d8b077cd309bfc68e6fbc418e69868c1a371fa45a3927c7fb97ae50bfaa5",
+  "summary": "Kit content tools separates model-facing runtime tools from terminal slash commands. Its lifecycle covers all eight canonical kinds through pure previews, one four-domain discovery catalog, complete draft evidence, guarded semantic review, documentation query, whole-piece reads, and bounded result handles. Twenty-six direct tools start a turn, or twenty-five without an engine checkout; search reveals up to five deferred schemas, browse reveals none, and exact describe reveals one. Typed creation covers character, lorebook, persona, preset, regex, pack, quick-reply set, and HTML document without an existing target. Duplicate retains escrow, delete is explicitly classified, and transfer previews adapter costs without writing. External MCP tools join the same exact-name egress gate and bounded result store, and connection changes invalidate the cached session. Guarded apply uses the application review card; atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists, while a real-provider terminal run remains outstanding.",
   "topics": [
     "runtime tools vs slash",
     "workflow discovery lifecycle",
@@ -21,8 +21,8 @@
       "slug": "built-lifecycle",
       "title": "Built lifecycle",
       "level": 2,
-      "sourceHash": "sha256:b8a53b9876dbd06617b262898d51b16a19272d73a85163483075542ca4cdafca",
-      "summary": "Built lifecycle connects six canonical capability bundles to Kit: entities capabilities owns ids, search and exposure, kit capabilities adapts them into a registry. Six lifecycle tools draft creation without a write; duplicate carries body, profiles, escrow. studio_delete alone destroys canonical content, has no discovery descriptor because the runtime refuses deferred applies, and reports a miss as stale without writing. studio_transfer serializes through another adapter without writing. preset_verify renders through the real engine where a checkout exists; regex_lab tries, races, explains and lints. htmldoc.document.update is the edit half drawings lacked, patching one that exists rather than refusing at an occupied id. regex_from_drawing transcribes a drawing into a replacement - flattened, dollars escaped, slots made captures - then runs the pair for real, calling a pattern that matched nothing a failure; html_will_draw names what the seal strips. folder_search reads inside shared folders and the studio, reconciling each resolved path against its real one; folder_import is the one-way door in. rail_open, given a name of another kind, says which kind it is and where it opens. kit changes retains baseline and escrow.",
+      "sourceHash": "sha256:76519786fee3fe3d7fabbbb064c4f2fb39dcd21db7d1cf8832b37acbf51db484",
+      "summary": "Built lifecycle connects all eight canonical content kinds to Kit. Entity capability folders own stable IDs, search, exposure, and pure semantic operations; Kit discovers and adapts them into one registry. Eight typed create workflows draft without writing: character, lorebook, persona, preset, regex, pack, quick-reply set, and HTML document. Duplicate carries body, profiles, and escrow. studio_delete alone destroys canonical content and remains direct because deferred apply workflows are rejected. studio_transfer previews another adapter without writing. Preset verification, regex diagnostics, drawing-to-regex transcription, shared-folder search and import, rail opening, whole-piece reads, and HTML document update complete the live lifecycle. The change session retains one baseline, composed operations, warnings, platform impact, and escrow until a separately authorized apply.",
       "topics": [
         "six content bundles",
         "duplicate carries escrow",
@@ -57,7 +57,7 @@
       "title": "Apply and authorization",
       "level": 2,
       "sourceHash": "sha256:fad2e488866df4241e1fc97fb0337b08f5417484c551ebee21f0b2896eb6a853",
-      "summary": "The safety subsystem owns exact-name access classification and never trusts prefixes, discovery metadata, or a claimed runtime effect. Pure content capabilities derive read or preview-only draft access from validated catalog metadata. Each of the six creation workflows has a separate safety-owned exact-name draft classification. Guarded apply pauses in an application-owned semantic review card. Update apply compares the expected revision under a per-path lock. Create apply uses a distinct atomic create-only operation that refuses an occupied ID rather than overwriting or minting a sibling. Stale state and collisions write nothing. Both modes re-read and verify canonical fields and non-Studio escrow. Unreadable or mismatched verification reports failure without retry.",
+      "summary": "The safety subsystem owns exact-name access classification and never trusts prefixes, discovery metadata, or a claimed runtime effect. Pure content capabilities derive read or preview-only draft access from validated catalog metadata. Each of the eight creation workflows has a separate safety-owned exact-name draft classification. Guarded apply pauses in an application-owned semantic review card. Update apply compares the expected revision under a per-path lock. Create apply uses a distinct atomic create-only operation that refuses an occupied ID rather than overwriting or minting a sibling. Stale state and collisions write nothing. Both modes re-read and verify canonical fields and non-Studio escrow. Unreadable or mismatched verification reports failure without retry.",
       "topics": [
         "catalog name classify",
         "read vs draft least privilege",
@@ -71,7 +71,7 @@
       "slug": "progressive-exposure",
       "title": "Progressive exposure",
       "level": 2,
-      "sourceHash": "sha256:c67a21c09ec7499923cd04672310ec4aea358e7d5aa84f3edcf9b744b7274099",
+      "sourceHash": "sha256:8e3a3eb152adf13cbf13763d13ffbd80441fe90229894826277d5c47286d1e1f",
       "summary": "Progressive exposure keeps a large catalog out of every prompt. The runtime registry holds every adapted capability and deferred workflow so dispatch can resolve a selection, and twenty-six direct tools begin each turn, among them html_will_draw, regex_from_drawing, regex_lab, studio_delete and studio_export; preset_verify is the one conditional entry, taking itself out where no engine checkout exists. Delete and export are direct for a structural reason: the deferred path classifies a tool from discovery metadata and the runtime refuses to let that path describe an apply effect, so a destructive or file-writing workflow cannot be discovered into existence and must be granted by exact name in the trust map. Routing removal through draft and apply would need ChangeDraftMode to grow a remove arm, deferred to its own pass. One catalog accepts content, studio, transfer, and diagnostics domains; transfer is populated by studio_transfer while diagnostics remains an empty slot. Only pure-content capabilities derive safe access from catalog metadata. Search reveals at most five ranked matches, browse none, describe one. The deferred set clears each turn while drafts persist.",
       "topics": [
         "twenty direct tools",
@@ -87,7 +87,7 @@
           "slug": "canonical-reads-and-result-handles",
           "title": "Canonical reads and result handles",
           "level": 3,
-          "sourceHash": "sha256:a736b378db913d91c61f8a560c7a43221d752f0218a67814d4aab0010eca04bc",
+          "sourceHash": "sha256:b23f07bd89892cd1959dc40f37f557054522881726d76245a72b2f3fa84fe645",
           "summary": "studio_read defaults to one complete canonical entity. A normal piece up to 64,000 characters returns inline in one observation, avoiding forced section traversal. It can still outline immediate children as RFC 6901 JSON Pointers or read one selected value with offsets and limits. Invalid pointers fail closed. Larger whole pieces enter a session-local store and return an opaque result-N handle plus a 4,096-character peek. Other result-producing tools retain the shared 4,096-character inline threshold. result_query provides stat, bounded read, and literal case-insensitive search. Handles reveal no path and expire with the session. Storage caps are 24 entries, 1,000,000 UTF-8 bytes per entry, and 4,000,000 UTF-8 bytes total with oldest-first eviction. Content beyond the store cap remains recoverable through direct studio_read offsets.",
           "topics": [
             "RFC 6901 outline read",
@@ -150,8 +150,8 @@
       "slug": "other-canonical-bundles",
       "title": "Other canonical bundles",
       "level": 2,
-      "sourceHash": "sha256:f1a5223c70e73f25374ec2488190233bfe6d54c949a740c937e6e2e02d2e6c24",
-      "summary": "Persona creation separates shelf brief from injected content and accepts sections, traits, identity, rating, and portrait. Preset creation accepts prompt blocks, sampler values, and media-inlining settings. Regex creation accepts stored rules with patterns, flags, replacements, phases, depth bounds, and ordering but never executes them. Pack creation accepts expression items with IDs, labels, refs, MIME types, enabled state, and default label. Existing capabilities continue editing each kind through shared entity reducers.",
+      "sourceHash": "sha256:e70e81b77de7fb0211af68e76fdd95dde056eab2bdd5d5f78da3bb62e6eee31f",
+      "summary": "Persona creation separates shelf brief from injected content and accepts sections, traits, identity, rating, and portrait. Preset creation accepts prompt blocks, samplers, and media settings. Regex creation accepts stored rules but never executes them. Pack creation accepts expression items and groups. Quick-reply creation accepts labeled messages, and Workbench owns later editing. HTML-document creation stores sealed markup, while htmldoc.document.update edits an existing drawing. Existing semantic capabilities edit supported kinds through shared entity reducers.",
       "topics": [
         "persona identity profile",
         "preset blocks samplers",
@@ -273,11 +273,28 @@
       "children": []
     },
     {
+      "slug": "wearing-other-peoples-belts",
+      "title": "Wearing other people's belts",
+      "level": 2,
+      "sourceHash": "sha256:6ad9f41f86a724ede4aa5a40edd5e0092e1f437bce761c3de42829df5ec2b5e4",
+      "summary": "MCP servers configured in Settings Connections join Kit's belt. The host-only API writes fail-closed machine-local mcp.json entries; environment values never return, and omitting env preserves stored values. Saving, disabling, or removing a server synchronizes the shared connection manager and invalidates the cached Kit session, so the next turn sees the exact new belt without restarting. One manager per process reuses enabled servers, restarts changed recipes, and kills children on exit. External names and schemas come from the server, collisions are dropped, and every enumerated name receives exact egress classification in the same assembly step. Unknown names remain denied, external tools cannot gain write, delete, or exec classification, and Hoplight does not re-export them. Large external results use the shared bounded store, returning a handle and peek or a named omission beyond its cap.",
+      "topics": [
+        "mcp.json home-keyed",
+        "host-only api mcp",
+        "env write-only",
+        "one manager per process",
+        "egress by enumeration",
+        "schemaOverride to the model",
+        "no re-export echo"
+      ],
+      "children": []
+    },
+    {
       "slug": "verification-status",
       "title": "Verification status",
       "level": 2,
-      "sourceHash": "sha256:1b464326e39f566728e76d7c0207d67cd46f3e1edfe2293c5b52dc4d258ceec3",
-      "summary": "Verification status separates proof from gaps. Unit and integration tests cover discovery, creation preview, draft evidence, collision and stale refusal, one-save apply, and post-save verification. Lifecycle and transfer add delete safety, escrow-carrying duplication, structural export containment, create-only refusal, and a RoleCall to SillyTavern preset journey onto a real filesystem. An oracle checks macro catalogs against each engine registry; SillyTavern alone lacks one. Live verification against a real provider remains outstanding.",
+      "sourceHash": "sha256:f074f59996bdf21319dc4c79ea66f880075a89bdc11bf2eaf4dd4ad2a599b396",
+      "summary": "Unit and integration tests cover catalog parity, discovery for all eight create workflows, whole-card reads, bounded first-party and MCP results, draft evidence, stale and collision refusal, verified apply, and a fake-provider rename through the real store. Lifecycle tests cover delete, escrow-preserving duplicate, export containment, and a real-filesystem preset transfer. Macro catalogs are checked against available engine registries; SillyTavern lacks an oracle. A running Kit session against a real provider remains outstanding.",
       "topics": [
         "proof separated from gaps",
         "lifecycle and transfer covered",

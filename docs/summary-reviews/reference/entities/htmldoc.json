@@ -5,7 +5,7 @@
   "sourceHash": "sha256:ce8126bb701ed8af0dc1b5a89b27645d3b6e8f4a4ac6a63116ed6ccfb0696ada",
   "semanticSummaryHash": "sha256:8d079adb1863ea0df0a8e06b48528faee04705c0118756aa7a83a28012afca35",
   "verdict": "APPROVE",
-  "reviewer": "frame-focus-review",
-  "notes": "The sealed frame no longer keeps the keyboard. Reproduced in Chromium first: after clicking a drawing, document.activeElement was the IFRAME and ctrl+/ did nothing; blurring the frame by hand made it work again. The deferral is measured, not stylistic - a synchronous blur inside the handler loses to the browser's own focus assignment and the frame keeps focus, which JSDOM cannot reproduce, so focus.test.tsx asserts the frame is STILL focused in the dispatch tick and released after one turn. That test fails on the synchronous version, checked by reverting it. Re-proved live end to end: click the drawing, press ctrl+/, the panel opens. Not an independent pass: written and approved in one turn.",
-  "reviewedAt": "2026-08-13T04:44:34.763Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete entity and every section summary re-read; summary faithfully covers storage, render-time sealing, focus handling, editing surfaces, size cap, fields, and proof limits.",
+  "reviewedAt": "2026-09-13T02:03:41.965Z"
 }

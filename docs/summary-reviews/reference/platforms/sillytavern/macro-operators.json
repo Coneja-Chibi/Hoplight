@@ -5,7 +5,7 @@
   "sourceHash": "sha256:886cb75293e8d05b1df0b1e3bf27a0c5afcde96f2ea05fad8fece2c5865a5515",
   "semanticSummaryHash": "sha256:bc6f50916fea446390ac28a66498f17d2a947dac6f53888b89c29d3f40d036d5",
   "verdict": "APPROVE",
-  "reviewer": "codex-primary-self-review",
-  "notes": "Self-review: argument forms, nesting, blocks, truthiness, flags, comments, escapes, all shorthand operators, returns, full-form equivalence, and legacy markers are represented.",
-  "reviewedAt": "2026-07-26T02:21:30.719Z"
+  "reviewer": "review_current_release_tranche",
+  "notes": "Complete operator reference and every section summary re-read; syntax, scoping, conditions, flags, variable operators, legacy forms, and safety boundaries are represented accurately.",
+  "reviewedAt": "2026-09-13T02:03:42.193Z"
 }

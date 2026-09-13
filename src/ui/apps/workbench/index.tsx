@@ -21,6 +21,7 @@ import { RegexSetEditor } from "./RegexSetEditor";
 import { PersonaEditor } from "./PersonaEditor";
 import { HtmlDocEditor } from "./htmldoc-editor";
 import { PresetEditor } from "./PresetEditor";
+import { QuickReplyEditor } from "./QuickReplyEditor";
 import { emptyPackBody } from "../../../entities/pack/schema";
 import { emptyLorebookBody } from "../../../core/lore";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
@@ -105,6 +106,8 @@ function EditablePane({
       <HtmlDocEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "preset" ? (
       <PresetEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
+    ) : piece.kind === "quickreply" ? (
+      <QuickReplyEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : (
       <CharacterEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     );
@@ -226,6 +229,7 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
       p.kind === "regex" ||
       p.kind === "persona" ||
       p.kind === "preset" ||
+      p.kind === "quickreply" ||
       p.kind === "htmldoc",
   );
   // the split is real only when the beside piece can actually render an editor here

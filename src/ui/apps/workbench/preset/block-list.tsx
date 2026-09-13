@@ -6,7 +6,7 @@
  * three: searched-to-nothing, an empty In-Chat tab, and a genuinely empty preset). Telling someone
  * "no blocks yet" while four sit behind a filter is a lie, and it hides the way out.
  */
-import { useState, type JSX } from "react";
+import { useState, type CSSProperties, type JSX } from "react";
 import type { PresetGroup, PresetPrompt } from "../../../../entities/preset";
 import { groupSections, type PromptFilterTab } from "../../../../core/preset";
 import { BlockRow } from "./block-row";
@@ -127,6 +127,10 @@ export function BlockList({
   };
 
   const sections = groups.length > 0 ? groupSections(blocks, groups) : null;
+  const visibleSections = sections?.filter((section) =>
+    section.group === null
+    || section.ancestorIds.every((ancestorId) => !collapsedGroups.has(ancestorId)),
+  ) ?? null;
 
   // Which "nothing" is this? A filter hiding everything gets the escape hatch; a preset with no
   // blocks but real categories must still render the folders, or making one looks like a no-op.
@@ -143,14 +147,19 @@ export function BlockList({
           onClearQuery={onClearQuery}
           onShowAll={onShowAll}
         />
-      ) : sections === null ? (
+      ) : visibleSections === null ? (
         blocks.map(row)
       ) : (
-        sections.map((sec) => {
+        visibleSections.map((sec) => {
           if (sec.group === null) return sec.prompts.map(row);
           const open = !collapsedGroups.has(sec.group.id);
           return (
-            <div key={sec.group.id} className={s.section}>
+            <div
+              key={sec.group.id}
+              className={s.section}
+              data-depth={sec.depth}
+              style={{ "--preset-group-depth": sec.depth } as CSSProperties}
+            >
               <button
                 type="button"
                 className={s.sectionHead}
@@ -159,9 +168,9 @@ export function BlockList({
               >
                 <span className={`${s.sectionChev} ${open ? s.sectionChevOpen : ""}`}>&#8250;</span>
                 <span className={s.sectionName}>{sec.group.name || "Untitled category"}</span>
-                <span className={s.sectionCount}>{sec.prompts.length}</span>
+                <span className={s.sectionCount}>{sec.totalPromptCount}</span>
               </button>
-              {open && (
+              {open && (sec.prompts.length > 0 || !sec.hasChildren) && (
                 <div className={s.sectionBody}>
                   {sec.prompts.length === 0 ? (
                     <p className={s.sectionEmpty}>Nothing in this category.</p>

@@ -30,6 +30,7 @@ const FRIENDLY: Record<string, string> = {
   "lumiverse-archive": "Lumiverse",
   pygmalion: "Pygmalion",
   "sillytavern-regex": "SillyTavern",
+  "sillytavern-quickreply": "SillyTavern",
   "risu-regex": "RisuAI",
   "rolecall-regex": "RoleCall",
   "lumiverse-regex": "Lumiverse",
@@ -52,6 +53,7 @@ const KIND_WORD: Record<string, string> = {
   persona: "persona",
   regex: "regex set",
   preset: "preset",
+  quickreply: "quick-reply set",
 };
 
 export interface Receipt {

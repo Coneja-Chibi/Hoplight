@@ -12,6 +12,7 @@ import { createAndOpenLorebook } from "./new-lorebook";
 import { createAndOpenRegexSet } from "./new-regex-set";
 import { createAndOpenPersona } from "./new-persona";
 import { createAndOpenPreset } from "./new-preset";
+import { createAndOpenQuickReplies } from "./new-quickreply";
 
 interface NewSpec {
   label: string;
@@ -26,6 +27,7 @@ const NEW_BY_KIND: Record<string, NewSpec> = {
   regex: { label: "New regex set", word: "regex set", create: createAndOpenRegexSet },
   persona: { label: "New persona", word: "persona", create: createAndOpenPersona },
   preset: { label: "New preset", word: "preset", create: createAndOpenPreset },
+  quickreply: { label: "New quick replies", word: "quick-reply set", create: createAndOpenQuickReplies },
 };
 
 export interface NewInDeckButtonProps {

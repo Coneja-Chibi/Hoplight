@@ -1,6 +1,6 @@
 {
-  "generated": "2026-08-13",
-  "count": 113,
+  "generated": "2026-09-13",
+  "count": 115,
   "pages": [
     {
       "docId": "01-VISION",
@@ -107,12 +107,20 @@
       "semanticSummaryHash": "sha256:29a9010c07897acfe107c88d669463d67ec0666abdb7caa29751e954e0be20a5"
     },
     {
+      "docId": "decisions/ADR-012-macro-evaluation-boundary",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "review_current_release_tranche",
+      "sourceHash": "sha256:1e34517cb93b14814f6d92d15c10d164a2c4362b3fdb8d4a8bdadad73d6110fa",
+      "semanticSummaryHash": "sha256:3a9a4b6fc5c5c893fb145891c90412abe626cf2ea646b5321b47a00addf28ec8"
+    },
+    {
       "docId": "FORMAT-SUPPORT",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "htmldoc-matrix-section-review",
-      "sourceHash": "sha256:cfec8c04249d153c7dacaf30d34ecacfaf8bc2fad4fcb8ccd03aa4d33003940c",
-      "semanticSummaryHash": "sha256:92ca4ed6252323e90c2821a8d5f38cd254b898752d02e692331414df5c87e77e"
+      "reviewer": "review_current_release_tranche",
+      "sourceHash": "sha256:1f9cf3029a9d6ae4c232317f795a387bc2fce8eb7fcdce6fb726f8b133da5817",
+      "semanticSummaryHash": "sha256:d43da270cef8e6f102e05f3d90752887b85a2360b9fbb8b229da533f0399802b"
     },
     {
       "docId": "guide/converting",
@@ -318,9 +326,9 @@
       "docId": "reference/architecture",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-credibility-semantic-reviewer",
-      "sourceHash": "sha256:763c94ed8f9ebc966347a9c782e7efc90795a41d5c170255e1131cd34b80fe52",
-      "semanticSummaryHash": "sha256:da1fa4453b27a9220c3b32f93720f0b76c5397837de56436938ab8e4765086f5"
+      "reviewer": "review_current_release_tranche",
+      "sourceHash": "sha256:896b95efeb35f1e68cafbe9a91542013c4d1701f613678f0682a95b853ddca4f",
+      "semanticSummaryHash": "sha256:bd27faf449d66db72628a869e0aa1db20f1e703cec3a4f9e5fed54b11af544a6"
     },
     {
       "docId": "reference/audits",
@@ -342,9 +350,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "fullscreen-fill-review",
-      "sourceHash": "sha256:bf7da77ec86e621a7b157ba3b5b5988a20fbf9be246c4da44adc887b11b7e5b4",
-      "semanticSummaryHash": "sha256:c796244b381de89e2a51063a58917f489d575b5713aa58da6ba365a2b4389f8e"
+      "reviewer": "review_current_release_tranche",
+      "sourceHash": "sha256:ed1e43aad461fc8d1bc1a19fa20697b19c603e23c4d5061d965886d61a5c0bce",
+      "semanticSummaryHash": "sha256:9366efd1e5ee93daf0f287d6603289771491c925d5131e8b57f47fc1194ba775"
     },
     {
       "docId": "reference/concepts/bundles",
@@ -438,7 +446,7 @@
       "docId": "reference/entities/htmldoc",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "frame-focus-review",
+      "reviewer": "review_current_release_tranche",
       "sourceHash": "sha256:ce8126bb701ed8af0dc1b5a89b27645d3b6e8f4a4ac6a63116ed6ccfb0696ada",
       "semanticSummaryHash": "sha256:8d079adb1863ea0df0a8e06b48528faee04705c0118756aa7a83a28012afca35"
     },
@@ -470,9 +478,9 @@
       "docId": "reference/entities/preset",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "chi",
-      "sourceHash": "sha256:da988fa8440330140e8a348c6823096b5610460d24c7d9b7588e6c545af423b3",
-      "semanticSummaryHash": "sha256:9ca53db6064d8c557d5c1deaf28bc3619ca120196f9d2ea3ea25236652331701"
+      "reviewer": "review_current_release_tranche",
+      "sourceHash": "sha256:b8bdb2e90c8b106b58ef06e3d51ce2dd8a99d0f36a53afdc2af168d9a4bc4773",
+      "semanticSummaryHash": "sha256:2eaa34da11d92d556a1323c9395d3738ef62fb56a420682aace4eac0562d1d3b"
     },
     {
       "docId": "reference/entities/README",
@@ -606,9 +614,17 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "agent-surface-bundle-review",
-      "sourceHash": "sha256:762e73e2692504a3dfc6fce39ed791ef9379af3909fe954315efef5a9054c217",
-      "semanticSummaryHash": "sha256:458aa5e791a02e531427a5abc091ae5e6420184d16d99a07d1f4ada758f335c8"
+      "reviewer": "review_current_release_tranche",
+      "sourceHash": "sha256:d276d8b077cd309bfc68e6fbc418e69868c1a371fa45a3927c7fb97ae50bfaa5",
+      "semanticSummaryHash": "sha256:6397b238c56e169653d55dc2d15bcbeb5e9dcc17a7c19f1eef43b5af47d273ff"
+    },
+    {
+      "docId": "reference/macro-engine",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "adversarial-reviewer",
+      "sourceHash": "sha256:d66daeb3340571361f26549053b10142aab1ae7ab57eea81e9f3646aad2b08ff",
+      "semanticSummaryHash": "sha256:8d61ffdba2a2d99d586dfb30d82fc9df2dce1dddbf79988046f1d4e77005ae34"
     },
     {
       "docId": "reference/platform-native-fields",
@@ -742,7 +758,7 @@
       "docId": "reference/platforms/sillytavern/macro-operators",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-primary-self-review",
+      "reviewer": "review_current_release_tranche",
       "sourceHash": "sha256:886cb75293e8d05b1df0b1e3bf27a0c5afcde96f2ea05fad8fece2c5865a5515",
       "semanticSummaryHash": "sha256:bc6f50916fea446390ac28a66498f17d2a947dac6f53888b89c29d3f40d036d5"
     },
@@ -750,7 +766,7 @@
       "docId": "reference/platforms/sillytavern/macro-reference",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-primary-self-review",
+      "reviewer": "review_current_release_tranche",
       "sourceHash": "sha256:3bcc6cbf8f17d91741227f114c4e9e188299d5e2a68dde286112a27713758041",
       "semanticSummaryHash": "sha256:22bebd4507a51a1f1127e2d2f3c336ab755d098df9b99d6bd8d5a21fff08150f"
     },
@@ -758,7 +774,7 @@
       "docId": "reference/platforms/sillytavern/macros",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-primary-self-review",
+      "reviewer": "review_current_release_tranche",
       "sourceHash": "sha256:918ed4f10ece3b541f7117a66015cbbf6bec54dcb5a6f13bddc53380ca2f5f15",
       "semanticSummaryHash": "sha256:e38971d5af2d0a215b6c390b8ecb5671c17c9c53e8d317c28f01fbc8b3a30a44"
     },
@@ -766,7 +782,7 @@
       "docId": "reference/platforms/sillytavern/personas-and-data-bank",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-primary-self-review",
+      "reviewer": "review_current_release_tranche",
       "sourceHash": "sha256:e1bd77243be82daaf880f1cd8ba41bfb409633376da8d235844aa2bf0d7ba24d",
       "semanticSummaryHash": "sha256:29038926323b2638358267972ccd6eb5c30076b95c75ba5092ca89b0752559b3"
     },
@@ -806,7 +822,7 @@
       "docId": "reference/platforms/sillytavern/world-info",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-primary-self-review",
+      "reviewer": "review_current_release_tranche",
       "sourceHash": "sha256:0c1a90472bd570459e10bfa7a2f34b402377e18ae9cb3ed2005442c61feb2a81",
       "semanticSummaryHash": "sha256:63a878b6574443894713b249bf8105d043675ab891855c0483f016df64a2caf1"
     },
@@ -814,9 +830,9 @@
       "docId": "reference/README",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:7dbd642af1b49a077686908344f662ee152e434e16a76495a20bea214af3e035",
-      "semanticSummaryHash": "sha256:33372b5283785f4dd26229fb66d859899c1648a524989e508500030be0cada5b"
+      "reviewer": "adversarial-reviewer",
+      "sourceHash": "sha256:227917dcbcaf268d6514e01a2ce97dfd304f66fd4bbd64b984cf08931ca4a8d1",
+      "semanticSummaryHash": "sha256:99829ed105b13fabf516d904561c60a0f6f1431a628faf30c16f9a752001481f"
     },
     {
       "docId": "reference/security/archives",
@@ -854,7 +870,7 @@
       "docId": "reference/security/safe-rendering",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "sealed-style-hoist-review",
+      "reviewer": "review_current_release_tranche",
       "sourceHash": "sha256:71d889dffa9832a8ebce4bf495bb71a164170585c455403d4c76b065da508337",
       "semanticSummaryHash": "sha256:2ac3c7367a3d32b4a1e47e5a098f5d841e5cfd338b06ea71753276f7b3341460"
     },
@@ -886,9 +902,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "agent-surface-bundle-review",
-      "sourceHash": "sha256:6e7c39f36460948836f70c2f7c1576bff8a1db0337f0c35f7d3f84d6eed341de",
-      "semanticSummaryHash": "sha256:5027d1651d58d557fbc9e34439ee655bb954ce9173711597b8e4f79b3ef565c4"
+      "reviewer": "review_current_release_tranche",
+      "sourceHash": "sha256:2c75bacaa39d5e44d1e4128b0c17145e4d6d4b109c2f87c51f4357f9bc7ff436",
+      "semanticSummaryHash": "sha256:7df306bc386bb4a7b057fab440890df7352407424cc7ce3f272aff4b08e07b2c"
     },
     {
       "docId": "reference/updates",

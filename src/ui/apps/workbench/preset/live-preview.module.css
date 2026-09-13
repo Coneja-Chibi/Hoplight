@@ -1,0 +1,317 @@
+/**
+ * The LivePreview (resolved, editable) rail pane. Sibling of live-build.module.css and speaks the
+ * same visual dialect - mono, dense, stage tokens - but unlike LiveBuild it IS an editor: literal
+ * spans and macro chips are buttons, and hover states say so.
+ */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  min-height: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headline {
+  flex: 1;
+  font: 800 0.625rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.volatile {
+  font: 700 0.53rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--stage-warn);
+  border: 1px solid color-mix(in srgb, var(--stage-warn) 40%, transparent);
+  padding: 0.02rem 0.25rem;
+}
+
+.reroll {
+  font: 800 0.6rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pa);
+  background: transparent;
+  border: 2px solid var(--pa);
+  padding: 0.12rem 0.45rem;
+  cursor: pointer;
+}
+
+.reroll:hover {
+  background: color-mix(in srgb, var(--pa) 14%, transparent);
+}
+
+.empty {
+  border: 2px dashed color-mix(in srgb, var(--stage-card) 15%, transparent);
+  color: var(--stage-mute);
+  font: 500 0.72rem var(--font-body);
+  padding: 1rem;
+  text-align: center;
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.line {
+  border: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--stage-card) 2%, transparent);
+}
+
+.lineHead {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--stage-card) 4%, transparent);
+  padding: 0.3rem 0.4rem;
+  cursor: pointer;
+}
+
+.lineHead:hover {
+  background: color-mix(in srgb, var(--pa) 12%, transparent);
+}
+
+.ord {
+  font: 800 0.625rem var(--font-mono);
+  color: var(--pa);
+  flex: none;
+}
+
+.lineName {
+  flex: 1;
+  font: 700 0.68rem var(--font-body);
+  color: var(--stage-card);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role {
+  font: 600 0.53rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--stage-mute);
+  border: 1px solid color-mix(in srgb, var(--stage-card) 14%, transparent);
+  padding: 0.02rem 0.22rem;
+  flex: none;
+}
+
+/* the rendered flow: literal spans and macro chips laid inline, reading as one prompt */
+.flow {
+  padding: 0.4rem 0.5rem;
+  max-height: 12rem;
+  overflow: auto;
+  font: 500 0.64rem var(--font-mono);
+  line-height: 1.7;
+  color: var(--stage-soft);
+  word-break: break-word;
+}
+
+.segSlot {
+  display: inline;
+}
+
+.lit,
+.mac {
+  display: inline;
+  font: inherit;
+  line-height: inherit;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: text;
+  white-space: pre-wrap;
+}
+
+.lit:hover {
+  background: color-mix(in srgb, var(--pa) 10%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--pa) 45%, transparent);
+}
+
+/* a macro chip is resolved text that KNOWS it is a macro: quietly marked until hovered */
+.mac {
+  cursor: pointer;
+  color: var(--pa);
+  border-bottom: 1px dashed color-mix(in srgb, var(--pa) 55%, transparent);
+}
+
+.mac:hover,
+.macOpen {
+  background: color-mix(in srgb, var(--pa) 12%, transparent);
+}
+
+.detail {
+  display: block;
+  margin: 0.25rem 0;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--pa) 35%, transparent);
+  background: color-mix(in srgb, var(--pa) 5%, transparent);
+}
+
+.detailRaw {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.detailLabel {
+  font: 800 0.53rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--stage-kicker);
+  flex: none;
+}
+
+.detailExpr {
+  font: 600 0.6rem var(--font-mono);
+  color: var(--stage-soft);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: text;
+  text-align: left;
+  word-break: break-all;
+}
+
+.detailExpr:hover {
+  background: color-mix(in srgb, var(--pa) 10%, transparent);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.option {
+  font: 600 0.6rem var(--font-mono);
+  color: var(--stage-soft);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--stage-card) 18%, transparent);
+  padding: 0.08rem 0.3rem;
+  cursor: text;
+}
+
+.option:hover {
+  border-color: var(--pa);
+}
+
+.optionRolled {
+  color: var(--pa);
+  border-color: var(--pa);
+  font-weight: 800;
+}
+
+.optionEdit {
+  display: block;
+  width: 100%;
+}
+
+.branchNote {
+  display: block;
+  margin-top: 0.25rem;
+  font: 500 0.58rem var(--font-mono);
+  font-style: italic;
+  color: var(--stage-kicker);
+}
+
+.editWrap {
+  display: block;
+  margin: 0.15rem 0;
+}
+
+.editBox {
+  width: 100%;
+  font: 500 0.64rem var(--font-mono);
+  line-height: 1.5;
+  color: var(--stage-soft);
+  background: color-mix(in srgb, var(--stage-card) 4%, transparent);
+  border: 2px solid var(--pa);
+  padding: 0.3rem 0.4rem;
+  resize: vertical;
+}
+
+.editActs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.editSave,
+.editCancel {
+  font: 800 0.56rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: transparent;
+  padding: 0.1rem 0.35rem;
+  cursor: pointer;
+}
+
+.editSave {
+  color: var(--pa);
+  border: 2px solid var(--pa);
+}
+
+.editSave:hover {
+  background: color-mix(in srgb, var(--pa) 14%, transparent);
+}
+
+.editCancel {
+  color: var(--stage-mute);
+  border: 1px solid color-mix(in srgb, var(--stage-card) 18%, transparent);
+}
+
+.staleNote {
+  font: 600 0.56rem var(--font-body);
+  color: var(--stage-warn);
+}
+
+.markerText {
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  font: 500 0.64rem var(--font-mono);
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 7%, transparent);
+  white-space: pre-wrap;
+}
+
+.errs {
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--stage-warn) 30%, transparent);
+  font: 500 0.58rem var(--font-mono);
+  color: var(--stage-warn);
+}
+
+.note {
+  margin: 0.2rem 0 0;
+  font: 500 0.625rem var(--font-body);
+  color: var(--stage-kicker);
+  line-height: 1.45;
+}

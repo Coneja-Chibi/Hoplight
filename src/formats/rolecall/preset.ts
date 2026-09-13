@@ -112,6 +112,7 @@ const deepEq = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.s
 const rolecallPreset: PresetAdapter = {
   id: FORMAT_ID,
   label: "RoleCall preset export (ST grammar + macros/choice groups/readme)",
+  escrowFormatIds: ["rolecall"],
   outputExtensions: ["json"],
   kind: "preset",
 
