@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184 171" role="img" aria-label="Hoplight illuminated V mark">
+  <g fill="#F20D3F">
+    <path d="M0 12 51 0 117 171 82 136Z"/>
+    <path d="M135 0 184 12 101 136 67 171Z"/>
+  </g>
+  <g fill="#FFFFFF">
+    <path d="m34 33 11-4 34 82-8-10Z"/>
+    <path d="m140 29 11 4-38 68-8 10Z"/>
+  </g>
+</svg>

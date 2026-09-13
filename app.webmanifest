@@ -1,0 +1,13 @@
+{
+  "name": "Hoplight Studio",
+  "short_name": "Hoplight",
+  "start_url": "./",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "./icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

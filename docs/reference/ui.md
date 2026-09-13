@@ -1,0 +1,649 @@
+# The visual app (hoplight ui)
+
+`hoplight ui [port] [studioDir]` boots the primary local studio: a loopback Bun server (default
+`127.0.0.1:8321`) serving the shell and a JSON API that is a thin skin over the same engine the CLI
+uses. Optional remote listeners are separately enabled and gated. One engine, two shells - no format
+logic exists in the UI layer.
+
+## Browser Studio
+
+The GitHub Pages build publishes the same React shell, discovered apps, setup steps, format
+adapters, editors, import flow, Press, and indexed documentation as a static site. It needs no
+account and sends no Studio data to a Hoplight server. A browser runtime supplies the existing
+`/api/*` client contract from in-process stores and the shared inspect/export engine; it does not
+fork the canonical model or maintain a second set of format conversions.
+
+Every mutable browser store is intentionally memory-backed. Pieces, collections, settings,
+Workbench state, previews, and portraits last only for the current page load. Hoplight does not
+write them to localStorage, sessionStorage, IndexedDB, a service worker, or a remote account.
+Reloading or closing the page starts a new empty Studio, so the ready shell's footer says
+**temporary studio · export before reload**.
+
+Host-owned operations are not simulated. Kit and provider calls, MCP connections, remote-access
+controls, updates, local engine checkouts, Lumiverse archive imports, and Lua or regex execution
+require the installed app. Script source remains editable, but Run refuses because GitHub Pages
+cannot provide the separate sandbox origin required by ADR-009. Host-only API routes and the direct
+test-bench runners each return an explicit installed-app refusal. Ordinary supported files can still be
+imported, edited, organized, converted, and downloaded entirely inside the page.
+
+## Kit terminal shell
+
+Kit is Hoplight's conversational terminal preview. Run it from a source checkout with `bun run kit`;
+release binaries also carry a Kit executable for Windows, Linux (x64 and arm64) and macOS, built by
+the same bake as the CLI. Its composer accepts multiline text and up to five
+large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
+transcript search without discarding the current draft, and Escape stops an active turn. A rejected
+submission remains in the composer. Plain messages submitted during an active turn enter a bounded
+FIFO follow-up queue; a compact receipt shows the next message and folded remainder count, then Kit
+runs each message in order as the previous turn settles. The queue survives stopping the active turn
+but is intentionally session-local and is not restored after relaunch. Typing `/` opens a
+registry-driven command palette containing
+every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
+runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. Past the
+command word the same palette offers that command's ARGUMENT - `/rail` lists the presets with their
+display names beside the ids - because a studio id is exact, hyphenated and nothing like the name
+somebody remembers, and typing it from memory is where the mistake happens. Right-clicking the input
+pastes from the system clipboard, and Alt+V pastes an image, as do Ctrl+G and `/image`; a Ctrl+V
+that arrives carrying no text is read as a pasted picture too, since that is what an empty paste
+means. Alt reaches Kit two ways and both are read: the Kitty protocol reports it as one modifier and
+the older ESC-prefix convention as another, and reading only the first is what once made every alt
+chord look undeliverable. WHETHER A PICTURE IS SENT IS THE PROVIDER'S ANSWER, declared per spoke
+rather than assumed: a provider that reads images gets the picture attached to the next message and
+the caption says so, and one that does not keeps the image on screen for you alone. Absent means no,
+because attaching an image to a text-only model errors the turn rather than degrading. A file path
+written or pasted into a
+message becomes reachable for that file alone, without a separate sharing step: naming a path is
+consent to it, exactly as picking one in a file dialog is, and the path is drawn as a link that
+shift+click reveals in its folder. A
+trailing `@` query opens matching studio pieces; choosing one inserts a stable `@kind:id` marker,
+and resolved markers in replies render as compact name-and-kind cards. When the composer is empty,
+its placeholder suggests a deterministic next move from the live studio shape, such as auditing
+lorebook triggers or comparing two named characters; it disappears as normal placeholder text as
+soon as typing starts and is never submitted implicitly. If a provider stops after
+streaming part of a reply, Kit keeps
+that partial reply visible before showing the stop or error. The input and connection state form one
+fused prompter rail: an open heavy top rule and rose prompt cap lead into the input plate, while a
+thin seam joins the quieter provider, model, and ready or working register below. Transcript
+scrolling remains available by mouse wheel and navigation keys without painting a second,
+application-owned scrollbar beside the terminal's own window chrome. Home and End jump to the oldest
+or newest transcript content, and Page Up/Page Down move by a viewport. When new rows arrive while
+the reader is scrolled up, a capped `new below` pill appears above the composer; clicking it or
+pressing End returns to the latest row and clears the count.
+
+`/rail` (also `/blocks`, `/outline`) keeps a preset's block list open beside the conversation, and
+`/rail off` closes it. Order is what it exists to show: a preset evaluates top to bottom, so a block
+can be enabled, expand perfectly and never be read because something later overwrote what it wrote,
+and position is the only place that shows. Naming a preset is optional when there is only one, and
+several matches are listed rather than guessed between - and typing `/rail` then a space offers the
+presets as a list, so a studio id never has to be remembered and retyped. Kit reaches the same view
+through `rail_open`; a request to show a preset is ignored while edits are unapplied, so it cannot
+pull the rail out from under somebody mid-rearrange. What is on the rail rides in each turn's ambient
+context, so Kit knows without asking rather than answering from what it opened earlier.
+
+The rail is edited directly. Click, shift-click for a range in either direction, and ctrl-click to
+add or remove one; drag a selection anywhere; space toggles, delete removes, and left/right expand a
+block's content. Arrows move the cursor and alt+arrows move the blocks, so every gesture has a key
+for anyone without a mouse. Ctrl+B hands the keyboard between the composer and the rail, and the
+header and footer show which side holds it - without that, an open rail swallowed the keys it claims
+and silently toggled blocks while somebody typed a prompt.
+
+Its shape belongs to the reader, not the layout: Ctrl+Shift+Left/Right resizes it, Ctrl+Shift+D
+switches between roomy rows and fitting as many as the window allows, and `<` / `>` thumb through the
+studio's presets in order so two can be compared without typing either name. The footer count says
+`all 155` when everything really is on screen, rather than a fraction that has to be interpreted.
+Stepping away refuses while edits are unapplied, because a key that sometimes destroys work is worse
+than one that sometimes says no.
+
+`/gallery` (also `/cast`, `/faces`) lays your card art in a row along the bottom, sitting on the
+composer. It answers a different question from the preset rail and so it sits differently: a block
+list is long and read top to bottom, while a cast is something you glance down at and go back to
+typing. It is windowed rather than wrapped, so a shelf of forty faces scrolls sideways to keep the
+cursor in view and the transcript above it never moves. The keyboard contract is the rail's on
+purpose: Ctrl+B hands the keyboard over, left/right move, Home/End jump to the ends, Enter fills the
+composer with that name rather than sending it, and nothing is intercepted at all while the composer
+holds focus. Clicking a card selects it. The strip reports how many pieces it looked at that carry no
+art, and says when a deck was larger than it scanned, because a silently short shelf reads as missing
+art rather than as a bounded read. `/art <name>` shows one piece full size in the conversation
+instead, and `studio_art` is the same view opened by Kit when a face is worth showing mid-sentence.
+A portrait held as an asset-store or archive reference does not resolve yet and reports as no art.
+
+Nothing there writes as you go. Edits accumulate against the rows as last read from storage, the
+header counts them, and Enter stages the lot as one ordinary draft that pauses at the same Gate a
+model draft does. Refused, denied, stale and failed are four different sentences, because they lead
+to four different next moves. A denial keeps the edits in the rail and discards only the staged
+draft.
+
+`/help` opens a full-screen, registry-driven reference stage instead of writing a long help message
+into the transcript. Commands and live keyboard bindings share grouped sections, the pane scrolls
+with navigation keys, and Escape or `q` returns to the untouched session view.
+
+While Kit is open, a bounded read-only stage watcher polls the canonical studio listing and compares
+it with the prior snapshot. Outside imports, edits, and removals coalesce into one searchable
+`NOTICED` transcript cue with a suggested next question; Kit never acts on the change by itself.
+Temporary unreadable states are skipped until the next poll, the live piece/deck counts and composer
+suggestion refresh from the new snapshot, and the watcher stops with the Kit process. Watch notices
+are live-session context and are not written into saved conversation history.
+
+Settled replies longer than 1,200 characters fold to a one-line cue and reopen by click or Ctrl+O;
+live streaming text never folds mid-answer. Fenced unified diffs receive counted add/remove
+treatment, horizontal rules share Kit's scene seam, and error rows cap hostile or accidental floods.
+Hovering a user, assistant, or error band exposes a copy corner. Copy uses the terminal's OSC52
+support, refuses oversized payloads, and reports unsupported or rejected requests in a short status
+toast instead of claiming clipboard success.
+
+Successful turns are saved atomically as one JSON file per session under the Hoplight configuration
+directory's `sessions/` folder. `/session` opens the saved-session playbill, `/resume [name]` restores
+history and visible transcript lines, `/rewind` can truncate or fork at an earlier turn, and
+`/export [md|json]` writes a transcript with a session-specific filename. Search, resume, and rewind
+lists keep the selected row inside a terminal-height-based visible window.
+
+`/model` opens provider settings. Credential, endpoint, or provider-option edits invalidate any
+previous model result before another lookup. Lookup and save failures remain visible and can be
+retried; activating or removing a provider refreshes the shell's provider and model state.
+`/doctor` discovers and concurrently runs four independently timed, read-only checks: vault sealing,
+a real provider proof-of-life, canonical studio enumeration, and the exact Hoplight/Bun build. One
+timeout or failure becomes its own warning/failure row without hiding the other completed results.
+`/decks` (also `/inventory`) prints the current canonical deck counts on demand. `/privacy` reports
+the session's provider sends and token counts on demand. Wide terminals show the animated NOW
+PLAYING theatre marquee without a persistent telemetry strip;
+inventory stays out of persistent chrome. Narrow terminals use a purpose-drawn miniature rainbow
+`V KIT` lockup but retain the complete greeting and stage cues, wrapping the copy instead of
+replacing it with a terse fallback. Extremely short windows can scroll that opening while the
+composer and connection commands remain reachable. On roomy terminals, the large `V KIT` lockup
+and its welcome script share one centered stage block instead of clinging to the left edge of an
+ultrawide canvas. The shell inherits OpenTUI's live canvas instead of copying a
+dimension snapshot. Kit also matches the terminal emulator's default background to the stage while
+it is open, then restores it on exit, so fractional-cell and profile-padding gutters visually belong
+to the same surface.
+
+Kit's live model tool belt includes `studio_list`, `studio_read`, and `studio_search`; bounded
+Hoplight documentation query; bounded capability discovery; draft discard; and revision-checked
+apply. Documentation
+query lazily ranks catalog-declared Markdown sections with a local full-text scorer and reads only
+catalog-declared pages or heading sections.
+Capability discovery can search, browse a collapsed target to area to action hierarchy, or describe
+one exact operation. Search replaces the deferred set with no more than five typed operations;
+describe reveals exactly one. The set resets on the next user turn. Capability calls preview without
+save. Kit keeps composing preview operations while the model still needs tools. When the model
+finishes a composed draft, the shell replaces any model-authored save question with a semantic
+`REVIEW CHANGE` panel. The panel shows up to five field-level before/after rows, the target, hidden
+change and warning counts, and clickable Apply & save or Discard controls. Enter or `y` applies;
+Escape, `n`, or `d` discards. Apply pauses in this interactive Gate, saves once
+only if the stored canonical revision still matches, then re-reads the piece before reporting an
+applied, stale, or failed receipt.
+
+Converting a piece to another platform gets its own panel, because a crossing is not a draft: a
+draft's honest shape is a field changing value, a crossing's is each thing meeting an engine that may
+not have it. `REVIEW CROSSING` is a two-column ledger of what each thing is and what becomes of it,
+banded by severity worst first, with the stripe carrying the weight. Removals are listed individually, each naming the block it lives in,
+up to a cap of six with one overflow row carrying the rest of the count; rewrites are grouped by
+macro family, because a hundred respellings say what one row and a number say. A fixed line at the foot carries the key, and
+carries one row's own note while that row is hovered, so the explanation never depends on owning a
+mouse and never moves the buttons underneath it. The source's own escrow is reported under the rule
+as reassurance rather than as damage: it is absent from the exported file and still held by Hoplight.
+The panel is built by re-running the conversion at gate time; a preview that fails leaves the
+ordinary confirm rather than denying the write.
+
+That panel offers a third answer. `Talk it through` neither runs the call nor denies it: nothing is
+written, no permission is granted or widened, and the model is told the user wants to understand the
+call before deciding, so its next move is to explain rather than to apologise or to try another route
+to the same effect. It is reported as `held` rather than `denied`, so a paused apply would keep
+its draft rather than discarding it. That third answer is offered on the crossing panel only; the
+change panel still answers apply or discard.
+
+Read-only tool batches may run concurrently, but their
+observations retain provider order; drafts and applies always serialize. Loop stops name the
+model-round, tool-call, elapsed-time, no-progress, or cancellation budget and offer a recovery
+action. `/tools` opens the keyboard-and-mouse Panel Deck browser for piece, area, action, platform
+applicability, and preview behavior. Compact terminals show one active pane at a time. See
+[Kit content tools](kit/tools.md) for the exact implementation boundary.
+
+The Backstage header reflects scheduler-owned lifecycle state. Its sealed trace keeps the final
+verified, stale, discarded, failed, cancelled, or stopped receipt beside the ordered tool moves.
+Reasoning fragments from consecutive tool rounds accumulate into one rehearsal receipt instead of
+adding one nearly identical collapsed row per model round. Provider-authored tool preambles remain
+in model history but do not interrupt the user transcript; Backstage owns in-progress narration.
+
+## Hyper-modularity (the build's spine)
+- **Apps are drop-in folders**: `src/ui/apps/<name>/index.{ts,tsx}` default-exports a `HoplightApp`
+  (`src/ui/app-contract.ts`): a manifest (tile title, flat-ink SVG mark, accent, order, optional
+  `comingSoon` / `catalogOnly` / `appCatalog`) plus `Component(ctx)`. The server discovers them with
+  `Bun.Glob` (`_`-prefixed folders skipped) and bundles each for the browser on demand. A normal app
+  gains a Dock tile; a `catalogOnly` app stays packaged and opens from the manifest-declared Apps
+  catalog. No central list names either kind, identical doctrine to `src/formats/`.
+- **Apps never touch the engine or the filesystem**: they receive an `AppContext` whose `api` is the
+  only door (inspect/export/studio/formats). The shell owns theme, the Workbench tabs, and the status bar.
+- **Tokens are one CSS source**: `src/ui/theme/tokens.css`, transcribed from `design/DECISIONS.md`
+  (both themes, the stamp, the seam). Apps consume tokens; hardcoding colors or layout pixels in an
+  app is a review rejection (fluid law).
+- **Bright accents never carry small text**: every accent has a deep companion for text-bearing
+  fills, always worn with `var(--stage-white)` ink (white on the deep tone clears ~7:1; on bright
+  rose even black ink measured 4.47:1, under AA). Pairs: `--rose`/`--rose-deep`,
+  `--accent`/`--accent-deep` (repainted together by the shell when a custom house accent lands),
+  `--deck-*`/`--deck-*-deep`, and per-piece `--a`/`--a-deep` (minted together by
+  `accentVars()` in `src/ui/_shared/decks.ts`; the deepening math is `deepAccent()` in
+  `src/ui/_shared/color-math.ts`, unit-tested to agree with the tokens). Bright originals keep
+  borders, spines, and marks; a fill with a label on it takes the deep twin.
+
+## First-run setup (the wizard)
+The locked vs-setup-hybrid flow, one plain question per screen, built on the same drop-in doctrine:
+- **Steps are drop-in folders**: `src/ui/setup/steps/<name>/index.ts` default-exports a `SetupStep`
+  (`src/ui/setup/step-contract.ts`): a manifest (question, say-line, settings key, single/multi,
+  stage note), its options (may be data-driven: the publish step derives platforms from
+  `/api/formats`, excluding `native` formats), optional custom option widgets (theme thumbnails,
+  color swatches), an optional stage ZONE (theme owns the backwall preview, first-deck the floor,
+  publish the apron), optional direct stage effects (accent repaints `--accent`), and `phrase`/
+  `recap` fragments for the final summary. The wizard (`src/ui/setup/wizard.ts`) derives progress
+  dots, "N of M", defaults, skip-all, the stage, the summary sentence, and the recap chips from the
+  sorted step list; nothing central names a step. Pure logic (selection, defaults, sentence
+  assembly) lives in `src/ui/setup/wizard-core.ts`, unit-tested.
+- **Settings**: `src/studio/settings-shape.ts` (open record, fail-closed per-key parser, known keys
+  in `SETTING_KEYS`: theme / firstDeck / publishTargets / houseAccent) + `src/studio/settings.ts`
+  (`<studioDir>/settings.json`). The shell boots settings-first: no `setupComplete` -> wizard;
+  after OPEN VAUDE the shell applies theme + house accent and lands on the app whose manifest set
+  `firstRunLanding` (the Library's two doors); later boots open the lowest-order app. The top-strip
+  theme button reveals the next theme outward from the control through the View Transitions API,
+  falls back to an immediate switch when unsupported or reduced motion is requested, and persists
+  to settings (localStorage is only a pre-paint cache). Individual controls use
+  serialized `PATCH` updates so overlapping changes compose instead of replacing stale snapshots.
+
+## The right-click system
+One context menu for the whole app (`src/ui/_shared/context-menu.ts`), extended by REGISTRATION:
+- a surface marks an element as a TARGET: `ctx.menus.attach(el, () => ({ type, label, data }))`
+  (deepest attached element wins; a document-level `shell` target is the always-there fallback)
+- a feature contributes items: `ctx.menus.register(type, provider)` (any number of providers per
+  type; each provider's items form a section; empty/null = deny by absence). Returns an
+  unregister for app cleanup.
+- shell-owned providers: `entity` (Send / Show / Open beside / Close the split / Remove on the
+  Workbench - the one-shot single path, works in every room), `app` (dock tiles), `shell` (Go home /
+  Import files / Switch theme). Adding a menu later (Open in editor, Export, Delete) = one
+  register() call; nothing central is edited.
+
+## Apps catalog and documentation
+The Dock's **Add app** slot is a real control. It finds the one manifest with `appCatalog: true` and
+opens that surface without hardcoding an app id. The catalog derives its cards from `ctx.apps()`, so
+it shows the official applications in the running build and cannot drift from the packaged manifest
+roster. CSS Workshop is the first `catalogOnly` tool: it remains fully bundled and mountable while
+staying off the everyday Dock. Help / Docs is another catalog-only app and renders the committed
+`docs/` corpus inside the Studio. Its left navigation and search derive from
+`docs/generated/docs-index.json`, including short frontmatter summaries, optional semantic page
+summaries, retrieval topics, and nested H2/H3 anchors when sidecars are merged. The reader presents
+the index as **User Docs** and **Developer Docs** with human-facing workflow, platform,
+application/API, architecture, data-model, format, security, extension, and technical-decision
+sections. Decision records keep their canonical ADR filenames on disk while the reader uses plain
+titles without ADR codes. The center pane renders Markdown through the shared sanitizer and mounts
+only generated figures or committed `docs/media/` images; the right rail derives from the current
+page's heading anchors (nested anchors flatten depth-first while preserving H3 styling). The
+desktop build bakes the same Markdown and assets that are visible on GitHub, so there is one source
+rather than an in-app copy. Each page's **view on GitHub** action uses the existing leaving gate and
+`/api/open` URL allowlist.
+
+## Dev live-reload
+`hoplight ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
+every open page; bundles are built fresh per request, so edits appear on save. The packaged exe
+serves baked bundles and 404s the stream (the client goes quiet). Zero dependencies.
+
+## The card-type chip
+Summaries carry `sourceFormat` + `sourceVariant` (the first non-hoplight escrow entry). The Library
+maps ids to chip labels from the LIVE registry: platform name when the adapter is
+platform-specific ("RoleCall · V3"), "Default" when the adapter declares `generic` (the plain
+Tavern/CC reader); no source = no chip (made from scratch).
+
+## The studio store
+`src/studio/store.ts`: local-first storage where the canonical vaud-json format IS the database -
+`<studioDir>/<kind>/<id>.json`, one file per entity, portable and versionable by construction.
+Saving never silently overwrites: an occupied id gets a numbered sibling (the import journey's
+"Keep both" default enforced at the storage floor).
+`inventory()` returns readable summaries and separate records for safe-id JSON files that fail
+parsing, canonical schema, kind, or id checks. Damage records use bounded reasons; Hoplight does not
+modify or quarantine those files.
+
+## The receipt
+`src/ui/receipt.ts` renders the plain-words import receipt server-side (both shells say identical
+sentences): platform names only, "we read / we kept" voice, lines only when true (embedded book,
+scripts-as-data notice, privileged warning), and the warm unknown-file message. It is a rendering of
+what the engine already knows - no new format logic.
+
+## Endpoints
+
+The Library's primary read is `GET /api/studio/inventory`, which returns healthy entities and
+bounded damaged-file records from one filesystem scan. `GET /api/studio/list` remains the
+healthy-only read for existing clients.
+`GET /` shell · `GET /tokens.css` · `GET /boot.js` · `GET /api/apps` manifests ·
+`GET /apps/<id>.js` bundled app · `GET /api/setup/steps` step ids · `GET /setup/steps/<id>.js`
+bundled step · `GET|POST|PATCH /api/settings` (POST replaces the document; PATCH validates and merges a partial update) ·
+`GET /api/docs/index|figures` generated docs metadata · `GET /api/docs/get?id=` catalog-declared
+Markdown only · `GET /api/docs/asset?path=` committed docs media and generated figure assets only ·
+`GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
+canonical entity · `POST /api/export` {entity, targetId, extension?} (cross-kind fails closed; `extension` picks the
+container when a format writes more than one, and a character asked for `png` gets the standard card
+even from a format that writes no PNG of its own) ·
+`GET /api/coverage` (per-platform canonical-path claims - the editor lens's and the Press's ground
+truth) · `GET /api/studio/list|get|inventory` (`get&revision=1` returns an editor baseline and its
+revision) · `GET /api/studio/portrait?kind&id` (the entity's art: the
+escrowed PNG carrier, else a data-URI `body.media.portrait`; 404 when none) ·
+`POST /api/studio/save` (editor saves compare the loaded revision and return 409 when stale) ·
+`POST /api/studio/save-bundle` (the complete canonical batch is validated
+before writing; keep-both lorebook renames rewrite `knowledgeRefs`) ·
+loopback-only `POST /api/inspect-archive` (a `.lvbak` streamed to disk; entities stage server-side
+and the response carries SUMMARY rows only - a real backup's entities total gigabytes) ·
+loopback-only `POST /api/studio/save-staged` ({token, key, refIds?}: commits one staged archive row
+by reference through the same saveBundle core; refIds rewrites `knowledgeRefs`, and an empty map
+drops refs to books that never reached the shelf) · host-only `/api/remote/*` routes for tunnel/LAN status, setup,
+join secrets, devices, approvals, and host controls · host-only `/api/updates/*` routes for release
+information and version switching. Remote clients do not receive either control family.
+
+## The Library room (the shelves - deep browse)
+Empty studio = the locked first-run doors; populated = the browse room: deck chips with LIVE
+per-kind counts, a proscenium stage presenting the active deck through a DROP-IN VIEW, and the
+continuous art-size dial. Opens on the setup wizard's `firstDeck`. Import (drop anywhere,
+plain-words receipts) lives here. Covers use `/api/studio/portrait` art when carried.
+- **Damaged files stay visible**: the Library loads `/api/studio/inventory`, which returns healthy
+  entities and damage records from one filesystem pass. When any safe-id JSON file fails closed, an
+  expandable notice names the file and bounded reason,
+  confirms that Hoplight did not change it, shows the local studio path when available, and gives
+  manual restore-or-remove guidance. The notice also appears when no readable pieces remain.
+- **Deck views are drop-in modules**: one file in `src/ui/apps/library/views/` default-exporting
+  a `DeckView` (`view-contract.ts`: label, icon, css, render(ctx)); `views/registry.ts` is the one
+  stated seam (a browser bundle cannot glob), one import line per view. Shipped: `grid` (default,
+  fluid auto-fill 2:3 cards), `showcase` (one card at a time: hero art, the card's own
+  tagline/description via `peek`, prev/next + thumb rail, stage in place), `list` (dense rows).
+  The toolbar derives from the registry; the library names no view. Every view renders two piece
+  states from the context: `open` (a quiet "on the workbench" annotation) and `selected` (staged,
+  accent ring + corner check).
+- **Multi-select is staging** (restored after the IDE rework dropped it): tapping a
+  piece toggles it into the room's staging set (persists across deck switches - the distributed tray);
+  a Send action bar appears with the live count and commits the whole batch through
+  `workbench.sendMany`, which fires the follow dialog ONCE with the real newly-opened count. The
+  right-click `entity` menu keeps the one-shot single Send. Open pieces are annotation-only: tapping
+  one just notes "already on the Workbench" (no state-dependent navigation - one rule for tap).
+- **Art size is a continuous dial** (range slider, `SIZE_RANGE` 4-36rem, fail-closed `clampSize`):
+  dragging repaints live via the cascading `--card-w` var; release persists. View + size persist
+  per-user through `AppContext.prefs` (`library.view`, `library.size`).
+
+## The Workbench room (home by default - the IDE)
+Pieces are sent from the Library and open as tabs. The Workbench mounts a writable editor for every
+canonical kind: character, lorebook, persona, preset, regex set, sprite pack, quick-reply set, and
+HTML document. The shell owns tabs,
+split view, recents, and focus; each editor owns its unsaved local draft and explicit save flow.
+Editor loads include a revision of the complete canonical entity. A save replaces that exact revision
+atomically; a newer disk write leaves the draft dirty and reports the conflict instead of overwriting it.
+- Open pieces are shell-owned (`AppContext.workbench`: pieces/active/send/sendMany/remove/isOpen/
+  focus/onChange) so tabs persist across app switches; the "on the workbench" marks in every Library
+  view read the same state. `send` (single) and `sendMany` (batch) share one follow path so the
+  dialog always reports the true count opened.
+- Sending honors the FOLLOW setting (`workbench.follow`): "ask" pops the dialog ("N items were
+  sent to the Workbench. Follow?" Yes/No + "Never ask me this again"), "always" jumps there,
+  "never" stays with a status note. Changeable in Settings.
+- `workbench.open` opens a piece AND lands on its editor with no follow prompt - the path every
+  create button uses ("New persona" etc.): the click itself already says where the user is going,
+  the same reasoning that lets "Open beside" skip the prompt. `send` stays the ask-me path for
+  Library send flows.
+- The manifest flag `editsPieces` marks the room tabs focus into. The home app on boot is the
+  user's `homeApp` setting.
+- **The recents rail** (a low deck along the bottom - "wanna bring this one up?") offers recently
+  imported/opened pieces as one-click sends. Recency is the honest later-of two signals: a piece's
+  `importedAt` stamp (set on every save) and its last-opened time (a per-piece epoch-ms map
+  persisted in settings `workbench.recents`, bumped by `workbench.send`/`focus`, capped at 60).
+  Currently-open pieces are excluded. Ranking is pure and unit-tested (`workbench/recents-core.ts`);
+  the rail reads `workbench.recents()` off the shell store. The rail collapses from its label
+  (hide/show, persisted as `workbench.recentsOpen`) so the editor pane can take the room.
+- **Character editor.** The character editor provides:
+  a fixed Identity card (name/tagline/full name/title/age/pronouns) plus reorderable prose cards
+  (description, personality, scenario, first message, example messages) whose order persists to
+  `presentation.fieldOrder` using RC's ids verbatim (cross-app order interop; unrendered ids keep
+  their saved positions). Explicit save only: Save button + Ctrl+S, dirty flag, beforeunload guard;
+  saving round-trips the WHOLE body so untouched fields (escrow, behavior, media) survive
+  structurally unchanged, pinned by editor-core tests. Fields the editor does not write yet stay visible
+  in a read-only tail. One `CharacterEditor` stays mounted (hidden via CSS) per open character, so
+  its React state IS the unsaved draft across tab switches. Every editor publishes dirty state
+  through the shared `useEditorGuards` hook, which also owns Ctrl+S and the window-close warning.
+  Closing a dirty tab from the tab strip, keyboard, editor back button, or context menu opens one
+  shell-owned Discard changes / Keep editing dialog; only explicit discard unmounts the draft.
+  Pure logic in `workbench/editor-core.ts` (tested), the React component in
+  `workbench/Editor.tsx`. Lorebook, persona, preset, regex, and pack pieces dispatch to their own
+  writable editors from `workbench/index.tsx`. Quick-reply sets have their own editor for set name,
+  button label, hover title, hidden state, and inert message or slash-command text; they never fall
+  through to the character editor.
+- **Preset editor.** Canonical `body.groups` render as a depth-first category tree. A group carrying
+  `parentGroupId` is indented beneath its parent; collapsing a parent hides its complete descendant
+  subtree, and the parent count includes every prompt in that subtree. The prompt editor's Category
+  menu uses the same hierarchy and shows full paths such as `Astrolabes / Difficulty`, so two
+  identically named subcategories cannot be confused.
+  Preset settings also list regex and quick-reply pieces from the current studio. Checking a row
+  writes only its canonical id into `behaviorRefs` or `quickReplyRefs`; the linked piece stays
+  separately editable and the Press resolves it by kind and id.
+- **Quick-reply editor.** A quick-reply set opens as an ordered list of labeled messages. Add,
+  remove, reorder, label, and message edits stay in the local draft until explicit save, using the
+  same revision check and dirty-state guard as the other Workbench editors.
+  Canonical path writes and variant lifecycle/override writes now delegate to the same entity-layer
+  operations used by Kit's typed character capabilities, so base and variant semantics cannot drift.
+- **SPLIT VIEW - anything can sit beside anything.** The shell store carries a second visible key
+  (`splitKey`, never equal to `activeKey`); "Open beside" on the `entity` menu pins any piece into
+  a second pane next to the active one (opening it first if needed - the explicit gesture skips the
+  follow prompt). Focusing the pinned piece SWAPS the panes (both stay visible); closing the primary
+  promotes the pinned piece; the pinned tab wears an inset accent bar. The pane-key rules are pure
+  and unit-tested (`shell/store-core.ts`: `focusKeys`/`removeKeys`/`besideKeys`). Apps read
+  `workbench.beside()/openBeside()/closeSplit()` off the ctx. The capability lives in the shell -
+  no editor owns it, every current and future kind inherits it.
+- **THE FLUID-LAW CONTAINER SEAM.** The workbench stage and every piece pane declare
+  `container-type: inline-size`, and the editor family (Character, Pack, Lorebook, Workshop)
+  collapses via `@container` queries against the PANE, never `@media` against the viewport - a
+  half-width split, a future drawer, and a phone all compose the same way (design/DECISIONS.md,
+  the fluid law). A stage too narrow for two readable panes stacks the split vertically.
+- **Lorebook editor.** The
+  character editor's sibling: ONE ENTRY OWNS THE SCREEN. `workbench/LorebookEditor.tsx` merges
+  one-concept skins (chassis + `lore/entry-page` + `lore/entry-toc` + `lore/entry-rail` + the dial/
+  key skins; a class name lives in exactly ONE module). Header: the book's SPINE CHIP (monogram,
+  name, entries · ~tokens/budget, a "book rules" link opening an InkDialog with the book form),
+  the Writing-for select (presentation only; the book never forks), Save. LEFT: the quiet TOC
+  (`entry-toc.tsx`: search across titles+keys, grouped with counts - "Always on" + the rest;
+  category folders slot in later - active row wears the accent bar, disabled entries strike
+  through, + New entry). CENTER (`entry-page.tsx`): the entry masthead (ENTRY N OF M pager, ~tok,
+  On/Off, name in display type, a COMPUTED "Fires on: …" line - never a stored field) and the
+  dossier cards: KEYS (primary + "only together with" side by side, AND-any logic select always
+  visible, Simple/Advanced tabs in the card head; advanced picks a chip and edits its riders via
+  `trigger-editor.tsx`/`trigger-edit.ts`), TIMING & CHANCE directly under Keys (a fold whose
+  summary line honestly states what it hides: sticky/cool/delay, recursion segments, group), 
+  PLACEMENT (one row of position pills, `position-picker.tsx`), THE PASSAGE (big serif textarea,
+  {{user}}/{{char}} inserts, char/~token count), a folded CREATOR NOTE card, and PLATFORM CARDS -
+  the character editor's native-fields doctrine applied to lore: ONE FILE PER PLATFORM under
+  `lore/platforms/` (sillytavern/rolecall/novelai/risu; registry.ts is the one stated seam;
+  platforms with no long tail have no file - deny by absence), each rendering a platform-NAMED
+  folded card surfaced only by its Write-for lens (Hoplight shows them all; RoleCall has no lens -
+  the Hoplight card covers its wire). The lens select lists each platform separately - SillyTavern,
+  Chub, and Lumiverse are three lenses on the codec-grounded ownership matrix
+  (`core/lore/platform-fields.ts`), never one smushed tab. RIGHT
+  (`entry-rail.tsx`): the fine print - Order & survival label/value rows (order, priority, always
+  keep, chance, speaks-as, scan depth, whole-words/case tri-states, move/copy/delete), the
+  sample-match try-a-line, and quiet health tips for the focused entry. Session is pure and
+  unit-tested (`lore/session.ts`: one focusedId; TOC click and pager both go through
+  `selectEntry`). The RC codec (`formats/rolecall/lorebook.ts`) remains the field-coverage
+  checklist; token estimates are the core's honest gauge (`estimateEntryTokens`/
+  `estimateBookTokens`, ~4 chars/token, always rendered with "~").
+- The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
+  it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
+  hover titles so the slim dock stays discoverable.
+
+## The Press room (batch export - the staged set prints)
+The staging grammar applied to export: the Library browses, pieces get STAGED for the Press
+(right-click "Stage for the Press", or the room's own left rail of unstaged-piece stamps), and the
+room works only its staged queue - no studio browser inside. The queue is shell-store state
+(`pressQueue` + `ctx.press`), so it survives app switches.
+- **Bundles** (`press/press-bundles.ts`, pure + tested): a staged piece with LINKS travels as a
+  bundle. A character's `body.knowledgeRefs` lorebooks ride along; a preset's `body.behaviorRefs`
+  regex sets and `body.quickReplyRefs` quick-reply sets ride the same way - the promise the preset
+  schema has carried since `behaviorRefs` landed, which the Press simply never read, so a preset's
+  regex left the building alone and the export looked "stripped". Riders resolve against the whole
+  studio by kind AND id (even when never staged), are droppable per run ("drop from this run" /
+  "ride again"), and staged pieces already riding a bundle are not doubled as solos. Everything
+  else rides solo.
+- **Readiness on every card** (`press/readiness-core.ts`, pure + tested): characters are read
+  against the run target's coverage claims (`/api/coverage` carries - the same ground truth as the
+  editor lens): "8 of 23 filled - empty: nickname, personality, +12 more" with an
+  open-in-the-editor fix link. Lorebooks get the can-it-ever-fire check (`lorebookKeyGap`: entries
+  with no triggers and not constant). No claims = an honest nothing, never fake green.
+- Export results keep the same distinction: undeclared target coverage reports loss as unknown
+  (`counts.dropped: null`) instead of presenting an empty confirmed-drop list as zero loss.
+- **One target per run** (`press/press-core.ts`: `groupPlatforms` folds extension-map hosts -
+  Marinara/Chub print characters as a CCv3 card, their native character file), per-card filename +
+  flavor (.json/.txt/.md only where the wire format is text), skip rows declared before the run,
+  per-row honest results (printed with carries / skipped with the reason / failed with the error).
+  A run that printed several files hands over one zip; a run that printed exactly ONE hands over
+  that file bare, under its own name - a zip with one thing in it was ceremony plus an unzip.
+- Deferred, stated: delivery ledger + saved jobs, drag reorder, rehearse-bytes drawer, offer-rail
+  readiness dots.
+
+## The Agent window (the model, standing on the screen you came from)
+A conversation with whatever model the vault has, holding the real tool belt. The window has **no
+provider and no tools of its own**: it asks the loopback server, which asks Kit - one vault, one
+egress ledger, one Gate. See [kit/README.md](kit/README.md) for the belt itself.
+- **The Gate is the layout.** When the agent wants to write, a card takes over the bottom of the
+  window and a dispatch loop on the server is genuinely PARKED until it is answered. It is not a
+  confirmation dialog painted after the fact over a write that already happened.
+- **It can see the screen.** Each app publishes an `agentSurface` - what the room is FOR, and what is
+  worth doing there - and the mounted app adds what is on it right now (`ctx.agent.publish`).
+  `surface.ts` joins the two into the brief. That brief is BUDGETED: a describe is truncated at 300
+  characters and an action at 200, so a longer one is the same brief with its end cut off.
+- **The snapshot travels through the context in BOTH directions** - `ctx.agent.publish` to write it,
+  `ctx.agent.current` / `onChange` to read it - and an app must never import `agent/live-state`
+  itself. Every app under `/apps` is bundled separately, so an app's own import is a second,
+  permanently empty copy of that module: the agent room did exactly that and could not see a single
+  publish, saying "no screen has described itself yet" from every screen while the identical
+  component in the floating panel worked, because the panel runs inside the shell's bundle. Same
+  shape as the `instanceof` split in `_shared/api-fetch.ts`, and just as invisible to a typecheck.
+- **A mounted screen is a screen you are standing on.** Only five apps publish live state; the shell
+  publishes a bare `<title> is open.` snapshot as any other app mounts, so the manifest's static
+  half always has a carrier. Without it the six apps that never publish - Docs, the Macro Lab, HTML
+  View, the CSS Workshop, the Apps catalog - left the window with no reading at all and every turn
+  went to the model with no screen context. The agent itself is excluded: mounting it would publish
+  "agent" over the screen you came from and the window would describe itself.
+- **It notices the disk.** The studio-change stream reports the folder rather than an actor, so a file
+  the agent wrote and a file dragged in from Explorer arrive the same way.
+- **Replies are parsed, not printed.** Kit's own markdown parser draws headings, lists, quotes, tables
+  and fenced code, colours a patch as a diff with counts, and offers an ```html block as a drawing
+  (see HTML View below). Model output is built from React elements and never from an HTML string -
+  there is no `dangerouslySetInnerHTML` in that file and there must never be one.
+
+## CSS Workshop (catalog-only - assisted CSS authoring)
+Starters, property knobs, plain CSS source and a sealed preview, for authoring the CSS a card or a
+host will carry. Copy or download the result for any host; the room writes no studio state of its own.
+The preview is the same seal every untrusted-markup surface here uses.
+
+## Help / Docs (catalog-only - the corpus, in the app)
+The committed documentation corpus as a first-class room, read from the same source GitHub serves, so
+the app and the repository can never disagree about what a page says. It reads the generated index
+(`docs/generated/docs-index.json`) rather than crawling the tree, which is why an unapproved or stale
+semantic sidecar keeps a page out of the app as well as out of CI.
+
+## The Macro Lab (catalog-only - what a macro actually does)
+A scratch pad for macro text, and the only surface here that needs no piece open to be useful. Two
+halves, kept apart on purpose because one of them is our model and the other is an engine.
+- **Reading** (`lab-core.ts`, pure): each `{{token}}` broken out against the chosen platform's catalog,
+  nested tokens reported under their container, and a per-token "where else does it work" that asks the
+  TRANSLATOR rather than two catalogs - so a name that exists on both ends but means something else is
+  a flagged collision, not a clean trip. A token invoking no name is called that, never "supported":
+  `isMacroSupported` fails lenient by design so a compatibility check never calls a comment dead, and
+  carrying that leniency onto a screen would print a tick beside `{{// note}}`.
+- **Resolving** (`/api/macro-lab/*`, host-only): the text is wrapped as a one-block preset and run
+  through the platform's REAL engine, so the answer is the engine's rather than ours. Requires a
+  checkout, pointed at in Settings > Studio or named by `HOPLIGHT_ST_ROOT` /
+  `HOPLIGHT_MARINARA_ROOT`; an absent one is a named refusal, never a clean pass. Button-press only,
+  one render per engine at a time - SillyTavern's adapter stages a copy inside the user's own
+  install, so a mashed button would leave a tree copy per press.
+- **Macro bible** - every macro the platform publishes, its own groups and wording, searchable by name,
+  meaning or alias, and clicking one INSERTS it at the caret rather than copying it.
+- **Operations** - one row per canonical operation, one column per platform, derived from the catalogs
+  rather than written down. The EMPTY cells are the content; rows sort gaps-first. A dialect with no
+  operation annotations gets no column and is named as absent, because a column of "none" would report
+  our gap as the engine's.
+- Platforms are `MacroDialect`, which is wider than the write-for lenses: RisuAI and SillyTavern's
+  second (registry) engine are reference dialects. `full` is deliberately absent - its catalog IS
+  RoleCall's, so it was a duplicate column under a name with no engine behind it.
+
+## HTML View (catalog-only - a drawing at full size)
+Draws one `htmldoc` piece as a whole tab. Reached three ways: opened by id from the Library, handed a
+piece by another surface, or handed the raw text of an ```html block from an agent reply. A piece is
+carried BY ID and re-read from the studio, so the tab shows what the drawing says now and a reload
+costs nothing; only an unsaved reply is carried whole, and the room says so rather than showing an
+empty frame.
+
+Everything it draws goes through `SealedHtmlPreview` - `sandbox=""`, `script-src 'none'`,
+`connect-src 'none'`, `img-src data: blob:`, DOMPurify. The same component draws the transcript's
+inline preview and the Workbench editor's live pane: one boundary at three sizes, so there is no
+second renderer to drift. The tab and the editor pane pass `fill`, so the drawing takes the whole
+room; the 28rem ceiling on the shared component is for the transcript, where a tall drawing must not
+push the conversation off the screen. Either surface goes **Fullscreen**: the browser's own where the
+engine grants it, an overlay covering the app where it does not, and Escape leaves both. What goes
+fullscreen is the container, never the sealed iframe - being large changes nothing about the seal.
+All CSS works, including a whole document's `<head>` styles - those are
+lifted out and re-injected, because sanitizing returns the body alone and the head would otherwise
+be thrown away with them. JavaScript never runs and no remote image or webfont loads. Form controls
+(`button`, `input`, `select`, `textarea`) are stripped: the same component draws untrusted card
+backdrops, where a fake field is a spoofing surface, so a wireframe should draw its controls rather
+than use real ones.
+See [entities/htmldoc.md](entities/htmldoc.md).
+
+## Settings (drop-in sections)
+Settings is built from section modules: one file in `src/ui/apps/settings/sections/` exporting a
+`SettingsSection` (id, label, order, `Component: (props: { ctx }) => JSX.Element`);
+`sections/registry.ts` is the one stated seam. Tabs derive from the registry (`src/ui/apps/settings/
+index.tsx`); every control is call-and-response against live settings (theme/accent repaint
+instantly). Shipped sections: Appearance (theme and house accent), Models (the provider vault),
+Connections (MCP in both directions), Studio (home app, Library first deck, publish targets, and
+the engine checkouts on this machine), Workbench (follow behavior), Remote access (tunnel and LAN
+setup, devices, host controls, and the optional mesh-helper download), Updates (release checks and
+version switching), and About.
+
+Connections manages MCP both ways. Consuming: servers this machine runs so their tools join Kit's
+belt - add a command, arguments and env (KEY=VALUE lines; values are write-only, listings show key
+names), Test spawns a throwaway connection and reports the tool count, and every external tool runs
+as `egress`, confirmed at the Gate. The whole `/api/mcp/*` surface is host-only, since an entry is
+a command this machine executes. Serving: the card shows the one line that registers Hoplight's own
+belt in any MCP client (`claude mcp add hoplight -- hoplight mcp "<studio>"`). The full story is in
+[kit/tools.md](kit/tools.md).
+
+Engine checkouts are the one Studio control that is not `ctx.prefs`. A root is an absolute path on
+the host's disk, and it decides which folder a subprocess is spawned against, so it is stored in
+`engines.json` beside `settings.json` and read and written only over `/api/macro-lab/roots`, which
+is host-only whole. A settings GET is not: it is served to a tailed-in or LAN device, and
+`/api/version` already withholds the studio path from those same devices for the same reason - a
+path carries the owner's username and disk layout.
+
+Paste a folder and press Save: the path is normalized (Explorer's "Copy
+as path" quotation marks, a trailing separator) and checked for the engine's own marker file before
+anything is written, so a folder that is not a checkout is refused by name rather than stored and
+discovered at render time. Saves are serialized - the file holds both engines and a save is
+read-modify-write, so two at once would drop one engine's folder. An environment variable outranks a saved folder and says so on the row,
+which is what keeps the live render suites pointing where they aimed. Kit reads the same file when a
+session is built, so a folder set here is the folder `preset_verify` uses in the terminal.
+
+Remote-access host controls use `/api/remote/*`; release information and version switching use
+`/api/updates/*`. Both route families are host-only and remain distinct from ordinary remote-client
+content access.
+
+## Shared components (`src/ui/_shared/` and `src/ui/components/`)
+Extracted-once UI, layered so a single implementation serves every consumer:
+- `components/swatch-row/` - `SwatchRow` (+ the `HOUSE_PALETTE` constant), the house color-swatch
+  row. Preset tiles are the fast path; with `allowCustom` a final `custom` tile opens `PaintPicker`
+  (solid mode) for any color. Controlled: `value` in, `onChange(hex)` out. Consumers: setup accent
+  step, Settings Appearance, later the editor's per-entity accent.
+- `components/color-picker/` - `ColorPicker`, the on-brand HSV surface (saturation/value square, hue
+  strip, hex field; no OS dialog). HSV, not hex, is its internal state (hex is lossy at s=0/v=0).
+- `_shared/color-math.ts` - the pure color math powering the picker: `normalizeHex`/`hexToHsv`/
+  `hsvToHex` (fail-closed on garbage) and `dragFraction` (the pointer-drag fraction math shared by
+  the SV square, the hue strip, and the gradient stop rail). Unit-tested.
+- `_shared/paint.ts` - the pure Paint model: a `solid | gradient(linear|radial)` discriminated union
+  with `paintToCss` and a fail-closed `normalizePaint` (a gradient needs >=2 valid stops). Unit-tested.
+- `components/paint-picker/` - `PaintPicker` composes `ColorPicker` to edit a solid color or each
+  stop of a gradient. `allow` gates the modes, so the same widget serves a solid-only accent and a
+  full linear/radial gradient fill. Solid mode is live via the accent's custom tile; gradient mode
+  (stop rail, add/drag/remove stops, linear-angle slider, true-curve preview) is built and
+  model-tested, awaiting its first fill consumer (per-entity/pack background in the editor).
+
+## Security
+The primary listener binds loopback. Optional remote listeners are separate, explicitly enabled
+boundaries with join secrets, device approval, and host-only controls. Uploads parse through the same
+fail-closed adapters as the CLI (zip-bomb caps included). Scripts inside entities remain data
+everywhere. App-manifest SVGs are sanitized before insertion in both the Dock and catalog
+(scripts/foreignObject/handlers stripped) because the shell invites third-party drop-ins.

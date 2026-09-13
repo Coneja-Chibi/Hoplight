@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en" data-theme="paper">
+<head>
+<base href="./">
+<meta name="vaude-session" content="browser-tab">
+<meta name="hoplight-runtime" content="browser">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoplight.</title>
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="256x256" href="./icon-256.png">
+<link rel="manifest" href="./app.webmanifest">
+<meta name="theme-color" content="#e11d48">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+/* The LOCKED shell (vs-shell-apps, DECISIONS #14): dock of apps | top strip / tabs + canvas |
+   status bar. CSS transcribed from the locked artifact, colors swapped to tokens. Apps own their
+   canvases; everything here is chrome. Furniture appears only when real state drives it. */
+*{box-sizing:border-box}
+/* scrollbars are chrome too: thin ink rails everywhere, never the raw platform bar */
+*{scrollbar-width:thin;scrollbar-color:var(--edge) transparent}
+html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:var(--text);
+  font-family:var(--font-body);font-size:var(--text-body)}
+#shell{height:100dvh;display:grid;grid-template-columns:auto minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto;background:var(--canvas)}
+
+/* ───────── THE DOCK ───────── */
+#dock{grid-column:1;grid-row:1/3;width:clamp(11.5rem,15vw,12.5rem);
+  background:var(--chrome);border-right:3px solid var(--seam);
+  display:flex;flex-direction:column;min-height:0}
+#dockhome{display:flex;align-items:center;gap:.55rem;flex:none;cursor:pointer;font-family:var(--font-mono);
+  background:transparent;border:none;border-bottom:3px solid var(--seam);
+  padding:.7rem .7rem;width:100%}
+#dockhome .beam{width:1.8rem;height:1.8rem;flex:none}
+#dockhome .beam svg{display:block;width:100%;height:100%}
+#dockhome .hk{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--text-dim);white-space:nowrap}
+#dockhome:hover .hk{color:var(--text-soft)}
+#dockapps{flex:1;min-height:0;overflow-y:auto;padding:.55rem .5rem .4rem;display:flex;flex-direction:column;gap:.25rem}
+.docklabel{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-dim);margin:.25rem .3rem .35rem}
+.apptile{position:relative;display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;font:inherit;
+  min-height:3.4rem;padding:.45rem .4rem;cursor:pointer;
+  background:transparent;border:3px solid transparent;transition:transform .1s ease-out}
+.apptile .mk{width:2rem;height:2rem;flex:none;border:3px solid var(--edge);background:var(--face);
+  color:var(--text-soft);display:flex;align-items:center;justify-content:center}
+.apptile .mk svg{display:block;width:18px;height:18px}
+.apptile .tx{display:flex;flex-direction:column;gap:1px;min-width:0}
+.apptile .nm{font-family:var(--font-big);font-weight:800;font-size:.6875rem;
+  text-transform:uppercase;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.apptile .kd{font-family:var(--font-mono);font-size:.6875rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-soft)}
+.apptile:hover{transform:translate(-1px,-1px)}
+.apptile:hover .nm{color:var(--text)}
+.apptile:hover .mk{border-color:var(--a);color:var(--text)}
+.apptile.on{background:var(--stamp-bg);border-color:var(--edge);box-shadow:4px 4px 0 0 var(--a)}
+.apptile.on .nm{color:var(--stamp-fg);font-weight:800}
+.apptile.on .kd{color:var(--stamp-fg);opacity:.66}
+.apptile.on .mk{background:var(--a);border-color:var(--edge);color:var(--stage-ink)}
+/* paper: no black plate on the selected tile (the inverted stamp read as a black blob on cream).
+   Selected = white tile pushed forward: face fill, black border,
+   ink offset shadow; the accent stays on the icon box and the edge nib. Dark keeps its inverted
+   plate and accent glow untouched. */
+:root[data-theme="paper"] .apptile.on{background:var(--face);box-shadow:4px 4px 0 0 var(--edge)}
+:root[data-theme="paper"] .apptile.on .nm{color:var(--text)}
+:root[data-theme="paper"] .apptile.on .kd{color:var(--text-soft)}
+.apptile.on::before{content:"";position:absolute;right:-3px;top:50%;transform:translateY(-50%);
+  width:4px;height:1.7rem;background:var(--a)}
+.dockdiv{height:3px;background:var(--seam);opacity:.6;margin:.5rem .35rem;flex:none}
+.apptile.future{cursor:default}
+.apptile.future .mk{border-color:var(--text-faint);color:var(--text-faint);border-style:dashed;background:transparent}
+.apptile.future .nm{color:var(--text-dim)}
+.apptile.future:hover{transform:none}
+.apptile.future:hover .mk{border-color:var(--text-faint);color:var(--text-faint)}
+.apptile.future:hover .nm{color:var(--text-dim)}
+.dockslot{display:flex;align-items:center;justify-content:center;gap:.4rem;
+  min-height:3rem;margin:.15rem .5rem .35rem;border:2px dashed var(--text-faint);
+  color:var(--text-faint);background:transparent;width:calc(100% - 1rem);font:inherit;
+  cursor:pointer;transition:border-color .1s ease-out,color .1s ease-out;flex:none}
+.dockslot:hover{border-color:var(--text-dim);color:var(--text-dim)}
+.dockslot.on{border-color:var(--accent);color:var(--text);background:var(--face)}
+.dockslot:disabled{cursor:default;opacity:.5}
+.dockslot .plus{font-family:var(--font-big);font-weight:900;font-size:1.05rem;line-height:0}
+.dockslot .sl{font-family:var(--font-mono);font-weight:600;font-size:.625rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
+#dockfoot{flex:none;border-top:3px solid var(--seam);display:flex;flex-direction:column}
+#dockfoot .apptile{min-height:2.9rem}
+#dockToggle{flex:none;display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;
+  background:transparent;border:none;border-top:3px solid var(--seam);cursor:pointer;
+  font-family:var(--font-mono);font-size:.5625rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--text-dim);padding:.42rem}
+#dockToggle:hover{color:var(--text-soft)}
+#dockToggle .exp{display:none}
+/* user-driven marks-only collapse: identical language to the locked narrow mode below, so the
+   dock reads the same whether the window shrank it or the user did */
+#dock.slim{width:auto}
+#dock.slim #dockhome{justify-content:center;padding:.7rem .4rem}
+#dock.slim #dockhome .hk{display:none}
+#dock.slim .docklabel{display:none}
+#dock.slim .apptile{justify-content:center;padding:.45rem .35rem}
+#dock.slim .apptile .tx{display:none}
+#dock.slim .apptile.on::before{display:none}
+#dock.slim .apptile.on{box-shadow:3px 3px 0 0 var(--a)}
+:root[data-theme="paper"] #dock.slim .apptile.on{box-shadow:3px 3px 0 0 var(--edge)}
+#dock.slim .dockslot .sl{display:none}
+#dock.slim #dockToggle .col{display:none}
+#dock.slim #dockToggle .exp{display:inline}
+/* focus mode: the shared editor-fullscreen (_shared/focus.ts) stamps this on <body>; the shell
+   hides its own chrome so the active pane takes the window. Esc exits; never persisted. */
+body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
+
+/* ───────── TABSTRIP-RESIDENT GLOBAL ACTIONS (the TopBar row is deleted: its crumb duplicated the
+   dock, import duplicates the shelves, theme duplicates Settings - one chrome row total) ───────── */
+#search{flex:0 1 16rem;margin-left:auto;align-self:center;display:flex;align-items:center;gap:.5rem;min-width:0;
+  background:var(--shell-panel);border:3px solid var(--edge);box-shadow:2px 2px 0 0 var(--edge);padding:.34rem .6rem}
+#search svg{flex:none;display:block;color:var(--text-dim)}
+#search input{flex:1;min-width:0;background:none;border:none;outline:none;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;color:var(--text)}
+#search input::placeholder{color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-size:.62rem}
+#search:focus-within{box-shadow:3px 3px 0 0 var(--edge)}
+#topact{display:flex;align-items:center;align-self:center;gap:.5rem;flex:none;padding:0 .4rem}
+/* the stamp skin now lives on the composed global .stamp + Stamp component dress (no dead .topbtn here) */
+#themeBtn{width:2.35rem;height:2.35rem;padding:0;justify-content:center}
+
+/* ───────── MAIN (tabs + canvas) ───────── */
+#main{grid-column:2;grid-row:2;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--canvas)}
+#tabstrip{display:flex;align-items:stretch;background:var(--chrome);border-bottom:3px solid var(--seam);
+  min-height:0;overflow-x:auto;flex:none}
+.tab{display:flex;align-items:center;gap:.5rem;flex:none;cursor:pointer;
+  font-family:var(--font-big);font-weight:700;font-size:.75rem;color:var(--text-dim);
+  background:var(--shell-panel);border:none;border-right:3px solid var(--seam);padding:.55rem .85rem;
+  transition:color .1s ease-out}
+.tab .pip{width:12px;height:16px;flex:none;border:2px solid var(--edge);background:var(--a,var(--text-dim));
+  clip-path:polygon(0 0,70% 0,100% 24%,100% 100%,0 100%)}
+.tab .kind{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text)}
+.tab .close{font-family:var(--font-mono);font-size:.8125rem;color:var(--text-dim);line-height:1}
+.tab .close:hover{color:var(--text)}
+.tab .dirty{color:var(--a,var(--rose));font-size:.6rem;line-height:1} /* THE unsaved indicator */
+.tab.beside{color:var(--text);box-shadow:inset 0 3px 0 0 var(--a,var(--text-dim))} /* pinned beside the active piece */
+#tabadd{display:none;align-items:center;justify-content:center;flex:none;cursor:pointer;color:var(--text-dim);
+  background:var(--shell-panel);border:none;border-right:3px solid var(--seam);padding:0 .8rem;font-size:1.1rem;
+  font-family:var(--font-big);font-weight:700;transition:color .1s ease-out}
+#tabadd:hover{color:var(--text)}
+#tabstrip.hastabs #tabadd{display:flex}
+.tabfill{flex:1;background:var(--shell-panel);min-width:1.5rem}
+#canvas{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;
+  background-image:radial-gradient(var(--tooth) 22%,transparent 24%);background-size:7px 7px}
+#canvas>*{flex:1}
+/* the between-apps beat while a module loads: quiet mono line, never the previous app's canvas */
+#canvasLoading{display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-dim)}
+
+/* the tour replay affordance: a small ? pinned to the corner when the active app has a tour */
+.tourHelp{position:fixed;right:1.1rem;bottom:1.1rem;z-index:55;width:2rem;height:2rem;
+  font-family:"Archivo",sans-serif;font-weight:900;font-size:1rem;line-height:1;
+  background:var(--panel);color:var(--rose);border:3px solid var(--rose);box-shadow:3px 3px 0 0 var(--edge);
+  cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tourHelp:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 0 var(--edge)}
+
+/* ───────── STATUS BAR ───────── */
+#status{grid-column:1/3;grid-row:3;background:var(--status-bg);color:var(--status-fg);
+  border-top:3px solid var(--edge);
+  display:flex;align-items:center;gap:clamp(.6rem,1.6vw,1.15rem);padding:.32rem clamp(.7rem,1.6vw,1rem);
+  font-family:var(--font-mono);font-size:.65625rem;letter-spacing:.03em;overflow:hidden;white-space:nowrap}
+#status .seg{display:flex;align-items:center;gap:.4rem;flex:none}
+#status .seg.trim{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+#status .k{color:var(--status-fg);font-weight:600}
+#status .b{color:var(--status-fg)}
+#status .appdot{width:8px;height:8px;flex:none;background:var(--adot,var(--status-dim))}
+#status .spacer{flex:1;min-width:.5rem}
+#status .vaude{color:var(--status-fg);flex:none}
+#status .vaude i{font-style:normal;color:var(--status-dim)}
+#status .sep{color:var(--status-dim);flex:none}
+
+/* ───────── the follow dialog (shell-owned) ───────── */
+.vdialog-overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;padding:1rem}
+.vdialog{background:var(--face);color:var(--text);border:3px solid var(--edge);
+  box-shadow:6px 6px 0 0 var(--edge);padding:1.1rem 1.3rem;max-width:24rem;width:100%}
+.vdialog .msg{margin:0 0 .8rem;font-family:var(--font-big);font-weight:700;font-size:1rem}
+.vdialog .remember{display:flex;align-items:center;gap:.5rem;font-family:var(--font-mono);
+  font-size:.6875rem;letter-spacing:.04em;color:var(--text-dim);cursor:pointer;margin-bottom:.9rem}
+.vdialog .actions{display:flex;gap:.6rem}
+.vdialog .actions button{font-family:var(--font-big);font-weight:800;font-size:.75rem;
+  letter-spacing:.08em;text-transform:uppercase;padding:.5rem 1.2rem;border:3px solid var(--edge);
+  cursor:pointer;box-shadow:3px 3px 0 0 var(--edge);
+  transition:transform .1s ease-out,box-shadow .1s ease-out}
+.vdialog .actions button:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 0 var(--edge)}
+.vdialog .actions button:active{transform:translate(3px,3px);box-shadow:0 0 0 0 var(--edge)}
+.vdialog .actions .yes{background:var(--rose);color:#fff}
+.vdialog .actions .no{background:var(--face);color:var(--text)}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+/* narrow: the dock COLLAPSES to marks-only, never disappears (locked behavior) */
+@media(max-width:46rem){
+  #dock{width:auto}
+  #dockhome{justify-content:center;padding:.7rem .4rem}
+  #dockhome .hk{display:none}
+  .docklabel{display:none}
+  .apptile{justify-content:center;padding:.45rem .35rem}
+  .apptile .tx{display:none}
+  .apptile.on::before{display:none}
+  .apptile.on{box-shadow:3px 3px 0 0 var(--a)}
+  .dockslot .sl{display:none}
+  #importBtn .im-t{display:none}
+  #importBtn{padding:.45rem .5rem}
+}
+@media(max-width:40rem){
+  #search{display:none} /* narrow screens: tabs win; search returns with the search milestone */
+}
+/* The crash screen (shell/error-boundary.tsx). Lives here, not in a module, because it must render
+   when the React tree is already broken - it cannot depend on anything the app loads. */
+.shell-crash{height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.9rem;padding:2rem;text-align:center;background:var(--canvas);color:var(--text)}
+.shell-crash-title{font-family:var(--font-display,var(--font-body));font-size:1.3rem;margin:0}
+.shell-crash-body{max-width:34rem;margin:0;color:var(--muted);line-height:1.5}
+.shell-crash-msg{max-width:44rem;overflow:auto;padding:.7rem .9rem;margin:0;text-align:left;
+  font-family:var(--font-mono);font-size:.72rem;color:var(--muted);background:var(--seam);
+  border:2px solid var(--edge)}
+.shell-crash-actions{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+.shell-crash-btn{font:700 .66rem var(--font-mono);letter-spacing:.06em;text-transform:uppercase;
+  padding:.5rem .8rem;cursor:pointer;color:var(--text);background:var(--panel);border:2px solid var(--edge)}
+.shell-crash-btn:hover{border-color:var(--rose)}
+
+/* ───────── THE DROP VEIL (shell chrome; DropVeil.tsx) ─────────
+   Files dragged anywhere dim the studio behind one loud plate. pointer-events:none so the
+   drop itself falls through to the window listener. */
+#dropveil{position:fixed;inset:0;z-index:300;pointer-events:none;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--canvas) 68%,transparent)}
+#dropveil .veilbox{border:3px dashed var(--rose);background:var(--chrome);color:var(--text);
+  font-family:var(--font-big);font-weight:900;font-size:1.15rem;letter-spacing:.09em;
+  text-transform:uppercase;padding:1.2rem 2.2rem;box-shadow:6px 6px 0 0 var(--edge)}
+
+/* ───────── THE RIGHT-CLICK MENU (shell chrome; Menu.tsx) ─────────
+   Restored from the locked right-click shell (93d6aa6) after an index rewrite dropped it and the
+   menu rendered as naked buttons. */
+.vmenu{position:fixed;z-index:200;min-width:11rem;max-width:16rem;background:var(--face);
+  border:3px solid var(--edge);box-shadow:5px 5px 0 0 var(--edge);padding:.25rem;
+  font-family:var(--font-big)}
+.vmenu .hd{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-dim);padding:.4rem .6rem .35rem;border-bottom:2px solid var(--seam);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vmenu .sep{height:2px;background:var(--seam);margin:.25rem .35rem;opacity:.7}
+.vmenu .it{display:block;width:100%;text-align:left;font:inherit;font-weight:700;font-size:.8125rem;
+  color:var(--text);background:none;border:none;cursor:pointer;padding:.45rem .6rem}
+.vmenu .it:hover,.vmenu .it:focus-visible{background:var(--stamp-bg);color:var(--stamp-fg);outline:none}
+.vmenu .it[disabled]{color:var(--text-faint);cursor:default}
+.vmenu .it[disabled]:hover{background:none;color:var(--text-faint)}
+.vmenu .it.danger{color:var(--rose)}
+.vmenu .it.danger:hover{background:var(--rose);color:var(--stamp-fg)}
+</style>
+</head>
+<body>
+<div id="shell-root"></div>
+<!-- ONE React per page: every bundle marks the react family external; the import map resolves
+     them all to the single vendor copies (two React instances = null-dispatcher hook crashes) -->
+<script type="importmap">
+{"imports":{
+  "react":"./vendor/react-family.js",
+  "react/jsx-runtime":"./vendor/react-family.js",
+  "react/jsx-dev-runtime":"./vendor/react-family.js",
+  "react-dom/client":"./vendor/react-dom-client.js",
+  "react-dom":"./vendor/react-dom-client.js"
+}}
+</script>
+<script src="./pocket-data.js"></script>
+<script type="module" src="./pocket.js"></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+/**
+ * Hoplight design tokens - THE single CSS source of truth, transcribed from design/DECISIONS.md.
+ * Apps consume tokens only; hardcoding a color or layout pixel in an app is a review rejection.
+ * Pixels appear ONLY for ornament (ink borders, stamp offsets) per the fluid law.
+ */
+/* The app deliberately uses local fallback stacks. A loopback desktop app must remain usable
+   offline and its CSP must not grant the UI a remote stylesheet capability. */
+
+:root {
+  /* brand - FIXED, never recolored by accent picks */
+  --rose: #e11d48;
+  /* the deep companion for TEXT-BEARING fills: bright rose cannot carry small dark-ink text at AA
+     (4.47:1 measured); white on this wine clears ~7:1. Marks, borders, and spines keep the bright
+     rose. Value = deepAccent(--rose) in _shared/color-math.ts; a unit test pins the agreement. */
+  --rose-deep: #b4092f;
+
+  /* user-pickable house accent (chrome, empty states); entities wear their own accents */
+  --accent: var(--rose);
+  /* repainted by the theme painter when a custom accent lands; text-bearing accent fills use it */
+  --accent-deep: var(--rose-deep);
+
+  /* type roles (DECISIONS #13) */
+  --font-big: "Archivo", sans-serif;          /* 900, tight */
+  --font-fancy: "Cinzel", serif;              /* 900, LARGE only */
+  --font-body: "Crimson Pro", serif;          /* upright = everything, italic 600 = voice */
+  --font-mono: "JetBrains Mono", monospace;   /* meta */
+
+  /* fluid type scale (16px body floor) */
+  --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --text-meta: 0.7rem;
+  --text-title: clamp(1.5rem, 1.2rem + 1.4vw, 2.4rem);
+
+  /* ornament pixels (the ONLY allowed px) */
+  --ink-border: 3px solid var(--ink);
+  --stamp-x: 4px;
+  --stamp-y: 4px;
+
+  /* spacing rhythm */
+  --gap-s: 0.5rem;
+  --gap-m: 1rem;
+  --gap-l: 1.75rem;
+
+  /* the stage well's own palette (the recessed dark canvas is dark in BOTH themes) */
+  --stage-floor: #151318;
+  --stage-deck: #18171f;
+  --stage-dim: #5f5b6b;
+  --stage-faint: #39353f;
+  --stage-paper: #e7e3da;
+
+  /* stage chrome: cards/decks/panels that stay dark in BOTH themes (workbench editor, bento
+     cards, library shelf, leaving-gate) - distinct from --panel/--ink/etc above, which FLIP */
+  --stage-black: #000;
+  --stage-white: #fff;
+  --stage-panel: #17161d;   /* card/panel fill */
+  --stage-row: #111015;     /* row/plate fill, one step darker than the panel */
+  --stage-sunken: #0d0c11;  /* recessed row (cast/picked state) */
+  --stage-ink: #0a0a0c;     /* near-black text on an accent chip */
+  --stage-well: #0a0a0b;    /* near-black card bg, one hex off stage-ink, kept distinct */
+  --stage-seam: #2b2833;    /* borders, scrollbar thumb */
+  --stage-line: #4a4556;    /* dashed borders, secondary dim text */
+  --stage-mute: #8f8a9e;    /* muted labels on stage chrome */
+  --stage-soft: #c9c4d2;    /* soft body text on stage chrome */
+  --stage-text-dim: #a6a1b4; /* readability-floor text on stage chrome */
+  --stage-card: #f4f1ee;    /* bright name/title text on stage chrome */
+  --stage-kicker: #6a6576;  /* small uppercase kicker text on stage chrome */
+  /* workshop console semantics on the dark stage: a rule fired, a macro token, a variable name */
+  --stage-ok: #5ad07a;      /* success / a trigger fired */
+  --stage-macro: #b78bff;   /* a {{macro}} token, sealed-code marker */
+  --stage-var: #6ea8ff;     /* a variable name in the rule builder */
+  --stage-warn: #e6a52a;    /* amber caution / gilt chip */
+  --stage-warn-ink: #3d2b12; /* dark field behind amber text */
+  --stage-danger-bg: #3d1120; /* rose-tinted danger plate */
+  --stage-danger-edge: #7a2b3a;
+  --stage-danger-text: #ff8d9a;
+  --stage-danger-hot: #ff8d7a;
+  --stage-danger-deep: #20090d;
+  --stage-link: #1d4ed8;    /* blue link chip on stage */
+  --stage-rose-well: #241222; /* soft rose well */
+  --stage-ok-bg: #14351f;   /* success plate behind stage-ok text */
+  --shadow-ink: rgba(0, 0, 0, 0.55); /* default stamp/overlay shadow */
+  --shadow-ink-deep: rgba(0, 0, 0, 0.8);
+  --scrim: rgba(10, 10, 11, 0.94);
+
+  /* lore platform host accents (logos / press kits; minor use only: rail, dot, on-state) */
+  --host-st: #c62828;   /* SillyTavern logo crimson, UI-lifted for dark stage */
+  --host-rc: #e11d48;   /* RoleCall / Hoplight house rose */
+  --host-nai: #9773ff;  /* NovelAI press-kit purple */
+  --host-risu: #6ea8ff; /* Risu: calm stage-var blue until a stronger mark is locked */
+
+  /* deck identity accents (per entity-kind signature hues, locked vs-shell-apps chip colors).
+     Theme-stable; consumed through decks.ts -> the --a custom property on cards/chips/tabs. */
+  --deck-character: #e6a52a;
+  --deck-lorebook: #b968f7;
+  --deck-persona: #2ba79a;
+  --deck-pack: #e11d48;
+  --deck-preset: #10b981;
+  --deck-regex: #58c4a6;
+  --deck-fog: #8a8496; /* unknown kind fallback */
+  /* deep companions for TEXT-BEARING deck fills (white labels clear ~7:1); bright originals keep
+     borders/spines/marks. Values = deepAccent(hue) in _shared/color-math.ts. */
+  --deck-character-deep: #784f00;
+  --deck-lorebook-deep: #7839ac;
+  --deck-persona-deep: #09645b;
+  --deck-pack-deep: #b4092f;
+  --deck-preset-deep: #006845;
+  --deck-regex-deep: #1e6551;
+  --deck-fog-deep: #5f5a69;
+}
+
+/* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */
+:root[data-theme="paper"] {
+  --ink: #0a0a0b;
+  --paper: #faf8f3;
+  --paper-2: #f1eee6;
+  --panel: #ffffff;
+  --stage: #0a0a0b;       /* the dark canvas sunk into paper */
+  --stage-2: #131218;
+  --muted: #6b6659;
+  --ghost: #c9c4b8;
+
+  --canvas: #faf8f3;
+  --chrome: #faf8f3;
+  --shell-panel: #f4efe5;
+  --shell-panel-2: #ece4d4;
+  --face: #fffdf9;
+  --edge: #0a0a0b;
+  --seam: #0a0a0b;
+  --text: #0a0a0b;
+  --text-soft: #3a352c;
+  --text-dim: #6e6857;    /* readability floor: darker on cream so labels stay legible */
+  --text-faint: #b3a88e;
+  --link: #c81e4a;        /* rendered links: legible on cream, NOT the entity accent (which can be dark) */
+  --stamp-bg: #0a0a0b;
+  --stamp-fg: #faf8f3;
+  --status-bg: #0a0a0b;
+  --status-fg: #e7e3da;
+  --status-dim: #8a8496;
+  --tooth: rgba(10, 10, 11, 0.026);
+  /* the editor quiz's character stage - FLIPS with the theme (overrides the dark-in-both stage
+     rule for this surface): a deeper tan than the card on paper. */
+  --q-stage: #eae0ca;
+  --q-stage-deck: #dccdb2;
+
+  /* THE STAGE FLIPS TOO (extending the q-stage rule to the whole stage: light theme means a LIGHT
+     stage well, the dark-in-both doctrine is retired). Derivation is anchored,
+     not invented: the well/deck tans come from the locked q-stage pair above, fills walk the locked
+     shell paper ramp (face/shell-panel/shell-panel-2), text walks the locked paper text ramp, and
+     the console semantics follow the --link precedent (darker, saturated-on-cream variants).
+     --stage-black/-white and the accent-chip ink stay structural: black borders and offset shadows
+     ARE the letterpress grammar, and dark ink on a colored accent chip reads in both themes. */
+  --stage-floor: #eae0ca;   /* q-stage tan: the recessed well */
+  --stage-deck: #d8c8a9;    /* one real step deeper than the floor (panels must separate) */
+  --stage-dim: #7a7260;
+  --stage-faint: #ddd3bc;
+  --stage-paper: #171410;   /* "bright text" role flips to near-ink on tan */
+  --stage-panel: #fffdf9;   /* card/panel fill = the shell face */
+  --stage-row: #f5efdf;     /* row/plate: a visible step below the panel */
+  --stage-sunken: #ebe2cb;
+  --stage-well: #cdbb97;    /* the deepest recess goes deepest-tan */
+  --stage-seam: #c9bd9e;    /* soft dividers must still READ on tan (hard borders are black) */
+  --stage-line: #948a6e;
+  /* text is the SHELL INK RAMP, never a khaki ramp: ink on paper is the letterpress rule.
+     Tan text on tan ground is mud. */
+  --stage-mute: #615a49;
+  --stage-soft: #3a352c;    /* soft body text = paper text-soft */
+  --stage-text-dim: #524c3d; /* the readability floor is a real floor on cream */
+  --stage-card: #0a0a0b;    /* brightest title role = full ink */
+  --stage-kicker: #6e6755;
+  --stage-ok: #186636;      /* success reads forest on cream */
+  --stage-ok-bg: #dcead2;
+  --stage-macro: #6d28d9;   /* macro purple, saturated-on-cream */
+  --stage-var: #2456c4;
+  --stage-warn: #7a5000;    /* amber flips to ochre text... */
+  --stage-warn-ink: #f3e2b8; /* ...on a gilt plate */
+  --stage-danger-bg: #f7dfe2;
+  --stage-danger-edge: #c25b6b;
+  --stage-danger-text: #97182e;
+  --stage-danger-hot: #b03a0a;
+  --stage-danger-deep: #efd3d6;
+  --stage-link: #1d4ed8;
+  --stage-rose-well: #f1e0e8;
+}
+
+/* DARK = the forge (shell chrome palette transcribed from the LOCKED vs-shell-apps) */
+:root[data-theme="stage"] {
+  --ink: #faf8f3;         /* ink inverts: cream draws on dark */
+  --paper: #0a0a0b;
+  --paper-2: #131218;
+  --panel: #17161d;
+  --stage: #050506;       /* the stage sinks deeper than the chrome */
+  --stage-2: #0d0c12;
+  --muted: #8b85a0;
+  --ghost: #33313b;
+
+  --canvas: #0a0a0b;
+  --chrome: #0d0c11;
+  --shell-panel: #111015;
+  --shell-panel-2: #17161d;
+  --face: #17161d;
+  --edge: #000;
+  --seam: #2b2833;
+  --text: #e7e3da;
+  --text-soft: #c9c4d2;
+  --text-dim: #a6a1b4;    /* readability floor: brighter on the forge so labels stay legible */
+  --text-faint: #4a4556;
+  --link: #ff8f7a;        /* rendered links: bright coral, high contrast on the dark forge */
+  --stamp-bg: #e7e3da;
+  --stamp-fg: #0a0a0b;
+  --status-bg: #000;
+  --status-fg: #c9c4d2;
+  --status-dim: #6a6576;
+  --tooth: rgba(255, 255, 255, 0.02);
+  /* the editor quiz's character stage - the deep well on the forge (flips with the theme) */
+  --q-stage: #08080a;
+  --q-stage-deck: #131119;
+}
+
+/* the stamp: rest sits, hover lifts, active presses down (the beloved interaction, one place) */
+.stamp {
+  border: var(--ink-border);
+  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--ink);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.stamp:hover { transform: translate(-2px, -2px); box-shadow: calc(var(--stamp-x) + 2px) calc(var(--stamp-y) + 2px) 0 0 var(--ink); }
+.stamp:active, .stamp.pressed { transform: translate(var(--stamp-x), var(--stamp-y)); box-shadow: 0 0 0 0 var(--ink); }
+
+/* the seam: a dark canvas sinks with the inverted stamp (inset, blur 0) */
+.seam { background: var(--stage); box-shadow: inset var(--stamp-x) var(--stamp-y) 0 0 rgba(0, 0, 0, 0.55); }
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp, .stamp:hover, .stamp:active { transition: none; }
+}
