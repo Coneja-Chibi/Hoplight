@@ -10,6 +10,7 @@ import {
   type SpritePackValue,
 } from "./pack";
 import { isArchiveLimitError, PACK_ARCHIVE_BOUNDS, unzipBounded } from "../archive";
+import { bytesToBase64 } from "../base64";
 
 const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
 
@@ -20,8 +21,6 @@ const mimeFor = (ext: string): string => {
   if (ext === "webp") return "image/webp";
   return "application/octet-stream";
 };
-
-const b64 = (u8: Uint8Array): string => Buffer.from(u8).toString("base64");
 
 /**
  * @param zipBytes raw zip
@@ -55,7 +54,7 @@ export function packFromZipBytes(
     const baseName = path.replace(/\\/g, "/").split("/").pop() ?? path;
     const ext = baseName.split(".").pop()?.toLowerCase() ?? "png";
     const label = labelFromFilename(baseName);
-    const ref = `data:${mimeFor(ext)};base64,${b64(data)}`;
+    const ref = `data:${mimeFor(ext)};base64,${bytesToBase64(data)}`;
     added.push({ id: newPackItemId(), label, ref, mime: mimeFor(ext) });
   }
 

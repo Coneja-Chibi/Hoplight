@@ -82,7 +82,7 @@ const usableFiles = (files: readonly string[]): string[] =>
   files.filter((n) => n.endsWith(".json") && !n.startsWith(".")).sort();
 
 export class StudioStore {
-  // the fs backend is the ONE injection point: node fs on desktop/CLI, OPFS in the pocket build
+  // the fs backend is the ONE injection point: node fs on desktop/CLI, memory in static Pages
   constructor(
     private readonly dir: string,
     private readonly io: StudioFs = nodeStudioFs,

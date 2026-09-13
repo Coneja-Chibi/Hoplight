@@ -2,10 +2,11 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:2c75bacaa39d5e44d1e4128b0c17145e4d6d4b109c2f87c51f4357f9bc7ff436",
-  "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and Kit's terminal companion. Kit covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes reload, provenance, storage, receipts, and revision-checked HTTP writes. Library owns importing and staging while reporting damaged files without changing them. Workbench owns persistent editors for all eight canonical kinds, split panes, preset links to regex and quick-reply sets, and explicit revision-checked saves. Press owns staged export runs, linked riders, bare single-file delivery, plural zip delivery, and honest unknown-loss reporting. Settings derives Appearance, Models, Connections, Studio, Workbench, Remote access, Updates, and About; Connections manages both directions of MCP. Security distinguishes loopback from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized marks.",
+  "sourceHash": "sha256:4dc5995233293d214318a2854e30d51b98a9af42b496d843d85a90645e80f192",
+  "summary": "Complete contributor map of the installed Studio, its static browser edition, separately gated remote listeners, and Kit's terminal companion. The GitHub Pages edition reuses the React shell, apps, adapters, shared inspect/export engine, and indexed docs while holding all mutable state in page memory; reload clears it and host-owned operations refuse explicitly. Kit covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes reload, provenance, storage, receipts, and revision-checked HTTP writes. Library owns importing and staging while reporting damaged files without changing them. Workbench owns editors for all eight canonical kinds, split panes, preset links to regex and quick-reply sets, and explicit revision-checked saves. Press owns staged export runs, linked riders, single-file and zip delivery, and honest unknown-loss reporting. Settings derives Appearance, Models, Connections, Studio, Workbench, Remote access, Updates, and About. Security distinguishes loopback, static-page, and opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized marks.",
   "topics": [
     "Kit conversational terminal",
+    "temporary browser Studio",
     "drop-in UI architecture",
     "first-run settings",
     "in-app documentation",
@@ -17,6 +18,21 @@
     "loopback UI security"
   ],
   "sections": [
+    {
+      "slug": "browser-studio",
+      "title": "Browser Studio",
+      "level": 2,
+      "sourceHash": "sha256:24ee9dffdb53da14d6a838b9d7095ce228c16ea08d337acf4e800591f01f7b0b",
+      "summary": "The GitHub Pages build runs the ordinary React shell, discovered applications, setup steps, adapters, import and export flows, and indexed documentation without an account or Hoplight server. Its API compatibility layer uses memoryStudioFs and the shared inspect/export actions, so it does not fork entity schemas or conversion behavior. Pieces, collections, settings, Workbench state, previews, and portraits live only in Maps for the current page load; no Hoplight data enters browser persistence, and the ready-shell footer warns users to export before reload. Kit providers, MCP, remote controls, updates, local engine checkouts, Lumiverse archive imports, and Lua or regex execution remain installed-app operations. Script text stays editable, while Run refuses because static Pages cannot provide ADR-009's separate sandbox origin.",
+      "topics": [
+        "GitHub Pages Studio",
+        "shared app and adapter bundles",
+        "memory-only data lifetime",
+        "no browser persistence",
+        "explicit host-operation refusal"
+      ],
+      "children": []
+    },
     {
       "slug": "kit-terminal-shell",
       "title": "Kit terminal shell",

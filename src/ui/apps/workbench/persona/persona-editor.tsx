@@ -9,6 +9,7 @@
 import { useCallback, useMemo, useRef, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
 import { accentVars } from "../../../_shared/decks";
+import { portraitUrl as storedPortraitUrl } from "../../../_shared/asset-url";
 import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
 import type { PersonaBody } from "../../../../entities/persona/schema";
 import {
@@ -129,7 +130,7 @@ export function PersonaEditorView({ entity, revision, ctx, piece, topRight }: Pe
   const portraitUrl = isPreviewablePortraitRef(draftRef)
     ? draftRef
     : piece.hasPortrait
-      ? `/api/studio/portrait?kind=persona&id=${encodeURIComponent(piece.id)}`
+      ? storedPortraitUrl("persona", piece.id)
       : null;
   const onBody = setBody;
 

@@ -5,6 +5,27 @@
 uses. Optional remote listeners are separately enabled and gated. One engine, two shells - no format
 logic exists in the UI layer.
 
+## Browser Studio
+
+The GitHub Pages build publishes the same React shell, discovered apps, setup steps, format
+adapters, editors, import flow, Press, and indexed documentation as a static site. It needs no
+account and sends no Studio data to a Hoplight server. A browser runtime supplies the existing
+`/api/*` client contract from in-process stores and the shared inspect/export engine; it does not
+fork the canonical model or maintain a second set of format conversions.
+
+Every mutable browser store is intentionally memory-backed. Pieces, collections, settings,
+Workbench state, previews, and portraits last only for the current page load. Hoplight does not
+write them to localStorage, sessionStorage, IndexedDB, a service worker, or a remote account.
+Reloading or closing the page starts a new empty Studio, so the ready shell's footer says
+**temporary studio · export before reload**.
+
+Host-owned operations are not simulated. Kit and provider calls, MCP connections, remote-access
+controls, updates, local engine checkouts, Lumiverse archive imports, and Lua or regex execution
+require the installed app. Script source remains editable, but Run refuses because GitHub Pages
+cannot provide the separate sandbox origin required by ADR-009. Host-only API routes and the direct
+test-bench runners each return an explicit installed-app refusal. Ordinary supported files can still be
+imported, edited, organized, converted, and downloaded entirely inside the page.
+
 ## Kit terminal shell
 
 Kit is Hoplight's conversational terminal preview. Run it from a source checkout with `bun run kit`;

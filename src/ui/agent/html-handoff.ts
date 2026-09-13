@@ -19,6 +19,7 @@
  * pure transcript renderer, which has no AppContext and should not gain one - so it announces, and
  * the agent room, which does have ctx, listens.
  */
+import { webStorage } from "../_shared/web-storage";
 
 /** Where the handoff waits between the two apps. */
 const KEY = "hoplight.html-view.doc";
@@ -52,7 +53,7 @@ export const HANDOFF_CAP = 200_000;
 
 function put(handoff: HtmlHandoff): void {
   try {
-    sessionStorage.setItem(KEY, JSON.stringify(handoff));
+    webStorage("session")?.setItem(KEY, JSON.stringify(handoff));
   } catch {
     // A full or blocked store is not worth throwing into a transcript render. The viewer will say
     // it has nothing, which is true, rather than the window dying around a preview.
@@ -84,7 +85,7 @@ export function handOffPiece(id: string): void {
 export function takeHandedHtml(): HtmlHandoff | null {
   let raw: string | null = null;
   try {
-    raw = sessionStorage.getItem(KEY);
+    raw = webStorage("session")?.getItem(KEY) ?? null;
   } catch {
     return null;
   }

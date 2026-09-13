@@ -1,14 +1,14 @@
 /**
- * OPFS StudioFs backend - the pocket build's disk. Satisfies the same seven primitives as
- * nodeStudioFs; the store never knows the difference. Paths arrive as resolved strings from
- * path-policy (posix-shaped in a browser bundle); they map to handle walks from the given root.
+ * OPFS StudioFs backend reserved for a future persistent browser host. Static Pages deliberately
+ * does not use it. It satisfies the same seven primitives as nodeStudioFs; the store never knows
+ * the difference. Paths map to handle walks from the given root.
  *
  * Write strategy: createWritable (atomic on close, Chromium) when present, else the sync access
- * handle path (Safari, workers only). Both land inside a worker in the pocket build, which is the
- * one place Safari allows sync handles - see docs/POCKET-HOPLIGHT-PLAN.md P2.
+ * handle path (Safari, workers only). A future caller must place it in a dedicated worker, which is
+ * the one place Safari allows sync handles.
  *
- * Typed against a minimal structural OPFS surface (not lib.dom's) so the file compiles under bun
- * and any TS lib set; the pocket shell casts `navigator.storage.getDirectory()` to OpfsDirectory.
+ * Typed against a minimal structural OPFS surface (not lib.dom's) so the file compiles under Bun
+ * and any TS lib set; a future browser host can cast `navigator.storage.getDirectory()` to it.
  */
 import { StudioConflictError, StudioWriteError } from "../atomic-file";
 import { StudioReadError } from "../errors";
@@ -155,8 +155,8 @@ export function opfsStudioFs(root: OpfsDirectory): StudioFs {
     writeExclusive: async (path, body) => {
       const at = await parentOf(path, true);
       if (!at) throw new StudioWriteError();
-      // single-writer worker makes check-then-create race-free in practice (plan P2 pins the
-      // store to ONE dedicated worker); OPFS has no native exclusive-create to lean on
+      // A caller must use one writer to keep check-then-create race-free; OPFS has no native
+      // exclusive-create to lean on.
       try {
         await at.dir.getFileHandle(at.name);
         throw new StudioConflictError();

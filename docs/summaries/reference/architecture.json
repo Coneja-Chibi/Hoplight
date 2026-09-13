@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "docId": "reference/architecture",
   "sourcePath": "docs/reference/architecture.md",
-  "sourceHash": "sha256:896b95efeb35f1e68cafbe9a91542013c4d1701f613678f0682a95b853ddca4f",
-  "summary": "This reference maps Hoplight's implemented engine and tool architecture. Hub and spoke explains why every external format maps through one canonical model. The canonical entity defines the shared wrapper and superset rule; escrow preserves source twins and binary carriers without moving private or executable payloads across formats. The adapter contract uses a kind-discriminated open format system, attaches serialization-loss reports, and routes canonical JSON through strict per-kind decoders. defineExhaustiveShape<T>() demands exact schema input and output parity, rejecting drift escapes such as narrowed unions and coercion while leaving declared record bags open. Detection ranks confident kind-correct adapters, and folder discovery supplies the registry. Bundles extract and re-embed lorebook references. Semantic content capabilities define pure previews, progressive discovery, bounded reads and stored results, independently reviewed semantic docs, and explicit compare-and-save apply with re-read verification. Layering points dependencies inward; CLI remains a thin engine surface; source-of-truth links name the governing modules.",
+  "sourceHash": "sha256:e18ccf5f5517ad8934da76354420dfaf9a679018bdff070957d9e0039f4cfe52",
+  "summary": "This reference maps Hoplight's implemented engine and tool architecture. Hub and spoke explains why every external format maps through one canonical model. The canonical entity defines the shared wrapper and superset rule; escrow preserves source twins and binary carriers without moving private or executable payloads across formats. The adapter contract uses a kind-discriminated open format system, attaches serialization-loss reports, and routes canonical JSON through strict per-kind decoders. defineExhaustiveShape<T>() demands exact schema input and output parity, rejecting drift escapes such as narrowed unions and coercion while leaving declared record bags open. Detection ranks confident kind-correct adapters, and folder discovery supplies the registry. Bundles extract and re-embed lorebook references. Semantic content capabilities define pure previews, progressive discovery, bounded reads and stored results, independently reviewed semantic docs, and explicit compare-and-save apply with re-read verification. Layering points dependencies inward across CLI, installed Studio, and a static browser Studio that reuses the same adapters and API contract over volatile memory; source-of-truth links name the governing modules.",
   "topics": [
     "hub and spoke conversion",
     "canonical entity and superset",
@@ -165,13 +165,15 @@
       "slug": "layering",
       "title": "Layering",
       "level": 2,
-      "sourceHash": "sha256:f59a04774556bb8e30a11a376c50b11fa5eea09e2e961754eb5c522112f8dd2f",
-      "summary": "Dependencies point inward: core has no application dependency, formats depend on core, and CLI or Studio depend on both. The engine does not import UI, database, or framework concerns. Conversion and adapters are proven before a surface wraps them. CLI, the Bun Studio server, and the React client share that engine. Studio uses a primary loopback listener, with optional remote listeners enabled separately.",
+      "sourceHash": "sha256:164a0ca3da86f4f83671509ff9e921b82a90b7018b77266173b41c1b902addfb",
+      "summary": "Dependencies point inward: core has no application dependency, formats depend on core, and CLI or Studio depend on both. The engine does not import UI, database, or framework concerns. CLI, the Bun Studio server, and the React client share that engine. The static build discovers the same folders and implements the client API with memoryStudioFs and shared inspect/export actions. Its UI storage is volatile, while host-owned routes refuse explicitly.",
       "topics": [
         "inward dependency layers",
         "UI-free engine",
         "prove converters first",
-        "shared CLI and Studio engine"
+        "shared CLI and Studio engine",
+        "static browser delivery",
+        "volatile memory storage"
       ],
       "children": [],
       "shortSource": true

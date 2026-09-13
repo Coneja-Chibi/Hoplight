@@ -72,6 +72,12 @@ reports what was exported, what was retained locally, and what the target cannot
 
 ## 🚀 Install
 
+Want to try the editing Studio first? Open the
+[browser edition](https://coneja-chibi.github.io/Hoplight/). It needs no install or account and
+keeps work only in the current page. Export anything you want to keep before reloading or closing
+the tab. Kit, provider connections, remote access, updates, and host-filesystem tools require the
+installed app.
+
 Download the latest build from [Releases](https://github.com/Coneja-Chibi/Hoplight/releases).
 
 | Platform | Download | Run |

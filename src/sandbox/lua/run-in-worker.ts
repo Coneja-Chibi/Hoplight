@@ -30,6 +30,7 @@ import {
   SandboxProtocolError,
 } from "./protocol";
 import { stateToWire, type RisuState, type RisuStateWire } from "./risu-state";
+import { isBrowserStudio } from "../../browser-mode";
 
 export type SandboxLuaResult =
   | { ok: true; value: unknown }
@@ -79,7 +80,7 @@ const workerHref = (): string => {
   if (typeof globalThis !== "undefined" && typeof (globalThis as { document?: unknown }).document !== "undefined") {
     const origin = readSandboxOrigin();
     if (origin) return `${origin}/sandbox/worker.js`;
-    return "/sandbox/worker.js";
+    return new URL("sandbox/worker.js", document.baseURI).href;
   }
   // Bun tests: module-relative worker entry.
   return new URL("./worker.ts", import.meta.url).href;
@@ -127,6 +128,19 @@ export function runLuaSandboxed(code: string, opts: SandboxOptions = {}): Promis
     ? stateToWire(opts.state)
     : { chatVars: opts.chatVars ?? {} };
   const startingVars = { ...(wire.chatVars ?? {}) };
+
+  if (isBrowserStudio()) {
+    return Promise.resolve({
+      result: {
+        ok: false,
+        reason: "error",
+        message: "Lua execution needs the installed Hoplight app so it can run on an isolated sandbox origin.",
+      },
+      chatVars: startingVars,
+      log: [],
+      state: wire,
+    });
+  }
 
   try {
     assertSourceWithinBudget(code, limits.maxSourceBytes);

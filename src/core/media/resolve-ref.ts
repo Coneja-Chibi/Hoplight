@@ -4,6 +4,8 @@
  * Pure: does not fetch network; only rewrites refs we already hold.
  */
 
+import { bytesToBase64 } from "../base64";
+
 export type AssetFileMap = ReadonlyMap<string, Uint8Array> | Readonly<Record<string, Uint8Array>>;
 
 const MAX_PREVIEW_BYTES = 32 * 1024 * 1024;
@@ -28,13 +30,6 @@ const mimeFromPath = (path: string): string => {
   if (ext === "mp4") return "video/mp4";
   if (ext === "webm") return "video/webm";
   return "application/octet-stream";
-};
-
-const b64 = (u8: Uint8Array): string => {
-  if (typeof Buffer !== "undefined") return Buffer.from(u8).toString("base64");
-  let s = "";
-  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]!);
-  return btoa(s);
 };
 
 /**
@@ -62,20 +57,20 @@ export function resolveAssetRef(ref: string, assetFiles?: AssetFileMap): string 
   if (embed !== null) {
     const bytes = getFile(assetFiles, embed) ?? getFile(assetFiles, `assets/${embed}`);
     if (!bytes || bytes.length === 0 || bytes.length > MAX_PREVIEW_BYTES) return null;
-    return `data:${mimeFromPath(embed)};base64,${b64(bytes)}`;
+    return `data:${mimeFromPath(embed)};base64,${bytesToBase64(bytes)}`;
   }
 
   // Archive-relative path (Lumi modules, charx)
   if (!r.includes("://") && (r.startsWith("assets/") || r.includes("/"))) {
     const bytes = getFile(assetFiles, r);
     if (!bytes || bytes.length === 0 || bytes.length > MAX_PREVIEW_BYTES) return null;
-    return `data:${mimeFromPath(r)};base64,${b64(bytes)}`;
+    return `data:${mimeFromPath(r)};base64,${bytesToBase64(bytes)}`;
   }
 
   // Bare zip key
   const bare = getFile(assetFiles, r);
   if (bare && bare.length > 0 && bare.length <= MAX_PREVIEW_BYTES) {
-    return `data:${mimeFromPath(r)};base64,${b64(bare)}`;
+    return `data:${mimeFromPath(r)};base64,${bytesToBase64(bare)}`;
   }
 
   return null;

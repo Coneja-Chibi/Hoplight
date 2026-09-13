@@ -33,7 +33,7 @@ import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import { characterAdapter } from "../lumiverse";
 import type { LumiModules } from "../lumiverse/modules";
 import { wrapV2, type TavernData } from "../_shared/tavern-fields";
-import { toAdapterInput } from "../../core";
+import { toAdapterInput } from "../../core/adapter-input";
 import { inspectBundle } from "../../convert";
 import type { Binaries } from "./binaries";
 import { addArchiveEscrow } from "./escrow";

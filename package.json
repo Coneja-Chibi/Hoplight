@@ -36,6 +36,8 @@
     "capabilities:check": "bun run scripts/capability-manifest.ts --check",
     "license:audit": "bun run scripts/license-audit.ts",
     "build:cli": "bun build --compile src/cli.ts --outfile dist/hoplight",
+    "build:pages": "bun run scripts/build-pages.ts",
+    "preview:pages": "bun run scripts/preview-pages.ts",
     "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan",
     "scan:colors:check": "bun run scripts/hooks/no-hardcode-colors.ts --check",
     "scan:lines": "bun run scripts/hooks/file-lines.ts --scan",

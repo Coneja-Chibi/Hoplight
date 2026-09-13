@@ -19,6 +19,7 @@ import {
 import { KnowledgeRail } from "../lore/KnowledgeRail";
 import { variantArtUrls } from "../variants-art";
 import type { useVariants } from "../use-variants";
+import { portraitUrl } from "../../../_shared/asset-url";
 
 type VaryApi = ReturnType<typeof useVariants>;
 
@@ -33,7 +34,7 @@ export function resolveArtUrl(opts: {
     return ref;
   }
   if (!opts.varyActiveId && opts.piece.hasPortrait) {
-    return `/api/studio/portrait?kind=${encodeURIComponent(opts.piece.kind)}&id=${encodeURIComponent(opts.piece.id)}`;
+    return portraitUrl(opts.piece.kind, opts.piece.id);
   }
   return null;
 }

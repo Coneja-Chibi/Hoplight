@@ -19,12 +19,13 @@ import { openRisumModule, type OpenedRisumModule } from "./open-module";
 import { encodeRisumSmart } from "./rpack";
 import { zipSync, strToU8, strFromU8 } from "fflate";
 import { CARD_ARCHIVE_BOUNDS, unzipBounded } from "../../core/archive";
+import { base64ToBytes, bytesToBase64 } from "../../core/base64";
 
 type Rec = Record<string, unknown>;
 const isRecord = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
 
-const b64 = (u8: Uint8Array): string => Buffer.from(u8).toString("base64");
-const unb64 = (s: string): Uint8Array => new Uint8Array(Buffer.from(s, "base64"));
+const b64 = bytesToBase64;
+const unb64 = base64ToBytes;
 
 /**
  * Risu writes creation/modification dates in MILLISECONDS; the CCv3 spec says seconds. Normalize to

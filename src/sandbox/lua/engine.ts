@@ -4,8 +4,8 @@
  * utf8), never io / os / debug / package. Bytecode/file loaders are stripped. Host capabilities are
  * injected as Lua globals; anything not injected does not exist (deny-by-absence).
  *
- * Browser: pass wasmUri (or rely on default /sandbox/glue.wasm when a document exists) so the factory
- * can fetch glue.wasm from the UI server. Bun/Node: default factory resolution is fine.
+ * Browser: pass wasmUri or let the worker/window resolve glue.wasm beside itself. Bun/Node uses
+ * wasmoon's built-in resolution.
  */
 import { LuaFactory, LuaLibraries, type LuaEngine } from "wasmoon";
 import { resolveLuaRunLimits } from "./limits";
@@ -34,7 +34,7 @@ export interface HardenedLuaOptions {
   /** host functions exposed as Lua globals. Absent names do not exist in the card (deny-by-absence). */
   capabilities?: Record<string, Capability>;
   /**
-   * Where to fetch glue.wasm. Browser default: "/sandbox/glue.wasm" (served by the UI server).
+   * Where to fetch glue.wasm. Browser default: beside the current sandbox worker/page asset.
    * Bun/Node: omit to use wasmoon's built-in resolution.
    */
   wasmUri?: string;
@@ -44,17 +44,19 @@ const isBrowser = (): boolean =>
   typeof globalThis !== "undefined" &&
   typeof (globalThis as { document?: unknown }).document !== "undefined";
 
-/** Prefer the worker/window origin so a distinct sandbox host serves glue.wasm (ADR-009). */
+export const resolveBrowserWasmUri = (href: string, page: boolean): string =>
+  new URL(page ? "sandbox/glue.wasm" : "./glue.wasm", href).href;
+
+/** Resolve beside the worker on both loopback and project Pages, preserving any base path. */
 const defaultWasmUri = (): string | undefined => {
   try {
-    const loc = (globalThis as { location?: { origin?: string } }).location;
-    if (loc?.origin && /^https?:\/\//.test(loc.origin)) {
-      return `${loc.origin}/sandbox/glue.wasm`;
+    const loc = (globalThis as { location?: { href?: string } }).location;
+    if (loc?.href && /^https?:\/\//.test(loc.href)) {
+      return resolveBrowserWasmUri(loc.href, isBrowser());
     }
   } catch {
     /* ignore */
   }
-  if (isBrowser()) return "/sandbox/glue.wasm";
   return undefined;
 };
 

@@ -15,6 +15,7 @@
  * a transcript must still be a working window.
  */
 import { TRANSCRIPT_KEY } from "../_shared/window-memory";
+import { webStorage } from "../_shared/web-storage";
 import { readChoices } from "./kit-choice-core";
 import { parseWidget } from "./command-core";
 import type { ChatLine } from "./turn";
@@ -83,7 +84,7 @@ const forStorage = (line: ChatLine): ChatLine => {
 
 export function loadTranscript(): StoredLine[] {
   try {
-    const raw = sessionStorage.getItem(KEY);
+    const raw = webStorage("session")?.getItem(KEY);
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     // Filtered rather than trusted: this is our own data, but it is data from outside the program.
@@ -100,7 +101,7 @@ export function saveTranscript(lines: readonly StoredLine[]): void {
     while (keep.length > 1 && keep.reduce((n, l) => n + l.text.length, 0) > MAX_CHARS) {
       keep = keep.slice(1);
     }
-    sessionStorage.setItem(KEY, JSON.stringify(keep));
+    webStorage("session")?.setItem(KEY, JSON.stringify(keep));
   } catch {
     // Private mode, a full quota, or no storage at all. The conversation still works; it just will
     // not survive a navigation, which is better than the window failing to render.
@@ -122,7 +123,7 @@ const DRAFT_KEY = `${TRANSCRIPT_KEY}.draft`;
 
 export function loadDraft(): string {
   try {
-    const raw = sessionStorage.getItem(DRAFT_KEY);
+    const raw = webStorage("session")?.getItem(DRAFT_KEY);
     return typeof raw === "string" ? raw : "";
   } catch {
     return "";
@@ -132,13 +133,13 @@ export function loadDraft(): string {
 export function saveDraft(text: string): void {
   try {
     // Removed rather than stored empty, so a cleared composer does not come back as a blank entry.
-    if (text) sessionStorage.setItem(DRAFT_KEY, text);
-    else sessionStorage.removeItem(DRAFT_KEY);
+    if (text) webStorage("session")?.setItem(DRAFT_KEY, text);
+    else webStorage("session")?.removeItem(DRAFT_KEY);
   } catch {
     // Same posture as the transcript: no storage is a lost draft, never a broken window.
   }
 }
 
 export function clearTranscript(): void {
-  try { sessionStorage.removeItem(KEY); } catch { /* nothing to clear if storage is unavailable */ }
+  try { webStorage("session")?.removeItem(KEY); } catch { /* nothing to clear if storage is unavailable */ }
 }

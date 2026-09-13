@@ -10,10 +10,14 @@ related: [reference/concepts/safe-rendering, reference/entities/character, refer
 # The Lua script sandbox
 
 Character cards can carry executable content: Risu trigger scripts, virtual scripts, and low-level
-Lua. hoplight ingests those from untrusted files and never runs them on import. A script only executes
-when the operator deliberately puts it on the Workshop Test Bench, and even then it runs inside a
+Lua. hoplight ingests those from untrusted files and never runs them on import. In the installed app,
+a script executes only when the operator deliberately puts it on the Workshop Test Bench, inside a
 layered sandbox: a terminable worker, on a distinct loopback origin, behind a value-only wire
 protocol, under resource budgets that can only be tightened, not loosened.
+
+The static GitHub Pages Studio keeps script source editable but refuses execution. Static hosting
+cannot provide ADR-009's separate loopback sandbox origin, so it does not publish the worker or wasm
+artifacts and `runLuaSandboxed` returns an installed-app explanation before creating a Worker.
 
 This page describes what the code enforces. It is deliberately honest about what is not yet proven.
 Origin isolation is implemented and unit-tested at the HTTP and handler layer, but the packaged
@@ -33,22 +37,22 @@ and will never run unless you put them on the test stage` (`src/ui/receipt.ts:86
 ## Worker isolation (the kill switch)
 
 Each run happens in its own Worker, and the real stop mechanism is termination. `runLuaSandboxed`
-is documented to `Never hang, never throw` (`src/sandbox/lua/run-in-worker.ts:118`): it spawns a
-module worker (`run-in-worker.ts:173`), arms a host wall-clock timer, and on either completion or
-deadline calls `worker.terminate()` before resolving (`run-in-worker.ts:175-181`). If the deadline
+is documented to `Never hang, never throw` (`src/sandbox/lua/run-in-worker.ts:120`): it spawns a
+module worker (`run-in-worker.ts:187`), arms a host wall-clock timer, and on either completion or
+deadline calls `worker.terminate()` before resolving (`run-in-worker.ts:189-194`). If the deadline
 fires first, the worker is terminated mid-run and the result is a `timeout`
-(`run-in-worker.ts:182-196`).
+(`run-in-worker.ts:196-209`).
 
 The timeout is enforced twice. Inside the VM, wasmoon's `functionTimeout` aborts a pure-Lua infinite
 loop with a `LuaTimeoutError` (`src/sandbox/lua/engine.ts:30-31`, wired at `engine.ts:76`). Outside
 the VM, the host timer terminates the whole worker thread regardless of what the Lua is doing
-(`run-in-worker.ts:182-196`). A same-origin worker is, in ADR-009's words, `an availability boundary
+(`run-in-worker.ts:196-209`). A same-origin worker is, in ADR-009's words, `an availability boundary
 (killable thread), not an origin boundary` (`docs/decisions/ADR-009-sandbox-origin.md:15-16`); the
 termination path is that availability boundary, and it holds independently of the origin question
 below.
 
-Each run carries a monotonic run id (`run-in-worker.ts:139`). A response whose `runId` does not match
-the run in flight is dropped as `stale / spoofed generation` (`run-in-worker.ts:200`).
+Each run carries a monotonic run id (`run-in-worker.ts:153`). A response whose `runId` does not match
+the run in flight is dropped as `stale / spoofed generation` (`run-in-worker.ts:213-214`).
 
 ## The distinct sandbox origin (ADR-009)
 
@@ -60,11 +64,12 @@ index HTML carrying the session token, or source maps (`ADR-009:49-56`). The san
 published to the UI as `meta[name="vaude-sandbox-origin"]`; the per-launch API token stays only in
 `meta[name="vaude-session"]` and the trusted `apiFetch` path (`ADR-009:56`).
 
-The browser resolver reads that meta and prefers the sandbox origin. `readSandboxOrigin` accepts a
-value only when it starts with `http://127.0.0.1:` (`run-in-worker.ts:66-75`). `workerHref` loads the
+The installed browser resolver reads that meta and prefers the sandbox origin. `readSandboxOrigin` accepts a
+value only when it starts with `http://127.0.0.1:` (`run-in-worker.ts:70-76`). `workerHref` loads the
 worker from that origin when present; when the meta is absent it falls back to the same-origin
 `/sandbox/worker.js`, which the code and ADR both mark as `degraded; not claimed isolated`
-(`run-in-worker.ts:77-86`, `ADR-009:96-97`). The intent of the distinct origin is blast-radius
+(`run-in-worker.ts:78-87`, `ADR-009:96-97`). The Pages runtime is not that degraded path: its runtime
+marker causes a refusal before `workerHref` and its build omits those artifacts. The intent of the distinct origin is blast-radius
 reduction: if a future engine, bundler, WebView, or bridge bug exposed web capabilities, a
 same-origin worker could reach same-origin APIs, storage, or credentials, whereas a distinct origin
 cannot (`ADR-009:9-18`). This is defense-in-depth architecture, not evidence of a current same-origin
@@ -97,7 +102,7 @@ Three checks make the wire safe to trust:
   `assertNoForbiddenKeys` additionally rejects `__proto__`, `constructor`, and `prototype`
   (`protocol.ts:138-144`). Before it posts, the host runs `messageContainsForbiddenKeys` as a second
   pass and refuses to send a message that still carries a credential-shaped key
-  (`run-in-worker.ts:163-170`, `protocol.ts:424-434`).
+  (`run-in-worker.ts:177-184`, `protocol.ts:424-434`).
 
 The API token is never placed on a message, and the protocol has no field that could carry it. This
 is enforced by construction and by the forbidden-key sweep, and is unit-tested (`ADR-009:59-62`,
@@ -128,16 +133,16 @@ via `clampInt`: a request for a higher timeout or heap is clamped to the release
 (for adversarial tests) passes through, and missing fields take the release default
 (`limits.ts:64-68`, `limits.ts:160-244`). The clamp is applied independently at three layers, so a
 hostile `postMessage` cannot raise a ceiling: the host resolves limits before sending
-(`run-in-worker.ts:120-124`), the worker re-resolves from the received message
+(`run-in-worker.ts:121-125`), the worker re-resolves from the received message
 (`src/sandbox/lua/worker.ts:53-57`, documented as `re-clamped here so a hostile postMessage cannot
 raise ceilings`, `worker.ts:6-7`), and the engine clamps again when it is built
 (`engine.ts:66-70`). The worker runs Lua on the same authoritative deadline as the host kill switch,
 with `no 120s leash above release max` (`worker.ts:110-116`).
 
 Enforcement is at the edges. Source size, host-state shape, and request wire size are asserted before
-the message is posted (`run-in-worker.ts:131-137`), re-asserted inside the worker
+the message is posted (`run-in-worker.ts:146-148`), re-asserted inside the worker
 (`worker.ts:71-95`), and the response wire size is asserted before the parent accepts it
-(`run-in-worker.ts:223-228`). Over-budget input yields a bounded `resource` result with a machine
+(`run-in-worker.ts:238-243`). Over-budget input yields a bounded `resource` result with a machine
 reason (`assertSourceWithinBudget`, `assertWireWithinBudget`, `assertStateWithinBudget` at
 `limits.ts:246-346`); it never allocates attacker-sized state first.
 
@@ -189,7 +194,8 @@ Not yet measured, per ADR-009's measured-results table (`ADR-009:80-90`):
   (`ADR-009:90`).
 
 Because of those gaps, distinct-origin isolation is implemented and tested only at the Bun HTTP and
-handler layer, and the same-origin fallback path is degraded, not isolated (`run-in-worker.ts:77-86`,
+handler layer. The same-origin fallback path is degraded, not isolated, and static Pages refuses it
+before execution (`run-in-worker.ts:78-87`,
 `ADR-009:96-97`). ADR-009's own conclusion governs this page: `Packaged-host proof remains BLOCKED`
 and `Do not claim full sandbox isolation until that matrix is green`
 (`ADR-009:100-106`, STOP/honesty at `ADR-009:108-112`). The origin-isolation code ships as

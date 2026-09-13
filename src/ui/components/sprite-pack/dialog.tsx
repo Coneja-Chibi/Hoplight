@@ -20,6 +20,7 @@ import { ExpressionStage } from "../expression-stage";
 import { SpritePack } from "./index";
 import { AttachPanel, SheetSlicePanel } from "./dialog-panels";
 import { readFileAsDataUri, sliceSheetToItems } from "./sheet-slice";
+import { bytesToBase64 } from "../../../core/base64";
 import styles from "./styles.module.css";
 
 export type PackCatalogEntry = {
@@ -299,7 +300,7 @@ export function SpritePackDialog({
                 if (!type) continue;
                 const blob = await item.getType(type);
                 const buf = new Uint8Array(await blob.arrayBuffer());
-                const b64 = Buffer.from(buf).toString("base64");
+                const b64 = bytesToBase64(buf);
                 const ref = `data:${type};base64,${b64}`;
                 const label = "pasted";
                 const next = normalizePack({

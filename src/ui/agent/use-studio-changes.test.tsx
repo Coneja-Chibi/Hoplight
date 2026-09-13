@@ -12,6 +12,7 @@ import { JSDOM } from "jsdom";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { useReopenOnStudioChange } from "./use-studio-changes";
+import { BROWSER_STUDIO_CHANGE_EVENT } from "../../browser-mode";
 
 let dom: JSDOM;
 
@@ -98,6 +99,23 @@ async function mount(piece = PIECE, startDirty = false): Promise<Harness> {
 }
 
 describe("re-reading an open piece", () => {
+  test("the temporary browser Studio does not open a host event stream", async () => {
+    const meta = dom.window.document.createElement("meta");
+    meta.name = "hoplight-runtime";
+    meta.content = "browser";
+    dom.window.document.head.append(meta);
+    const h = await mount();
+    expect(live).toHaveLength(0);
+    await act(async () => {
+      dom.window.dispatchEvent(new dom.window.CustomEvent(BROWSER_STUDIO_CHANGE_EVENT, {
+        detail: { kinds: ["preset"] },
+      }));
+    });
+    expect(h.reopens()).toBe(1);
+    await h.unmount();
+    meta.remove();
+  });
+
   test("a clean piece re-reads when its own deck changed", async () => {
     const h = await mount();
     await h.change(["preset"]);

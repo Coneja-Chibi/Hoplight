@@ -2,14 +2,15 @@
  * PNG character-card codec: read/write the base64 `chara` (V2) and `ccv3` (V3) tEXt chunks.
  * Shared by every Tavern-lineage PNG format (SillyTavern, RoleCall). Adapted from RoleCall's
  * apps/rc/src/lib/formats/png/writer.ts - logic kept, DOM download helpers dropped, browser
- * btoa/atob swapped for Bun's Buffer.
+ * shared runtime-neutral base64 helpers.
  */
 import extract from "png-chunks-extract";
 import encode from "png-chunks-encode";
 import text from "png-chunk-text";
+import { base64ToBytes, base64ToUtf8, bytesToBase64, utf8ToBase64 } from "../../core/base64";
 
-const b64encode = (s: string): string => Buffer.from(s, "utf-8").toString("base64");
-const b64decode = (b: string): string => Buffer.from(b, "base64").toString("utf-8");
+const b64encode = utf8ToBase64;
+const b64decode = base64ToUtf8;
 
 const isTextChunk = (name: string): boolean => name === "tEXt" || name === "iTXt";
 
@@ -38,7 +39,7 @@ function safeExtract(png: Uint8Array): ReturnType<typeof extract> {
  */
 export function pngSourceMedia(bytes: Uint8Array | undefined): { b64: string; mime: string } | undefined {
   if (!bytes || !isPng(bytes)) return undefined;
-  return { b64: Buffer.from(bytes).toString("base64"), mime: "image/png" };
+  return { b64: bytesToBase64(bytes), mime: "image/png" };
 }
 
 /**
@@ -120,9 +121,8 @@ export function portraitPngBytes(body: { media: { portrait?: { ref?: unknown } }
   const encoded = match?.[1];
   if (!encoded || encoded.length % 4 !== 0 || !CANONICAL_BASE64.test(encoded)) return null;
   try {
-    const decoded = Buffer.from(encoded, "base64");
-    if (decoded.toString("base64") !== encoded) return null;
-    const bytes = new Uint8Array(decoded);
+    const bytes = base64ToBytes(encoded);
+    if (bytesToBase64(bytes) !== encoded) return null;
     return pngSourceMedia(bytes) ? bytes : null;
   } catch {
     return null;

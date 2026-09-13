@@ -5,10 +5,8 @@
  * is visible while it runs, and - the one that matters - the agent can ASK. A gate request parks the
  * dispatch loop on the server until this hook posts an answer back.
  *
- * THE TRANSCRIPT OUTLIVES THE WINDOW. The shell swaps apps through one slot, so leaving the agent
- * tile unmounts it. Holding the conversation in component state meant that navigating away to look
- * at the thing you were discussing threw away the discussion - and since the agent reads the screen
- * you came FROM, going to look at something is the normal way to use it.
+ * THE TRANSCRIPT OUTLIVES THE WINDOW. Leaving the agent unmounts it, so browser storage retains the
+ * conversation while somebody checks the screen the agent is meant to describe.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { matchCommand, type KitCommand } from "../../kit/commands/command";
@@ -22,6 +20,7 @@ import { keepTurns, kitLineFor, type CommandEffect } from "./command-core";
 import { unknownNote } from "./slash-core";
 import { useQueue, useQueueDrain } from "./use-queue";
 import { AGENT_SESSION_KEY, readAgentSessionId } from "../_shared/window-memory";
+import { webStorage } from "../_shared/web-storage";
 import type { CommandInfo } from "./command-core";
 
 export type { ChatLine } from "./turn";
@@ -246,7 +245,7 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
          */
         onSession: (id) => {
           sessionIdRef.current = id;
-          try { sessionStorage.setItem(AGENT_SESSION_KEY, id); } catch { /* storage unavailable */ }
+          try { webStorage("session")?.setItem(AGENT_SESSION_KEY, id); } catch { /* storage unavailable */ }
         },
         // Said on screen, because a conversation quietly not being saved is the one failure you
         // cannot notice until you go looking for it.
@@ -356,7 +355,7 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
          */
         if (effect.kind === "session") {
           sessionIdRef.current = effect.id;
-          try { sessionStorage.setItem(AGENT_SESSION_KEY, effect.id); } catch { /* unavailable */ }
+          try { webStorage("session")?.setItem(AGENT_SESSION_KEY, effect.id); } catch { /* unavailable */ }
           continue;
         }
         const drawn = kitLineFor(effect);

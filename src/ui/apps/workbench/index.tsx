@@ -27,6 +27,7 @@ import { emptyLorebookBody } from "../../../core/lore";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
 import { keyOf, paneKeyOf } from "../../_shared/piece-key";
 import { WORKBENCH_AGENT_SURFACE, usePublishWorkbenchSurface } from "./agent-surface";
+import { portraitUrl as storedPortraitUrl } from "../../_shared/asset-url";
 import styles from "./styles.module.css";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
@@ -39,7 +40,7 @@ const MARK_SVG =
   "</svg>";
 
 const portraitUrl = (e: StudioEntitySummary): string | null =>
-  e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
+  e.hasPortrait ? storedPortraitUrl(e.kind, e.id) : null;
 
 /** One mounted-per-open editable piece; hidden (not unmounted) while another tab is active. */
 function EditablePane({

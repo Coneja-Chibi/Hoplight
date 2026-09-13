@@ -33,13 +33,14 @@ import { applyAltsToBody, applyVariantsToExtensions } from "./variants-bridge";
 import { regexAdapter } from "./regex";
 import personaCodec from "./persona";
 import presetCodec from "./preset";
+import { base64ToBytes, bytesToBase64 } from "../../core/base64";
 
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
 const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 
-const b64 = (u8: Uint8Array): string => Buffer.from(u8).toString("base64");
-const unb64 = (s: string): Uint8Array => new Uint8Array(Buffer.from(s, "base64"));
+const b64 = bytesToBase64;
+const unb64 = base64ToBytes;
 
 function safeUnzip(bytes: Uint8Array, only?: string): Record<string, Uint8Array> {
   return unzipBounded(bytes, { bounds: CARD_ARCHIVE_BOUNDS, only });

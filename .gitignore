@@ -20,6 +20,7 @@ design/_serve.cjs
 .claude/
 CLAUDE.md
 audit-out/
+.playwright-mcp/
 
 # local design wireframes (never shipped)
 wireframes/

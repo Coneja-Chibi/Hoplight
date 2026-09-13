@@ -25,6 +25,7 @@ import { recordMissingBinary, type LvbakImportReport } from "./report";
 import { readEntryBytes, type LvbakEntrySource } from "./source";
 import { readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import { rowId } from "./tables";
+import { bytesToBase64 } from "../../core/base64";
 
 /** Nothing under files/ is a script or a huge media dump; 64 MiB covers any real avatar or image. */
 const MAX_BINARY_BYTES = 64 * 1024 * 1024;
@@ -74,7 +75,7 @@ export function createBinaries(
   const dataUri = async (name: string): Promise<string | null> => {
     const raw = await bytes(name);
     if (!raw) return null;
-    return `data:${mimeFromPath(name)};base64,${Buffer.from(raw).toString("base64")}`;
+    return `data:${mimeFromPath(name)};base64,${bytesToBase64(raw)}`;
   };
 
   return {

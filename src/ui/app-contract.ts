@@ -121,7 +121,7 @@ export interface AppContext {
     /** per-platform canonical-path coverage claims - the editor lens's ground truth (vs-editor-2) */
     coverage(): Promise<CoverageInfo[]>;
     /** the running build's version + studio folder (About shows both; the update check compares) */
-    version(): Promise<{ version: string; studioDir?: string; mode?: "packaged" | "source" }>;
+    version(): Promise<{ version: string; studioDir?: string; mode?: "packaged" | "source" | "browser" }>;
     /** ask GitHub for the latest release, server-side against a fixed URL; button-press only */
     updateCheck(): Promise<{ httpStatus: number; body: unknown }>;
     /** one page of the repo's GitHub releases (raw array in `body`); the client builds the timeline. */

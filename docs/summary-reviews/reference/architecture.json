@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/architecture",
   "sourcePath": "docs/reference/architecture.md",
-  "sourceHash": "sha256:896b95efeb35f1e68cafbe9a91542013c4d1701f613678f0682a95b853ddca4f",
-  "semanticSummaryHash": "sha256:bd27faf449d66db72628a869e0aa1db20f1e703cec3a4f9e5fed54b11af544a6",
+  "sourceHash": "sha256:e18ccf5f5517ad8934da76354420dfaf9a679018bdff070957d9e0039f4cfe52",
+  "semanticSummaryHash": "sha256:e98a512abb3c1f7fa08cb48f1bed3f35578274c652effe8293c3764a710b3ad4",
   "verdict": "APPROVE",
-  "reviewer": "review_current_release_tranche",
-  "notes": "Complete source and every section re-read; summary correctly covers all eight kinds, six adapter-backed kinds, eight runtime decoders, escrow, discovery, capabilities, and layering.",
-  "reviewedAt": "2026-09-13T02:03:40.844Z"
+  "reviewer": "pages-adversarial-review",
+  "notes": "Independent source and sidecar review: static delivery layering and shared engine boundaries are accurate.",
+  "reviewedAt": "2026-09-13T16:55:29.798Z"
 }

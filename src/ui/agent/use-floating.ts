@@ -15,6 +15,7 @@ import {
   type Edge, type Frame, type Size, type Spot,
 } from "./dock-position";
 import { PANEL_KEY } from "../_shared/window-memory";
+import { webStorage } from "../_shared/web-storage";
 
 // One spelling, owned by window-memory.ts, so the reset button clears the key this file reads.
 const KEY = PANEL_KEY;
@@ -42,7 +43,7 @@ const viewport = (): Size => ({
 
 function remembered(): { spot?: unknown; size?: unknown } {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = webStorage("local")?.getItem(KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : null;
     if (typeof parsed !== "object" || parsed === null) return {};
     /**
@@ -116,7 +117,7 @@ export function useFloatingPanel(): FloatingPanel {
 
   /** Written on release rather than on every move: a drag is hundreds of frames. */
   const remember = useCallback((next: Frame) => {
-    try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
+    try { webStorage("local")?.setItem(KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
   }, []);
 
   /**

@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { appendQueued, dequeueQueued } from "../../kit/render/primitives/composer/queue";
 import { QUEUE_KEY } from "../_shared/window-memory";
+import { webStorage } from "../_shared/web-storage";
 
 export interface QueueRoom {
   readonly items: readonly string[];
@@ -78,7 +79,7 @@ export function useQueueDrain(input: {
 
 const read = (): string[] => {
   try {
-    const raw = sessionStorage.getItem(QUEUE_KEY);
+    const raw = webStorage("session")?.getItem(QUEUE_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : [];
   } catch {
@@ -98,7 +99,7 @@ export function useQueue(): QueueRoom {
   }, []);
 
   useEffect(() => {
-    try { sessionStorage.setItem(QUEUE_KEY, JSON.stringify(items)); } catch { /* unavailable */ }
+    try { webStorage("session")?.setItem(QUEUE_KEY, JSON.stringify(items)); } catch { /* unavailable */ }
   }, [items]);
 
   const add = useCallback((text: string): boolean => {

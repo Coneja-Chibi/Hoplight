@@ -6,6 +6,7 @@
  */
 import type { MediaAsset } from "../../entities/character/schema";
 import type { RegexRule } from "../../entities/regex/schema";
+import { base64ToBytes, bytesToBase64 } from "../../core/base64";
 import {
   decodeLumiverseModuleRegexScripts,
   encodeLumiverseModuleRegexScripts,
@@ -34,8 +35,8 @@ export interface LumiModules {
   regex_scripts?: unknown[];
 }
 
-const b64 = (u8: Uint8Array): string => Buffer.from(u8).toString("base64");
-const unb64 = (s: string): Uint8Array => new Uint8Array(Buffer.from(s, "base64"));
+const b64 = bytesToBase64;
+const unb64 = base64ToBytes;
 
 export const mimeFromPath = (p: string): string => {
   const ext = p.split(".").pop()?.toLowerCase() ?? "";

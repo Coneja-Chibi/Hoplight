@@ -55,11 +55,12 @@ import { SendBar } from "./send-bar";
 import { attachCollections, useCollections } from "./collections-ops";
 import { usePicking } from "./use-picking";
 import { CollectionsBar } from "./collections-bar";
+import { portraitUrl as storedPortraitUrl } from "../../_shared/asset-url";
 
 // -- the browse room --------------------------------------------------------------------------------
 
 const portraitUrl = (e: StudioEntitySummary): string | null =>
-  e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
+  e.hasPortrait ? storedPortraitUrl(e.kind, e.id) : null;
 
 function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const firstDeck = ctx.prefs.get(PREF_FIRST_DECK);

@@ -10,6 +10,8 @@
  * A hook that fetched on the app's behalf would be a second loading path competing with the first.
  */
 import { useEffect, useRef, useState } from "react";
+import { isBrowserStudio } from "../_shared/asset-url";
+import { BROWSER_STUDIO_CHANGE_EVENT } from "../../browser-mode";
 
 export interface StudioChanges {
   /** Increments on every change burst; use it as an effect dependency to re-read. */
@@ -37,6 +39,15 @@ export function useStudioChanges(
   connectRef.current = connect;
 
   useEffect(() => {
+    if (isBrowserStudio()) {
+      const changed = (event: Event): void => {
+        const detail = (event as CustomEvent<{ kinds?: unknown }>).detail;
+        setKinds(Array.isArray(detail?.kinds) ? detail.kinds.filter((kind): kind is string => typeof kind === "string") : []);
+        setVersion((current) => current + 1);
+      };
+      window.addEventListener(BROWSER_STUDIO_CHANGE_EVENT, changed);
+      return () => window.removeEventListener(BROWSER_STUDIO_CHANGE_EVENT, changed);
+    }
     let source: EventSource | null = null;
     let retry: ReturnType<typeof setTimeout> | null = null;
     /** Stops the reconnect loop from outliving the component that started it. */

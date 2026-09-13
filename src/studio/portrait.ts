@@ -4,6 +4,7 @@
  * (2) a data-URI portrait in body.media. Tolerant: anything malformed reads as "no portrait".
  */
 import type { CanonicalEntity } from "../core/canonical";
+import { base64ToBytes } from "../core/base64";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
@@ -23,10 +24,10 @@ const isSafeImageMime = (mime: unknown): mime is string =>
 const STRICT_B64 = /^[A-Za-z0-9+/]+={0,2}$/;
 
 function fromB64(b64: string, mime: string): PortraitBytes | null {
-  // Buffer.from decodes sloppy base64 leniently; we fail closed instead of serving garbage bytes
+  // The decoder rejects malformed base64; imported payloads do not get lenient repair here.
   if (!STRICT_B64.test(b64)) return null;
   try {
-    const bytes = new Uint8Array(Buffer.from(b64, "base64"));
+    const bytes = base64ToBytes(b64);
     return bytes.length > 0 ? { bytes, mime } : null;
   } catch {
     return null;

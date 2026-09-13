@@ -19,6 +19,7 @@
  *   - settings.json, including the open Workbench tabs, which are meant to survive a kill;
  *   - the theme, whose cached copy only prevents a white flash before settings load.
  */
+import { webStorage } from "./web-storage";
 
 /** The app you were on when the page last reloaded. Written by the shell store's mountApp. */
 export const ACTIVE_APP_KEY = "vaude.session.activeApp";
@@ -46,7 +47,7 @@ export const QUEUE_KEY = "hoplight.agent.queue";
 /** The session id this tab is writing to, or "" when the next turn should open a new one. */
 export function readAgentSessionId(): string {
   try {
-    return sessionStorage.getItem(AGENT_SESSION_KEY) ?? "";
+    return webStorage("session")?.getItem(AGENT_SESSION_KEY) ?? "";
   } catch {
     // Storage unavailable: every turn opens a new session, which loses continuity but never data.
     return "";
@@ -72,8 +73,7 @@ export const RESET_KEYS: readonly { readonly key: string; readonly where: "sessi
 export function clearWindowMemory(): void {
   for (const entry of RESET_KEYS) {
     try {
-      const store = entry.where === "session" ? sessionStorage : localStorage;
-      store.removeItem(entry.key);
+      webStorage(entry.where)?.removeItem(entry.key);
     } catch {
       /* storage unavailable: nothing to clear, and nothing worth reporting */
     }

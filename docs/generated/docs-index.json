@@ -3963,7 +3963,7 @@
         "reference/formats/sillytavern",
         "reference/concepts/canonical-model"
       ],
-      "semanticSummary": "This reference maps Hoplight's implemented engine and tool architecture. Hub and spoke explains why every external format maps through one canonical model. The canonical entity defines the shared wrapper and superset rule; escrow preserves source twins and binary carriers without moving private or executable payloads across formats. The adapter contract uses a kind-discriminated open format system, attaches serialization-loss reports, and routes canonical JSON through strict per-kind decoders. defineExhaustiveShape<T>() demands exact schema input and output parity, rejecting drift escapes such as narrowed unions and coercion while leaving declared record bags open. Detection ranks confident kind-correct adapters, and folder discovery supplies the registry. Bundles extract and re-embed lorebook references. Semantic content capabilities define pure previews, progressive discovery, bounded reads and stored results, independently reviewed semantic docs, and explicit compare-and-save apply with re-read verification. Layering points dependencies inward; CLI remains a thin engine surface; source-of-truth links name the governing modules.",
+      "semanticSummary": "This reference maps Hoplight's implemented engine and tool architecture. Hub and spoke explains why every external format maps through one canonical model. The canonical entity defines the shared wrapper and superset rule; escrow preserves source twins and binary carriers without moving private or executable payloads across formats. The adapter contract uses a kind-discriminated open format system, attaches serialization-loss reports, and routes canonical JSON through strict per-kind decoders. defineExhaustiveShape<T>() demands exact schema input and output parity, rejecting drift escapes such as narrowed unions and coercion while leaving declared record bags open. Detection ranks confident kind-correct adapters, and folder discovery supplies the registry. Bundles extract and re-embed lorebook references. Semantic content capabilities define pure previews, progressive discovery, bounded reads and stored results, independently reviewed semantic docs, and explicit compare-and-save apply with re-read verification. Layering points dependencies inward across CLI, installed Studio, and a static browser Studio that reuses the same adapters and API contract over volatile memory; source-of-truth links name the governing modules.",
       "topics": [
         "hub and spoke conversion",
         "canonical entity and superset",
@@ -4114,12 +4114,14 @@
           "text": "Layering",
           "slug": "layering",
           "level": 2,
-          "summary": "Dependencies point inward: core has no application dependency, formats depend on core, and CLI or Studio depend on both. The engine does not import UI, database, or framework concerns. Conversion and adapters are proven before a surface wraps them. CLI, the Bun Studio server, and the React client share that engine. Studio uses a primary loopback listener, with optional remote listeners enabled separately.",
+          "summary": "Dependencies point inward: core has no application dependency, formats depend on core, and CLI or Studio depend on both. The engine does not import UI, database, or framework concerns. CLI, the Bun Studio server, and the React client share that engine. The static build discovers the same folders and implements the client API with memoryStudioFs and shared inspect/export actions. Its UI storage is volatile, while host-owned routes refuse explicitly.",
           "topics": [
             "inward dependency layers",
             "UI-free engine",
             "prove converters first",
-            "shared CLI and Studio engine"
+            "shared CLI and Studio engine",
+            "static browser delivery",
+            "volatile memory storage"
           ],
           "children": []
         },
@@ -13141,7 +13143,7 @@
         "reference/concepts/regex-editor",
         "reference/entities/regex"
       ],
-      "semanticSummary": "Canonical reference for ReDoS defense when untrusted card-authored find patterns enter the regex engine. JavaScript RegExp is synchronous and uninterruptible on its thread, so Hoplight uses two layers: structural AST screening before compile, and Studio previews in a disposable worker terminated at a 750 ms wall clock. The AST layer never executes anything: parseRegex builds a typed tree under unicode-mode grammar, returns errors as values not throws, and never constructs RegExp. The screen walks unbounded quantifiers for three structural culprits with exact culprit spans: nested unbounded quantifiers, overlapping alternation under a quantifier, and backreference inside unbounded repetition; severity is safe, suspicious, or dangerous, precision over recall. The gate validateRule length-caps find and replace at 10000, rejects empty find, native-compiles under the rule flags, then analyzes: dangerous refuses and never compiles; suspicious still ok with complexity floored toward the heavy-pattern chip. Enforced on every run not just at save: applyRule validates every enabled rule before compile; rejected rules leave text unchanged. User rejection surfaces show plain-text RuleValidation.error only; culprit span is computed but not rendered. Guided mode hit miss chips are a separate feature, not a rejection report, and their preview compile skips the gate while stored rules still hit applyRule. Known gaps: core timeout is not preemptive; fallback heuristic when AST parse fails is weaker; v-flag set notation likely falls through; character-set overlap is coarse; culprit underline unwired. Source of truth maps each concern to files under core/regex, sandbox regex worker, and workbench UI.",
+      "semanticSummary": "Canonical reference for ReDoS defense when untrusted card-authored find patterns enter the regex engine. JavaScript RegExp is synchronous and uninterruptible on its thread, so installed Hoplight layers structural AST screening before compile with disposable-worker previews terminated at 750 ms. Static GitHub Pages keeps regex source editable but refuses execution because it cannot provide ADR-009's separate sandbox origin. parseRegex builds data-only typed trees and reports errors as values. The screen detects nested unbounded quantifiers, overlapping quantified alternation, and quantified backreferences with exact culprit spans and safe, suspicious, or dangerous severity. validateRule caps fields, rejects empty or invalid patterns, and blocks dangerous shapes; applyRule validates every enabled rule before compile and leaves text unchanged on rejection. UI surfaces show plain errors while culprit highlighting remains unwired. Known gaps include non-preemptive direct-core timeout, weaker fallback analysis, unimplemented v-flag set notation, and coarse character-set overlap.",
       "topics": [
         "ReDoS catastrophic backtracking",
         "AST parse never executes",
@@ -13203,7 +13205,7 @@
           "text": "Enforced on every run, not just at save",
           "slug": "enforced-on-every-run-not-just-at-save",
           "level": 2,
-          "summary": "applyRule calls validateRule unconditionally for every enabled rule on every engine pass after cheap skip-reason checks and before real compilation. There is no save-time-only path: the same gate runs from live Quick Try preview, test bench, and real content passes regardless of Guided, Plain-words, or raw Pattern authorship. Rejection yields applied false with the validation error string and leaves text unchanged. Accepted patterns still budget: compile with d flag for match spans; runReplace checks elapsed against timeoutMs default 100ms capped 500ms before and between matches. That budget is between-steps not preemptive; the synchronous match or matchAll call cannot be stopped once started. Studio callers add a preemptive outer boundary: run-in-worker posts to sandbox regex-worker.js and terminates the worker on timeout cancellation completion or error. The sandbox worker caps requests at 200000 text characters and 500 well-shaped rules before applyRules. A core caller that invokes applyRules directly does not receive this outer boundary.",
+          "summary": "applyRule calls validateRule for every enabled rule on every engine pass after cheap skip checks and before compilation. The gate is not save-only: installed Quick Try, Test Bench, and content passes all use it regardless of authoring mode. Rejection returns applied false with the validation error and leaves text unchanged. Accepted patterns use a between-step timeout, which cannot interrupt one synchronous match. Installed Studio adds a preemptive disposable-worker boundary with timeout, cancellation, completion, and error termination plus request caps of 200000 text characters and 500 rules. Static Pages refuses before worker creation because no separate sandbox origin exists. Direct core callers must provide their own terminable boundary.",
           "topics": [
             "validate every applyRule",
             "no save-only path",
@@ -13246,7 +13248,7 @@
           "text": "Known gaps",
           "slug": "known-gaps",
           "level": 2,
-          "summary": "Honesty posture from validate and redos. Core timeout is not preemptive: an AST false negative under precision-over-recall can hang inside one synchronous RegExp match or matchAll; timeoutMs is checked only between steps. Studio terminates the disposable worker; direct core callers must supply their own terminable boundary for untrusted patterns. Fallback heuristic when AST parse refuses is materially weaker: classic nested-quantifier text only, no overlapping-alternation or quantified-backreference bombs, which AST catches only when the strict grammar parses. v-flag set notation likely hits that weaker path because validate never passes real flags into parseRegex and parseClass lacks set operators; grammar read not a measured live pattern. Character-set overlap is coarse not full algebra, only pushes toward suspicious or dangerous, heuristic not proof. Culprit underline is not rendered; do not assume exact span beyond the plain-text error. Patterns that reach the core gate are analyzed before compile; AST-dangerous never runs. Remaining gaps: direct core, fallback syntax, v-flag, culprit UI.",
+          "summary": "Core timeout is not preemptive: an AST false negative can hang inside one synchronous RegExp match because timeoutMs is checked only between steps. Installed Studio terminates a disposable worker; static Pages refuses execution; direct core callers must supply their own terminable boundary. When strict AST parsing refuses syntax, fallback analysis is materially weaker and misses overlap and quantified-backreference classes. v-flag set notation likely reaches that weaker path because parseClass lacks set operators. Character-set overlap is coarse rather than full algebra. Culprit spans are computed but not rendered. Patterns reaching the core gate are analyzed before compile and AST-dangerous patterns never run.",
           "topics": [
             "timeout not preemptive",
             "direct core boundary required",
@@ -13623,7 +13625,7 @@
         "reference/formats/risu",
         "reference/architecture"
       ],
-      "semanticSummary": "How Hoplight runs untrusted card scripts only when the operator deliberately stages them on the Workshop Test Bench, never on import. Layered sandbox: terminable worker, distinct loopback origin, value-only versioned wire protocol, resource budgets that clamp downward only. Scripts are data until staged: classifier and import receipt save text and never auto-run. Worker isolation is the kill switch: per-run Worker with host terminate and in-VM functionTimeout; same-origin worker is availability not origin boundary; stale runId responses dropped. Distinct sandbox origin ADR-009 serves only worker and wasm glue, never api or session token; readSandboxOrigin requires http 127.0.0.1; same-origin fallback is degraded not claimed isolated; origin code is defense-in-depth not evidence of a current exploit. Wire protocol version 1 is value-only with key allowlists and FORBIDDEN_KEYS including credentials and prototype keys; token never on the wire. Resource budgets RELEASE_LUA_LIMITS clamp never upward across host worker and engine; over-budget yields resource result without allocating attacker-sized state. Lua engine hardening deny by absence: openStandardLibs false, SAFE_LIBS only, STRIPPED_GLOBALS removed, no DOM fetch filesystem network. Privileged lowLevelAccess flag is a warning never an execution trigger. What is not yet proven: packaged WebView2 origin probe and related measures not run; do not claim full sandbox isolation until ADR-009 matrix is green; token and resource quotas are load-bearing proven layers.",
+      "semanticSummary": "How installed Hoplight runs untrusted card scripts only when the operator deliberately stages them on the Workshop Test Bench, never on import. Static GitHub Pages keeps script text editable but refuses execution before worker creation and omits worker and wasm artifacts because it cannot provide ADR-009's separate loopback origin. Installed execution layers a terminable worker, distinct loopback origin, value-only versioned protocol, and downward-only resource budgets. Worker termination and in-VM functionTimeout form the kill switch; stale runId responses are dropped. The sandbox origin serves only workers and wasm, never api or the session token; missing metadata is a degraded same-origin fallback outside Pages. The value-only wire uses key allowlists and forbidden credential/prototype keys. Lua opens SAFE_LIBS only, strips host-reaching globals, and exposes no DOM, fetch, filesystem, or network. lowLevelAccess is a warning, never a trigger. Packaged WebView2 origin measurements remain incomplete, so full isolation is not claimed.",
       "topics": [
         "Lua Test Bench only",
         "never run on import",
@@ -13641,7 +13643,7 @@
           "text": "Scripts are data until you stage them",
           "slug": "scripts-are-data-until-you-stage-them",
           "level": 2,
-          "summary": "Card behavior rows are classified never executed. The classifier core splits a condition or effect row into a known or advanced shape and nothing more: nothing here executes anything; rows are data. The import receipt tells the operator the same: a card that carries scripts is flagged and the scripts are saved as text and will never run unless you put them on the test stage.",
+          "summary": "Card behavior rows are classified, never executed. The classifier only splits a condition or effect into known or advanced data, and import receipts state that scripts are saved as text rather than auto-run. Installed Hoplight can run them only after deliberate staging on the Workshop Test Bench. Static GitHub Pages preserves editing but refuses execution because it has no separate sandbox origin.",
           "topics": [
             "rows are data",
             "never execute on import",
@@ -13668,7 +13670,7 @@
           "text": "The distinct sandbox origin (ADR-009)",
           "slug": "the-distinct-sandbox-origin-adr-009",
           "level": 2,
-          "summary": "Worker bundle and wasm glue are served from a second loopback listener on an ephemeral port, a distinct origin from the UI and api paths. That sandbox-only server serves only GET sandbox worker.js, regex-worker.js, and glue.wasm and must not expose api, studio paths, index HTML carrying the session token, or source maps. Sandbox origin is published as meta vaude-sandbox-origin; per-launch API token stays only in meta vaude-session and trusted apiFetch. readSandboxOrigin accepts a value only when it starts with http://127.0.0.1. workerHref loads from that origin when present; when meta is absent it falls back to same-origin sandbox worker.js marked degraded not claimed isolated. Intent is blast-radius reduction if a future bug exposed web capabilities; defense-in-depth not evidence of a current same-origin exploit. Distinct-origin design is real and tested at Bun HTTP and handler layer but not yet measured in packaged WebView2; that gap is stated fully under what is not yet proven.",
+          "summary": "Installed Hoplight serves worker bundles and wasm from a second ephemeral loopback listener, distinct from the UI and api origin. That server allowlists only the Lua worker, regex worker, and glue wasm; it excludes api routes, studio paths, token-bearing HTML, and source maps. The UI receives the origin through vaude-sandbox-origin while the API token stays in vaude-session and trusted apiFetch. readSandboxOrigin accepts only http loopback values. Missing metadata retains a degraded same-origin fallback outside Pages. Static Pages is explicitly different: its runtime marker refuses before worker resolution, and its build omits worker and wasm artifacts. The distinct origin reduces future blast radius but packaged WebView2 measurements remain incomplete.",
           "topics": [
             "ephemeral sandbox origin",
             "only worker wasm routes",
@@ -13741,7 +13743,7 @@
           "text": "What is not yet proven",
           "slug": "what-is-not-yet-proven",
           "level": 2,
-          "summary": "Mirrors the codebase STOP honesty posture; do not read anything above as a claim of full isolation. Proven and enforced: worker kill switch host terminate plus in-VM timeout, three-layer resource clamp and byte caps, value-only wire protocol both ways, absence of any token field on the wire, and sandbox-host handler allowlist worker and wasm only with api and traversal 404. ADR-009 records these as automated. Not yet measured per ADR-009 table: packaged WebView2 origin probe not run in this implementation pass; self.crossOriginIsolated and storage visibility not measured; credentialed API fetch from sandbox-origin worker in packaged host not measured. Because of those gaps, distinct-origin isolation is implemented and tested only at Bun HTTP and handler layer, and same-origin fallback is degraded not isolated. ADR-009 conclusion: packaged-host proof remains BLOCKED and do not claim full sandbox isolation until that matrix is green. Origin-isolation code ships as defense-in-depth scaffolding; token layer Plan 005 and resource quotas Plan 016 are the load-bearing proven layers and origin isolation is additive on top.",
+          "summary": "No full-isolation claim is made. Proven layers are worker termination plus in-VM timeout, three-layer resource clamps and byte caps, the value-only protocol, absence of token fields, and the sandbox-host allowlist with api and traversal refused. Not yet measured are the packaged WebView2 origin probe, crossOriginIsolated and storage visibility, and a credentialed API fetch from the packaged sandbox worker. The distinct origin is tested at Bun HTTP and handler boundaries only; missing-origin fallback is degraded, while static Pages refuses before execution. ADR-009 therefore keeps packaged-host proof BLOCKED. Token and resource controls remain load-bearing; origin separation is additive defense in depth.",
           "topics": [
             "no full isolation claim",
             "WebView2 probe not run",
@@ -14081,9 +14083,10 @@
       "summary": "uses. Optional remote listeners are separately enabled and gated. One engine, two shells - no format logic exists in the UI layer.",
       "tags": [],
       "related": [],
-      "semanticSummary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and Kit's terminal companion. Kit covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes reload, provenance, storage, receipts, and revision-checked HTTP writes. Library owns importing and staging while reporting damaged files without changing them. Workbench owns persistent editors for all eight canonical kinds, split panes, preset links to regex and quick-reply sets, and explicit revision-checked saves. Press owns staged export runs, linked riders, bare single-file delivery, plural zip delivery, and honest unknown-loss reporting. Settings derives Appearance, Models, Connections, Studio, Workbench, Remote access, Updates, and About; Connections manages both directions of MCP. Security distinguishes loopback from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized marks.",
+      "semanticSummary": "Complete contributor map of the installed Studio, its static browser edition, separately gated remote listeners, and Kit's terminal companion. The GitHub Pages edition reuses the React shell, apps, adapters, shared inspect/export engine, and indexed docs while holding all mutable state in page memory; reload clears it and host-owned operations refuse explicitly. Kit covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes reload, provenance, storage, receipts, and revision-checked HTTP writes. Library owns importing and staging while reporting damaged files without changing them. Workbench owns editors for all eight canonical kinds, split panes, preset links to regex and quick-reply sets, and explicit revision-checked saves. Press owns staged export runs, linked riders, single-file and zip delivery, and honest unknown-loss reporting. Settings derives Appearance, Models, Connections, Studio, Workbench, Remote access, Updates, and About. Security distinguishes loopback, static-page, and opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized marks.",
       "topics": [
         "Kit conversational terminal",
+        "temporary browser Studio",
         "drop-in UI architecture",
         "first-run settings",
         "in-app documentation",
@@ -14095,6 +14098,20 @@
         "loopback UI security"
       ],
       "anchors": [
+        {
+          "text": "Browser Studio",
+          "slug": "browser-studio",
+          "level": 2,
+          "summary": "The GitHub Pages build runs the ordinary React shell, discovered applications, setup steps, adapters, import and export flows, and indexed documentation without an account or Hoplight server. Its API compatibility layer uses memoryStudioFs and the shared inspect/export actions, so it does not fork entity schemas or conversion behavior. Pieces, collections, settings, Workbench state, previews, and portraits live only in Maps for the current page load; no Hoplight data enters browser persistence, and the ready-shell footer warns users to export before reload. Kit providers, MCP, remote controls, updates, local engine checkouts, Lumiverse archive imports, and Lua or regex execution remain installed-app operations. Script text stays editable, while Run refuses because static Pages cannot provide ADR-009's separate sandbox origin.",
+          "topics": [
+            "GitHub Pages Studio",
+            "shared app and adapter bundles",
+            "memory-only data lifetime",
+            "no browser persistence",
+            "explicit host-operation refusal"
+          ],
+          "children": []
+        },
         {
           "text": "Kit terminal shell",
           "slug": "kit-terminal-shell",

@@ -15,10 +15,9 @@ import type {
   CharacterAdapter,
   FormatAdapter,
   PresetAdapter,
-} from "./core";
-import { primaryOriginalRaw } from "./core";
-import { buildSerializeReport, serializeReport } from "./core";
-import type { CanonicalEntity } from "./core/canonical";
+} from "./core/adapter";
+import { primaryOriginalRaw, type CanonicalEntity } from "./core/canonical";
+import { buildSerializeReport, serializeReport } from "./core/reports";
 import type { CanonicalCharacter } from "./entities/character/schema";
 import type { CanonicalLorebook } from "./entities/lorebook/schema";
 import type { CanonicalPreset } from "./entities/preset/schema";

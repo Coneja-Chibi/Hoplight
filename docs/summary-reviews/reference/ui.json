@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:2c75bacaa39d5e44d1e4128b0c17145e4d6d4b109c2f87c51f4357f9bc7ff436",
-  "semanticSummaryHash": "sha256:7df306bc386bb4a7b057fab440890df7352407424cc7ce3f272aff4b08e07b2c",
+  "sourceHash": "sha256:4dc5995233293d214318a2854e30d51b98a9af42b496d843d85a90645e80f192",
+  "semanticSummaryHash": "sha256:ba649f3723b6e0120f435a8caedd86b3399c85ee51333c56fc57ebd65207ac61",
   "verdict": "APPROVE",
-  "reviewer": "review_current_release_tranche",
-  "notes": "Complete UI reference and all section summaries re-read; summary accurately distinguishes all eight Workbench kinds, preset linkage, bare single-file versus plural zip Press delivery, MCP Connections, and proof limits.",
-  "reviewedAt": "2026-09-13T02:03:41.291Z"
+  "reviewer": "pages-adversarial-review",
+  "notes": "Independent source and sidecar review: browser lifetime, host-only limits, and sandbox refusal are accurate.",
+  "reviewedAt": "2026-09-13T16:55:29.594Z"
 }

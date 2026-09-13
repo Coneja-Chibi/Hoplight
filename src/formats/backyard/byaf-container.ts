@@ -3,6 +3,7 @@
  */
 import { zipSync, strToU8, strFromU8 } from "fflate";
 import { CARD_ARCHIVE_BOUNDS, unzipBounded } from "../../core/archive";
+import { base64ToBytes, bytesToBase64 } from "../../core/base64";
 
 export type Rec = Record<string, unknown>;
 export const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -12,8 +13,8 @@ function safeUnzip(bytes: Uint8Array, only?: string): Record<string, Uint8Array>
   return unzipBounded(bytes, { bounds: CARD_ARCHIVE_BOUNDS, only });
 }
 
-export const b64 = (u8: Uint8Array): string => Buffer.from(u8).toString("base64");
-export const unb64 = (s: string): Uint8Array => new Uint8Array(Buffer.from(s, "base64"));
+export const b64 = bytesToBase64;
+export const unb64 = base64ToBytes;
 
 export const mimeFromPath = (p: string): string => {
   const ext = p.split(".").pop()?.toLowerCase() ?? "";

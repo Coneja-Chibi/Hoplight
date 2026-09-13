@@ -1,7 +1,8 @@
 /**
  * Structural store contracts - what the server handler actually needs from storage. The handler
  * types on these (never the concrete classes) so any backend that satisfies them can host the
- * studio: fs-backed on desktop/CLI, OPFS-backed in the pocket build. The classes satisfy these
+ * studio: fs-backed on desktop/CLI, memory-backed on static Pages, or OPFS-backed by a future
+ * persistent browser host. The classes satisfy these
  * structurally; no implements clause, no import cycle.
  */
 import type { ParsedCanonicalEntity } from "../entities/runtime-schema";

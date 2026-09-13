@@ -288,6 +288,14 @@ The engine never imports UI, a database, or a framework. Prove the converter (ca
 tests) before any UI. The CLI was the first surface for that reason; the desktop Studio (`hoplight ui`,
 a local Bun server + React app, see [ui.md](ui.md)) now sits beside it on the same engine.
 
+The static browser Studio is a third delivery mode over that engine. `scripts/build-pages.ts`
+discovers and bundles the same app, setup, tour, format, and documentation folders used by
+the desktop build. `src/pocket/runtime.ts` implements the existing client API against
+`memoryStudioFs()` and shared inspect/export actions. It introduces no browser-specific entity
+schema or adapter registry. `src/ui/_shared/web-storage.ts` routes shell memory to volatile Maps in
+this mode, leaving browser persistence untouched; a reload therefore starts with no Studio data.
+Host-owned routes fail explicitly instead of being approximated in a static page.
+
 ## The CLI
 
 `src/cli.ts` is the thin app layer. Commands:

@@ -9,6 +9,7 @@ import type { OffTarget } from "../../components/platform-tabs";
 import { accentVars } from "../../_shared/decks";
 import { completionOf, deepEq, EDITOR_CARDS, lensVerdict, readPath, reconcileOrder, writePath } from "./editor-core";
 import { signatureFromPng } from "../../../studio/signature-color";
+import { portraitUrl } from "../../_shared/asset-url";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
 import { StubEditor, type Stub } from "../../components/native-card";
 import { useVariants } from "./use-variants";
@@ -124,7 +125,7 @@ export function CharacterEditor({ entity, revision, ctx, piece, topRight }: Char
       return;
     }
     let cancelled = false;
-    const url = `/api/studio/portrait?kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`;
+    const url = portraitUrl(piece.kind, piece.id);
     void (async () => {
       try {
         const res = await fetch(url);

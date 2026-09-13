@@ -11,6 +11,7 @@
  */
 import { Component, type ErrorInfo, type JSX, type ReactNode } from "react";
 import { useShellStore } from "./store";
+import { isBrowserStudio } from "../../browser-mode";
 
 interface Props {
   children: ReactNode;
@@ -39,6 +40,9 @@ export class ShellErrorBoundary extends Component<Props, State> {
   }
 
   private reload = (): void => {
+    if (isBrowserStudio() && !window.confirm(
+      "Reloading will permanently discard every piece in this temporary Studio. Continue?",
+    )) return;
     window.location.reload();
   };
 
@@ -57,21 +61,31 @@ export class ShellErrorBoundary extends Component<Props, State> {
   render(): ReactNode {
     const { error } = this.state;
     if (!error) return this.props.children;
+    const browser = isBrowserStudio();
     return (
       <div className="shell-crash" role="alert">
         <h1 className="shell-crash-title">The studio hit an error</h1>
-        <p className="shell-crash-body">
-          Nothing on disk was touched. If this comes back every time you open the app, a saved view
-          preference is the likely cause - the second button clears those and nothing else.
-        </p>
+        {browser ? (
+          <p className="shell-crash-body">
+            This temporary Studio cannot export after a crash. Reloading will permanently discard
+            every piece in this page. You will be asked to confirm before that happens.
+          </p>
+        ) : (
+          <p className="shell-crash-body">
+            Nothing on disk was touched. If this comes back every time you open the app, a saved view
+            preference is the likely cause - the second button clears those and nothing else.
+          </p>
+        )}
         <pre className="shell-crash-msg">{error.message || String(error)}</pre>
         <div className="shell-crash-actions">
           <button type="button" className="shell-crash-btn" onClick={this.reload}>
-            Reload
+            {browser ? "Discard page and reload" : "Reload"}
           </button>
-          <button type="button" className="shell-crash-btn" onClick={() => void this.resetViewPrefs()}>
-            Reset view settings and reload
-          </button>
+          {!browser && (
+            <button type="button" className="shell-crash-btn" onClick={() => void this.resetViewPrefs()}>
+              Reset view settings and reload
+            </button>
+          )}
         </div>
       </div>
     );

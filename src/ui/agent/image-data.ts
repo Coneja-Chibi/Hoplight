@@ -11,6 +11,7 @@
  * name. Browsers mostly cope; "mostly" is not a contract, and the four magic numbers below are the
  * whole of what any of these sources can produce.
  */
+import { bytesToBase64 } from "../../core/base64";
 
 /**
  * KIT'S OWN CEILING, and it is deliberately not smaller.
@@ -61,5 +62,5 @@ export function imageDataUrl(bytes: Uint8Array, declared?: string): string | nul
   const sniffed = sniffImageMime(bytes);
   if (!sniffed) return null;
   const mime = declared === sniffed ? declared : sniffed;
-  return `data:${mime};base64,${Buffer.from(bytes).toString("base64")}`;
+  return `data:${mime};base64,${bytesToBase64(bytes)}`;
 }

@@ -13,6 +13,7 @@ import type { CSSProperties, JSX, ReactNode } from "react";
 import type { StudioSettings } from "../../studio/settings-shape";
 import type { SetupContext, SetupDraft, SetupOption, SetupStep } from "./step-contract";
 import { defaultValue, isPressed, nextMultiSelection, optionValue, progressLabel, sentencePlan } from "./wizard-core";
+import { assetUrl } from "../_shared/asset-url";
 
 export interface SetupWizardProps {
   ctx: SetupContext;
@@ -159,7 +160,7 @@ async function loadSteps(ctx: SetupContext): Promise<LoadedStep[]> {
   const ids = (await (await fetch("/api/setup/steps")).json()) as string[];
   const loaded = await Promise.all(
     ids.map(async (id): Promise<LoadedStep> => {
-      const mod = (await import(`/setup/steps/${id}.js`)) as { default: SetupStep };
+      const mod = (await import(assetUrl(`setup/steps/${id}.js`))) as { default: SetupStep };
       return { step: mod.default, options: await mod.default.options(ctx) };
     }),
   );

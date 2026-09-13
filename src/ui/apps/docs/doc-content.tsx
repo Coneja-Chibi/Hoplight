@@ -2,6 +2,7 @@
 import { useEffect, useMemo, type JSX } from "react";
 import type { DocFigure, DocRecord } from "../../docs-types";
 import { requestExternal } from "../../_shared/link-gate";
+import { docAssetUrl } from "../../_shared/asset-url";
 import { RenderBox } from "../../components/render-box";
 import { displayDocTitle, prepareDocSegments, targetFromAppHref } from "./docs-core";
 import styles from "./styles.module.css";
@@ -56,7 +57,7 @@ export function DocContent({ doc, docs, figures, body, anchor, loading, onPick }
             ) : (
               <figure className={styles.figure} key={`${segment.path}-${index}`}>
                 <img
-                  src={`/api/docs/asset?path=${encodeURIComponent(segment.path)}`}
+                  src={docAssetUrl(segment.path)}
                   alt={segment.alt}
                   width={segment.width}
                   height={segment.height}

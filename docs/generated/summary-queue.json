@@ -2,7 +2,7 @@
   "generated": "2026-09-13",
   "targetChars": 90000,
   "totalPages": 115,
-  "totalSourceChars": 1056593,
+  "totalSourceChars": 1059344,
   "batches": [
     {
       "id": "batch-001",
@@ -290,7 +290,7 @@
     },
     {
       "id": "batch-003",
-      "sourceChars": 74906,
+      "sourceChars": 75552,
       "pages": [
         {
           "docId": "guide/platforms/sillytavern",
@@ -345,7 +345,7 @@
           "sourcePath": "docs/reference/architecture.md",
           "sidecarPath": "docs/summaries/reference/architecture.json",
           "sectionCount": 12,
-          "sourceChars": 17535,
+          "sourceChars": 18181,
           "status": "APPROVED"
         },
         {
@@ -920,14 +920,14 @@
     },
     {
       "id": "batch-012",
-      "sourceChars": 80631,
+      "sourceChars": 81271,
       "pages": [
         {
           "docId": "reference/security/regex-safety",
           "sourcePath": "docs/reference/security/regex-safety.md",
           "sidecarPath": "docs/summaries/reference/security/regex-safety.json",
           "sectionCount": 8,
-          "sourceChars": 18327,
+          "sourceChars": 18478,
           "status": "APPROVED"
         },
         {
@@ -951,7 +951,7 @@
           "sourcePath": "docs/reference/security/script-sandbox.md",
           "sidecarPath": "docs/summaries/reference/security/script-sandbox.json",
           "sectionCount": 8,
-          "sourceChars": 13088,
+          "sourceChars": 13577,
           "status": "APPROVED"
         },
         {
@@ -966,7 +966,7 @@
     },
     {
       "id": "batch-013",
-      "sourceChars": 74196,
+      "sourceChars": 75661,
       "pages": [
         {
           "docId": "reference/security/untrusted-content",
@@ -980,8 +980,8 @@
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
-          "sectionCount": 21,
-          "sourceChars": 51755,
+          "sectionCount": 22,
+          "sourceChars": 53220,
           "status": "APPROVED"
         },
         {

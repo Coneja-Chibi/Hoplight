@@ -8,6 +8,21 @@
 import { describe, expect, test } from "bun:test";
 import { runLuaSandboxed } from "./run-in-worker";
 
+test("static Pages refuses Lua before creating a same-origin worker", async () => {
+  const scope = globalThis as typeof globalThis & { document?: Document };
+  const prior = scope.document;
+  scope.document = {
+    querySelector: () => ({ getAttribute: () => "browser" }),
+  } as unknown as Document;
+  try {
+    const res = await runLuaSandboxed("return 42");
+    expect(res.result).toMatchObject({ ok: false, message: expect.stringContaining("isolated sandbox origin") });
+  } finally {
+    if (prior) scope.document = prior;
+    else Reflect.deleteProperty(scope, "document");
+  }
+});
+
 describe("worker card runner: the real kill switch", () => {
   test("a normal script returns its value through the worker", async () => {
     const res = await runLuaSandboxed("return 2 + 40");

@@ -8,11 +8,12 @@ import { createRoot } from "react-dom/client";
 import { App } from "./shell/App";
 import { ShellErrorBoundary } from "./shell/error-boundary";
 import { useShellStore } from "./shell/store";
+import { webStorage } from "./_shared/web-storage";
 
 // pre-paint cache: paint the last-known theme SYNCHRONOUSLY, before the settings fetch resolves,
 // so a dark-theme user never flashes paper on reload (settings.json stays the truth; App's boot
 // effect repaints from it once fetched - this is only the guess for the first frame)
-const cachedTheme = localStorage.getItem("vaude.theme");
+const cachedTheme = webStorage("local")?.getItem("vaude.theme");
 if (cachedTheme === "paper" || cachedTheme === "stage") document.documentElement.dataset.theme = cachedTheme;
 
 // plain .ts (no JSX): createElement keeps this the one non-TSX file in the React tree

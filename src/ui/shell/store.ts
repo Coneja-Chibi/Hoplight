@@ -9,8 +9,7 @@
  * `ctx.workbench` and `ctx.prefs` (app-contract.ts) are thin adapters over this store's actions and
  * selectors, so app code and shell chrome read state the ONE way CONTRACT V2 requires.
  *
- * Loading the app MODULE behind an id is deliberately NOT store state (a HoplightApp export is not
- * serializable): App.tsx keeps its own module cache and effect keyed on `activeAppId`.
+ * App modules stay in App.tsx because they are not serializable store state.
  */
 import { create } from "zustand";
 import type { MenuItem, MenuTarget, OpenMenu } from "./menus";
@@ -20,6 +19,7 @@ import type { AppManifestEntry, StudioEntitySummary } from "../app-contract";
 import { apiFetchJson } from "../_shared/api-fetch";
 import { deepAccent } from "../_shared/color-math";
 import { ACTIVE_APP_KEY } from "../_shared/window-memory";
+import { webStorage } from "../_shared/web-storage";
 import {
   besideKeys,
   focusKeys,
@@ -141,7 +141,7 @@ interface ShellState {
 
 function paintTheme(t: Theme, houseAccent?: string): void {
   document.documentElement.dataset.theme = t;
-  localStorage.setItem(THEME_CACHE_KEY, t); // pre-paint cache only; settings.json is the truth
+  webStorage("local")?.setItem(THEME_CACHE_KEY, t); // pre-paint cache only; settings.json is the truth
   if (houseAccent) {
     document.documentElement.style.setProperty("--accent", houseAccent);
     // text-bearing accent fills read --accent-deep; a bright pick must not break their labels
@@ -153,7 +153,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
   settings: parseSettings(null),
   // guarded: this initializer runs at module eval, which also happens in DOM-less contexts
   // (the desktop bake imports app modules to read manifests) - there the cache simply misses
-  theme: (typeof localStorage !== "undefined" ? (localStorage.getItem(THEME_CACHE_KEY) as Theme | null) : null) ?? "paper",
+  theme: (webStorage("local")?.getItem(THEME_CACHE_KEY) as Theme | null) ?? "paper",
   manifests: [],
   activeAppId: "",
   openPieces: [],
@@ -265,7 +265,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
     // Session-scoped memory of where you are: a dev reload (or any full reload) lands you back on
     // THIS app instead of dumping you on home - the "spits me out on the workbench" complaint.
     try {
-      sessionStorage.setItem(ACTIVE_APP_KEY, m.id);
+      webStorage("session")?.setItem(ACTIVE_APP_KEY, m.id);
     } catch {
       // storage unavailable (privacy mode) - reloads fall back to home, which is survivable
     }

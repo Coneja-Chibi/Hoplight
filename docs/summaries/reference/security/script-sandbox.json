@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "docId": "reference/security/script-sandbox",
   "sourcePath": "docs/reference/security/script-sandbox.md",
-  "sourceHash": "sha256:db19fe6d971f8112b36999219f6a286fb70807ee38837fd94a6abd877607761c",
-  "summary": "How Hoplight runs untrusted card scripts only when the operator deliberately stages them on the Workshop Test Bench, never on import. Layered sandbox: terminable worker, distinct loopback origin, value-only versioned wire protocol, resource budgets that clamp downward only. Scripts are data until staged: classifier and import receipt save text and never auto-run. Worker isolation is the kill switch: per-run Worker with host terminate and in-VM functionTimeout; same-origin worker is availability not origin boundary; stale runId responses dropped. Distinct sandbox origin ADR-009 serves only worker and wasm glue, never api or session token; readSandboxOrigin requires http 127.0.0.1; same-origin fallback is degraded not claimed isolated; origin code is defense-in-depth not evidence of a current exploit. Wire protocol version 1 is value-only with key allowlists and FORBIDDEN_KEYS including credentials and prototype keys; token never on the wire. Resource budgets RELEASE_LUA_LIMITS clamp never upward across host worker and engine; over-budget yields resource result without allocating attacker-sized state. Lua engine hardening deny by absence: openStandardLibs false, SAFE_LIBS only, STRIPPED_GLOBALS removed, no DOM fetch filesystem network. Privileged lowLevelAccess flag is a warning never an execution trigger. What is not yet proven: packaged WebView2 origin probe and related measures not run; do not claim full sandbox isolation until ADR-009 matrix is green; token and resource quotas are load-bearing proven layers.",
+  "sourceHash": "sha256:742010220b2c0e77a809a1a4ebe68f9aeeca828dd66282817db99f73a0d68546",
+  "summary": "How installed Hoplight runs untrusted card scripts only when the operator deliberately stages them on the Workshop Test Bench, never on import. Static GitHub Pages keeps script text editable but refuses execution before worker creation and omits worker and wasm artifacts because it cannot provide ADR-009's separate loopback origin. Installed execution layers a terminable worker, distinct loopback origin, value-only versioned protocol, and downward-only resource budgets. Worker termination and in-VM functionTimeout form the kill switch; stale runId responses are dropped. The sandbox origin serves only workers and wasm, never api or the session token; missing metadata is a degraded same-origin fallback outside Pages. The value-only wire uses key allowlists and forbidden credential/prototype keys. Lua opens SAFE_LIBS only, strips host-reaching globals, and exposes no DOM, fetch, filesystem, or network. lowLevelAccess is a warning, never a trigger. Packaged WebView2 origin measurements remain incomplete, so full isolation is not claimed.",
   "topics": [
     "Lua Test Bench only",
     "never run on import",
@@ -22,7 +22,7 @@
       "title": "Scripts are data until you stage them",
       "level": 2,
       "sourceHash": "sha256:c9927c72b01add9f1490d14c8a9b7d3d0648e4222704582a9fed6847fb55e2c0",
-      "summary": "Card behavior rows are classified never executed. The classifier core splits a condition or effect row into a known or advanced shape and nothing more: nothing here executes anything; rows are data. The import receipt tells the operator the same: a card that carries scripts is flagged and the scripts are saved as text and will never run unless you put them on the test stage.",
+      "summary": "Card behavior rows are classified, never executed. The classifier only splits a condition or effect into known or advanced data, and import receipts state that scripts are saved as text rather than auto-run. Installed Hoplight can run them only after deliberate staging on the Workshop Test Bench. Static GitHub Pages preserves editing but refuses execution because it has no separate sandbox origin.",
       "topics": [
         "rows are data",
         "never execute on import",
@@ -36,7 +36,7 @@
       "slug": "worker-isolation-the-kill-switch",
       "title": "Worker isolation (the kill switch)",
       "level": 2,
-      "sourceHash": "sha256:a72f945a1589eda81be687accccf24041892faf2d3756a0d9dde147b21643199",
+      "sourceHash": "sha256:ddb29d2bbeaafac161e07d2a6c8374601715aebac6ed8d37a2920f5e11b648ca",
       "summary": "Each run happens in its own Worker and the real stop mechanism is termination. runLuaSandboxed is documented never hang never throw: it spawns a module worker, arms a host wall-clock timer, and on completion or deadline calls worker.terminate before resolving. If the deadline fires first the worker is terminated mid-run and the result is timeout. Timeout is enforced twice: inside the VM wasmoon functionTimeout aborts a pure-Lua infinite loop with LuaTimeoutError; outside the host timer terminates the whole worker thread regardless of what Lua is doing. Per ADR-009 a same-origin worker is an availability boundary killable thread not an origin boundary; the termination path holds independently of the origin question. Each run carries a monotonic run id; a response whose runId does not match the run in flight is dropped as stale or spoofed generation.",
       "topics": [
         "worker.terminate kill",
@@ -51,8 +51,8 @@
       "slug": "the-distinct-sandbox-origin-adr-009",
       "title": "The distinct sandbox origin (ADR-009)",
       "level": 2,
-      "sourceHash": "sha256:876ba31cc3e6cbb92f92a209b2134240478f08bd164cf8f368633d25de0cd3de",
-      "summary": "Worker bundle and wasm glue are served from a second loopback listener on an ephemeral port, a distinct origin from the UI and api paths. That sandbox-only server serves only GET sandbox worker.js, regex-worker.js, and glue.wasm and must not expose api, studio paths, index HTML carrying the session token, or source maps. Sandbox origin is published as meta vaude-sandbox-origin; per-launch API token stays only in meta vaude-session and trusted apiFetch. readSandboxOrigin accepts a value only when it starts with http://127.0.0.1. workerHref loads from that origin when present; when meta is absent it falls back to same-origin sandbox worker.js marked degraded not claimed isolated. Intent is blast-radius reduction if a future bug exposed web capabilities; defense-in-depth not evidence of a current same-origin exploit. Distinct-origin design is real and tested at Bun HTTP and handler layer but not yet measured in packaged WebView2; that gap is stated fully under what is not yet proven.",
+      "sourceHash": "sha256:f9e8719b4b732cf312706829844f9eae440d84ff3f47f5f869d79e0e4f184c90",
+      "summary": "Installed Hoplight serves worker bundles and wasm from a second ephemeral loopback listener, distinct from the UI and api origin. That server allowlists only the Lua worker, regex worker, and glue wasm; it excludes api routes, studio paths, token-bearing HTML, and source maps. The UI receives the origin through vaude-sandbox-origin while the API token stays in vaude-session and trusted apiFetch. readSandboxOrigin accepts only http loopback values. Missing metadata retains a degraded same-origin fallback outside Pages. Static Pages is explicitly different: its runtime marker refuses before worker resolution, and its build omits worker and wasm artifacts. The distinct origin reduces future blast radius but packaged WebView2 measurements remain incomplete.",
       "topics": [
         "ephemeral sandbox origin",
         "only worker wasm routes",
@@ -67,7 +67,7 @@
       "slug": "the-wire-protocol-versioned-value-only",
       "title": "The wire protocol (versioned, value only)",
       "level": 2,
-      "sourceHash": "sha256:ed11eb53a530d8db8bca8f230437945b45ed3ec1325a43f3aefc56de2e287688",
+      "sourceHash": "sha256:4cc9e50fa48e877d8c2006f6f648474328fe9ab05d42e1d91f68db1e27183c46",
       "summary": "Only JSON-like values cross the worker boundary. Protocol is a versioned tagged union SANDBOX_PROTOCOL_VERSION 1; wrong version is rejected. Every message is runtime-validated both ways and fails closed on any schema violation via parseRunRequest and parseRunResponse. Three checks: value-only assertJsonLike allows null finite numbers strings booleans arrays and plain objects only and rejects functions symbols bigint undefined non-finite non-plain prototypes and nesting deeper than 32 so no functions DOM handles ports proxies object URLs or app objects ride across; key allowlists per message type via assertAllowlistKeys with state restricted to chatVars chat meta log; credential keys forbidden including token authorization cookie password secret vaude-session bearer and siblings plus assertNoForbiddenKeys against __proto__ constructor prototype. Before post the host runs messageContainsForbiddenKeys as a second pass and refuses to send. API token is never placed on a message and the protocol has no field that could carry it, enforced by construction and unit-tested per ADR-009.",
       "topics": [
         "SANDBOX_PROTOCOL_VERSION 1",
@@ -83,7 +83,7 @@
       "slug": "resource-budgets-clamped-never-upward",
       "title": "Resource budgets (clamped, never upward)",
       "level": 2,
-      "sourceHash": "sha256:2f27980a2a2a47364bf2bc37f0304d94111a4c2ca098affa01fb78e597cdcc17",
+      "sourceHash": "sha256:593dc74b17dd8018345718d4c14f07bf57947c80dac5ec8aa7885cbd118a3404",
       "summary": "RELEASE_LUA_LIMITS is the authoritative ceiling: wall-clock timeout 5000 ms, Lua heap 64 MiB via setMemoryMax, script source 2 MiB, request and response wire 4 MiB each, aggregate host state 2 MiB with per-field caps under it. Byte caps are UTF-8 via TextEncoder inclusive: exactly maxBytes accepted, maxBytes plus one rejected. Heap is VM-only so separate source wire and host-state caps exist for host JS. Budgets clamp downward only: resolveLuaRunLimits merges overrides under the release ceiling via clampInt so higher requests clamp to max and lower adversarial values pass; missing fields take release defaults. Clamp applies independently at three layers so a hostile postMessage cannot raise a ceiling: host before send, worker re-resolve documented re-clamped, engine again when built. Worker runs Lua on the same authoritative deadline as the host kill switch with no 120s leash above release max. Enforcement at edges: source host-state and request wire asserted before post, re-asserted in worker, response wire before parent accept. Over-budget yields bounded resource result with machine reason and never allocates attacker-sized state first.",
       "topics": [
         "RELEASE_LUA_LIMITS ceiling",
@@ -130,8 +130,8 @@
       "slug": "what-is-not-yet-proven",
       "title": "What is not yet proven",
       "level": 2,
-      "sourceHash": "sha256:65ffed32e023ec5a97999d37da2315fc57ff833fcad444edf004e409b3c25ac4",
-      "summary": "Mirrors the codebase STOP honesty posture; do not read anything above as a claim of full isolation. Proven and enforced: worker kill switch host terminate plus in-VM timeout, three-layer resource clamp and byte caps, value-only wire protocol both ways, absence of any token field on the wire, and sandbox-host handler allowlist worker and wasm only with api and traversal 404. ADR-009 records these as automated. Not yet measured per ADR-009 table: packaged WebView2 origin probe not run in this implementation pass; self.crossOriginIsolated and storage visibility not measured; credentialed API fetch from sandbox-origin worker in packaged host not measured. Because of those gaps, distinct-origin isolation is implemented and tested only at Bun HTTP and handler layer, and same-origin fallback is degraded not isolated. ADR-009 conclusion: packaged-host proof remains BLOCKED and do not claim full sandbox isolation until that matrix is green. Origin-isolation code ships as defense-in-depth scaffolding; token layer Plan 005 and resource quotas Plan 016 are the load-bearing proven layers and origin isolation is additive on top.",
+      "sourceHash": "sha256:08eb415d3552a409696f6df344d35f4713b83039c5f48abc1a12a06bfb225cc1",
+      "summary": "No full-isolation claim is made. Proven layers are worker termination plus in-VM timeout, three-layer resource clamps and byte caps, the value-only protocol, absence of token fields, and the sandbox-host allowlist with api and traversal refused. Not yet measured are the packaged WebView2 origin probe, crossOriginIsolated and storage visibility, and a credentialed API fetch from the packaged sandbox worker. The distinct origin is tested at Bun HTTP and handler boundaries only; missing-origin fallback is degraded, while static Pages refuses before execution. ADR-009 therefore keeps packaged-host proof BLOCKED. Token and resource controls remain load-bearing; origin separation is additive defense in depth.",
       "topics": [
         "no full isolation claim",
         "WebView2 probe not run",

@@ -2,6 +2,24 @@
 import { expect, test } from "bun:test";
 import { runRegexSandboxed } from "./run-in-worker";
 
+test("static Pages refuses regex before creating a same-origin worker", async () => {
+  const scope = globalThis as typeof globalThis & { document?: Document };
+  const prior = scope.document;
+  scope.document = {
+    querySelector: () => ({ getAttribute: () => "browser" }),
+  } as unknown as Document;
+  try {
+    const result = await runRegexSandboxed("sample", [], {
+      phase: "output",
+      workerFactory: () => { throw new Error("must not start"); },
+    });
+    expect(result).toMatchObject({ ok: false, error: expect.stringContaining("isolated sandbox origin") });
+  } finally {
+    if (prior) scope.document = prior;
+    else Reflect.deleteProperty(scope, "document");
+  }
+});
+
 test("terminates an unresponsive worker at the hard deadline", async () => {
   let terminated = false;
   const worker = {

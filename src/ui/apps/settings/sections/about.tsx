@@ -19,7 +19,7 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
   const [installed, setInstalled] = useState("");
   const [studioDir, setStudioDir] = useState("");
   // how this studio runs decides the update PRESCRIPTION: exe downloads, checkout pulls
-  const [mode, setMode] = useState<"packaged" | "source">("packaged");
+  const [mode, setMode] = useState<"packaged" | "source" | "browser">("packaged");
   const [status, setStatus] = useState<UpdateStatus | { state: "idle" } | { state: "checking" }>({
     state: "idle",
   });
@@ -32,7 +32,7 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
         if (cancelled) return;
         setInstalled(v.version);
         if (typeof v.studioDir === "string") setStudioDir(v.studioDir);
-        if (v.mode === "source") setMode("source");
+        if (v.mode === "source" || v.mode === "browser") setMode(v.mode);
       })
       .catch(() => {});
     return () => {
@@ -58,6 +58,8 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
         : status.state === "available"
           ? mode === "source"
             ? `${status.latest.version} is out. Your checkout updates with: git pull (then bun install).`
+            : mode === "browser"
+              ? `${status.latest.version} is out. Reload this page after the hosted build updates.`
             : `${status.latest.version} is out.`
           : status.state === "none"
             ? "No published releases yet."
@@ -69,17 +71,23 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
     <>
       <SettingsRow
         label="Updates"
-        hint={`Version ${installed || "?"}, ${mode === "source" ? "running from source" : "installed app"}. Checks GitHub only when you press the button; nothing runs on its own.`}
+        hint={mode === "browser"
+          ? `Version ${installed || "?"}, temporary browser studio. The hosted build updates when Hoplight deploys it.`
+          : `Version ${installed || "?"}, ${mode === "source" ? "running from source" : "installed app"}. Checks GitHub only when you press the button; nothing runs on its own.`}
       >
         <div className={styles.plates}>
-          <button
-            type="button"
-            className={styles.plate}
-            disabled={status.state === "checking"}
-            onClick={() => void check()}
-          >
-            Check for updates
-          </button>
+          {mode === "browser" ? (
+            <span className={styles.statusNote}>Reload after a new hosted version is deployed.</span>
+          ) : (
+            <button
+              type="button"
+              className={styles.plate}
+              disabled={status.state === "checking"}
+              onClick={() => void check()}
+            >
+              Check for updates
+            </button>
+          )}
           {status.state === "available" && (
             <button
               type="button"
@@ -97,9 +105,9 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
 
       <SettingsRow
         label="Your studio folder"
-        hint="Every piece is a plain JSON file here. Back this folder up and you have backed up everything."
+        hint={mode === "browser" ? "This studio exists only in this page. Export work before reloading or closing it." : "Every piece is a plain JSON file here. Back this folder up and you have backed up everything."}
       >
-        <span className={styles.pathNote}>{studioDir || "(shown once the studio answers)"}</span>
+        <span className={styles.pathNote}>{mode === "browser" ? "Tab memory only" : studioDir || "(shown once the studio answers)"}</span>
       </SettingsRow>
 
       <SettingsRow label="Project" hint="Open source under AGPL-3.0. Bugs and wishes welcome.">
@@ -117,7 +125,7 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
         </div>
       </SettingsRow>
 
-      <LifecycleRow ctx={ctx} />
+      {mode !== "browser" && <LifecycleRow ctx={ctx} />}
     </>
   );
 }

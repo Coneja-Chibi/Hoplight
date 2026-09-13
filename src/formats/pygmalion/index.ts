@@ -12,6 +12,7 @@ import { buildSerializeReport } from "../../core/reports";
 import { readCardJson } from "../_shared/card-io";
 import { getVersion, pngSourceMedia, embedCardPng } from "../_shared/png";
 import coverage, { jsonCoverage } from "./coverage";
+import { base64ToBytes, bytesToBase64 } from "../../core/base64";
 
 type Rec = Record<string, unknown>;
 
@@ -122,9 +123,8 @@ function portraitPngBytes(body: CharacterBody): Uint8Array | null {
   const encoded = match?.[1];
   if (!encoded || encoded.length % 4 !== 0 || !CANONICAL_BASE64.test(encoded)) return null;
   try {
-    const decoded = Buffer.from(encoded, "base64");
-    if (decoded.toString("base64") !== encoded) return null;
-    const bytes = new Uint8Array(decoded);
+    const bytes = base64ToBytes(encoded);
+    if (bytesToBase64(bytes) !== encoded) return null;
     return pngSourceMedia(bytes) ? bytes : null;
   } catch {
     return null;

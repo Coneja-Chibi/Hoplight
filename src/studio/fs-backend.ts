@@ -2,7 +2,8 @@
  * StudioFs - the ONE seam between the studio store and a real filesystem. The store's logic
  * (containment, stamping, keep-both, atomicity EXPECTATIONS) is backend-blind; each backend folds
  * its platform's error codes into these semantics. Backends: nodeStudioFs (desktop/CLI, wraps
- * atomic-file), memoryStudioFs (tests), and the OPFS twin for the pocket build (src/studio/opfs/).
+ * atomic-file), memoryStudioFs (tests and volatile Pages), and the unused OPFS implementation
+ * reserved for a future persistent browser host (src/studio/opfs/).
  */
 import {
   mkdir,

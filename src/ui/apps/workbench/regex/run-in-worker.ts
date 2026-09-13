@@ -4,6 +4,7 @@
  */
 import type { RegexRunOptions, RegexRunResult } from "../../../../core/regex";
 import type { RegexRule } from "../../../../entities/regex/schema";
+import { isBrowserStudio } from "../../../../browser-mode";
 
 const HARD_TIMEOUT_MS = 750;
 let runSequence = 0;
@@ -23,7 +24,7 @@ const workerHref = (): string => {
   if (typeof document !== "undefined") {
     const origin = document.querySelector('meta[name="vaude-sandbox-origin"]')?.getAttribute("content")?.trim();
     if (origin?.startsWith("http://127.0.0.1:")) return `${origin.replace(/\/$/, "")}/sandbox/regex-worker.js`;
-    return "/sandbox/regex-worker.js";
+    return new URL("sandbox/regex-worker.js", document.baseURI).href;
   }
   return new URL("../../../../sandbox/regex/worker.ts", import.meta.url).href;
 };
@@ -34,6 +35,13 @@ export function runRegexSandboxed(
   rules: readonly RegexRule[],
   options: RegexSandboxOptions,
 ): Promise<RegexSandboxResult> {
+  if (isBrowserStudio()) {
+    return Promise.resolve({
+      ok: false,
+      reason: "error",
+      error: "Regex execution needs the installed Hoplight app so it can run on an isolated sandbox origin.",
+    });
+  }
   const runId = ++runSequence;
   const deadline = Math.max(1, Math.min(options.hardTimeoutMs ?? HARD_TIMEOUT_MS, HARD_TIMEOUT_MS));
   const { signal, hardTimeoutMs: _hardTimeoutMs, workerFactory, ...wireOptions } = options;

@@ -114,8 +114,10 @@ function assertContained(rootAbs: string, candidateAbs: string): void {
   if (rel.startsWith("..") || rel.startsWith(`..${sep}`)) {
     throw new StudioValidationError("path escapes studio root");
   }
-  // Windows absolute relative() yields absolute when on another drive
-  if (resolve(rel) === rel && rel.includes(":")) {
+  // Windows relative() yields an absolute path when the two inputs sit on different drives.
+  // Detect that shape directly: resolve(rel) consults process.cwd(), which a static browser has no
+  // reason to emulate and which is unnecessary for a drive-qualified value.
+  if (/^[A-Za-z]:[\\/]/.test(rel) || rel.startsWith("\\\\")) {
     throw new StudioValidationError("path escapes studio root");
   }
 }

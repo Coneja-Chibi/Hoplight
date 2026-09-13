@@ -4,13 +4,6 @@
  * TopBar, TabStrip, the active app's canvas, StatusBar) plus the follow dialog and context menu.
  * Owns the shell-owned menu providers (entity/app/shell) and the loaded-app-module cache - the
  * module itself is NOT store state (not serializable), so it lives in a ref here.
- *
- * SETUP SEAM (owned by the setup-conversion agent): src/ui/setup/wizard.ts converts its vanilla
- * `runSetup` into a React component named `SetupWizard` matching:
- *   (props: { ctx: SetupContext; existing: StudioSettings; onComplete: (s: StudioSettings) => void })
- *     => ReactNode
- * Until that lands, the import below is a listed, owned tsc error (NO-ROT: this file never wraps
- * the vanilla wizard in a compatibility shim).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
@@ -44,6 +37,8 @@ import {
 import { parseLaunchTarget } from "../_shared/launch-target";
 import { ACTIVE_APP_KEY } from "../_shared/window-memory";
 import { BootErrorScreen } from "./BootErrorScreen";
+import { assetUrl } from "../_shared/asset-url";
+import { webStorage } from "../_shared/web-storage";
 
 type Phase = "loading" | "setup" | "ready" | "boot-error";
 
@@ -107,7 +102,7 @@ export function App(): JSX.Element | null {
     // every source save while the studio is open dumped the user back on the workbench.
     let remembered: AppManifestEntry | undefined;
     try {
-      const id = sessionStorage.getItem(ACTIVE_APP_KEY);
+      const id = webStorage("session")?.getItem(ACTIVE_APP_KEY);
       remembered = id ? manifestList.find((m) => m.id === id && !m.comingSoon) : undefined;
     } catch {
       remembered = undefined;
@@ -210,7 +205,7 @@ export function App(): JSX.Element | null {
       // A failed chunk load (stale hash, network blip) must say so: unguarded, the dock highlights
       // the new app while the canvas sits empty.
       try {
-        const mod = (await import(`/apps/${activeAppId}.js`)) as { default: HoplightApp };
+        const mod = (await import(assetUrl(`apps/${activeAppId}.js`))) as { default: HoplightApp };
         modulesRef.current.set(activeAppId, mod.default);
         if (!cancelled) {
           mountedAppId.current = activeAppId;
@@ -238,7 +233,7 @@ export function App(): JSX.Element | null {
       for (const m of manifests) {
         if (cancelled || m.comingSoon || modulesRef.current.has(m.id)) continue;
         try {
-          const mod = (await import(`/apps/${m.id}.js`)) as { default: HoplightApp };
+          const mod = (await import(assetUrl(`apps/${m.id}.js`))) as { default: HoplightApp };
           modulesRef.current.set(m.id, mod.default);
         } catch {
           // prefetch is best-effort; the on-demand path above still owns the honest failure story
@@ -272,7 +267,7 @@ export function App(): JSX.Element | null {
         let cachedTour = toursRef.current.get(id);
         if (cachedTour === undefined) {
           try {
-            const mod = (await import(`/tours/${id}.js`)) as { default: Tour };
+            const mod = (await import(assetUrl(`tours/${id}.js`))) as { default: Tour };
             cachedTour = isRunnable(mod.default) ? mod.default : null;
           } catch {
             cachedTour = null; // no tour under this id (a 404) - the common case, not an error

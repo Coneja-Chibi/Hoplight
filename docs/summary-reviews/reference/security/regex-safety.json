@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/security/regex-safety",
   "sourcePath": "docs/reference/security/regex-safety.md",
-  "sourceHash": "sha256:3fff3f463fffcf9fdef82daf0ee27d36e54aa69197257df9c0a92c751dffe58b",
-  "semanticSummaryHash": "sha256:732d04c9975ccc3735660ebeb9c52fbff52bdb12bdbf6c9d8d0f044c1df4c7da",
+  "sourceHash": "sha256:b62aa89b12b94a489b5ad56f8cb8d518f1df81fe3923eb5fae26c29731752ed9",
+  "semanticSummaryHash": "sha256:a4f0e4a8b1e30dc5eb42a02a47423301cc3bd0767e8c9d79f2d1e135368b0202",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
-  "reviewedAt": "2026-07-25T15:30:50.220Z"
+  "reviewer": "pages-adversarial-review",
+  "notes": "Independent source and sidecar review: Pages refusal and installed worker boundaries are accurate.",
+  "reviewedAt": "2026-09-13T16:55:30.194Z"
 }
