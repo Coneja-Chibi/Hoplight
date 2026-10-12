@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-13",
+  "generated": "2026-10-12",
   "count": 115,
   "pages": [
     {
@@ -438,9 +438,9 @@
       "docId": "reference/entities/character",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:c5902ada0d8026f625b89b86931f2e1c7c65ca9665c406a446f9af6789f7c5a5",
-      "semanticSummaryHash": "sha256:2b3ef43c3a66c210254127e5620e28858bf37c98c183fb53f0e669fde0276f1a"
+      "reviewer": "warren-independent-sa-0-9d7ffae9",
+      "sourceHash": "sha256:f46d6e1d6c78a4890aa826a03f891f9ff0e83057dce50b754b62d4d5f430c295",
+      "semanticSummaryHash": "sha256:d136bb3a6e705d89b5a04e3fdf27b5b15db7775a632a41f804df0dfe480ca54b"
     },
     {
       "docId": "reference/entities/htmldoc",

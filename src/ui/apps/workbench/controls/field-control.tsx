@@ -133,8 +133,8 @@ export function makeControlFor(ctx: FieldCtx): FieldControlApi {
 
   const greetingsBodyFor = (path: string): JSX.Element => {
     const rows = greetingsOf(draft, path);
-    const setRows = (next: Greeting[]): void =>
-      setField(path, next.filter((g) => g.text !== "" || (g.title ?? "") !== "" || g.id !== undefined));
+    // Blank rows stay editable; only the Remove button deletes a greeting.
+    const setRows = (next: Greeting[]): void => setField(path, next);
     return (
       <>
         {rows.map((g, i) => (

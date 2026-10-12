@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/entities/character",
   "sourcePath": "docs/reference/entities/character.md",
-  "sourceHash": "sha256:c5902ada0d8026f625b89b86931f2e1c7c65ca9665c406a446f9af6789f7c5a5",
+  "sourceHash": "sha256:f46d6e1d6c78a4890aa826a03f891f9ff0e83057dce50b754b62d4d5f430c295",
   "summary": "Character entity is the field-meaning authority for CanonicalCharacter as CanonicalEntity character CharacterBody, with schema.ts owning types and this page owning what each field means and which formats produce it. How to read the field tables explains generated Field Type Producers Meaning cells from docs-fields. Composition lists eight always-present groups and optional presentation settings behavior plus bias worldName knowledgeRefs behaviorRefs variants. Identity covers name nickname and RoleCall casting attributes. Persona and voice holds personality scenario appearance Voice ImagePrompt and structured encodings. Prompts and injections covers system postHistory depth prefill additionalText and DepthInjection. Greetings and examples covers firstMessage alternate group greetings and mes_example. Media covers portrait assets Sprite visualKind faceLabel and MediaAsset. Presentation is casting-card color palette background spoilers. Settings and behavior first-classes dials and CharacterBehavior scripts never executed by converter. Attribution and discovery separates credit notes and ContentRating tags. Composition and variants defines body assembly links and CharacterVariant overlay. What rides escrow, not a field and See also close the map.",
   "topics": [
     "CharacterBody fields",
@@ -51,8 +51,8 @@
       "slug": "identity",
       "title": "Identity",
       "level": 2,
-      "sourceHash": "sha256:0e9172d24ed54e0e0d0ea2b495f9fa2509621d1535f56225fb57a01be3a6e32a",
-      "summary": "Identity is who the character is: required name plus authored attributes. char macro resolves to name; nickname from CCv3 Risu Backyard overrides display without changing canonical name. tagline is a short one-liner. description is the main CCv2/v3 persona block. characterVersion is unannotated version text. RoleCall adds fullName title age as free text never int pronouns. Agnai culture drives default language and voice selection. Together these separate display casting metadata from the portable name slot.",
+      "sourceHash": "sha256:a83a7c002c84c258fa9a5078a866f4c008a82defcbd947c0f62c2dc6ed016e5e",
+      "summary": "Identity is who the character is: required name plus authored attributes. nickname carries a platform's char macro override through CCv3 nickname or Risu/Backyard aiName without changing canonical name. tagline is a short one-liner. description is the main CCv2/v3 persona block. characterVersion is unannotated version text. RoleCall adds fullName title age as free text never int pronouns. Agnai culture drives default language and voice selection. Together these separate display casting metadata from the portable name slot.",
       "topics": [
         "name and nickname",
         "description persona block",
@@ -140,8 +140,8 @@
       "slug": "greetings-and-examples",
       "title": "Greetings and examples",
       "level": 2,
-      "sourceHash": "sha256:05ff6667a7769a59979d9a98d130c2d6704835d532120a9ad5a7d6e2f49568f3",
-      "summary": "Greetings and examples cover opening messages and example dialogue. firstMessage is the primary opening. alternateGreetings is an array of Greeting values. groupOnlyGreetings from CCv3 are group-chat-only and distinct from alternates. Greeting child is text plus optional title and format-local id for editing provenance that other writers drop, emitting only text and title. Examples child holds exampleMessages as the mes_example string slot.",
+      "sourceHash": "sha256:bf913f7312130461596eb6b464ee98fdfc15167c1e7d6f36f8792556413026da",
+      "summary": "Greetings and examples cover opening messages and example dialogue. firstMessage is the primary opening. alternateGreetings is an array of Greeting values. groupOnlyGreetings from CCv3 are group-chat-only and distinct from alternates. Workbench Add creates blank editable rows; clearing text or title keeps them, while Remove deletes them. Edits use the character's usual save flow. Greeting child is text plus optional title and format-local id for editing provenance that other writers drop, emitting only text and title. Examples child holds exampleMessages as the mes_example string slot.",
       "topics": [
         "firstMessage",
         "alternateGreetings",
@@ -272,8 +272,8 @@
       "slug": "settings-and-behavior",
       "title": "Settings and behavior",
       "level": 2,
-      "sourceHash": "sha256:d0ac87657f232f2d95f7dca449262c0f38bd5f8c45692e6a1bad177484c89114",
-      "summary": "Settings and behavior hold authored inline dials and on-card behavior. Converter and editor NEVER execute any behavior payload: no eval require or DOM injection; execution only inside a later capability sandbox. Behavior re-emits only on its own format wire and is never blind-copied across formats. talkativeness is SillyTavern group turn weight 0 to 1. risu groups single-platform display toggles. responseSchema is Agnai structured-output config carried editable likely migrating to Preset later. CharacterBehavior child first-classes regexScripts as RegexScript twin, triggerScripts virtualScript background markup defaultVariables prebuiltAsset moduleToggles and privileged as warning and sandbox gate never execution. TriggerScript child is event conditions effects state machine rows.",
+      "sourceHash": "sha256:5461775ee0d25bb29f609b031aef3a51e2a6c225d40263dadcb7e3527640ab38",
+      "summary": "Settings and behavior hold authored inline dials and on-card behavior. Import conversion and ordinary field editing NEVER execute imported scripts. User-invoked testing is separate: Workshop has a declarative trigger simulator and worker-based Lua bench; regex testing uses a terminable worker. Source paths do not prove packaged-host isolation; see ADR-009. Behavior re-emits only on its own format wire and is never blind-copied across formats. talkativeness is SillyTavern group turn weight 0 to 1. risu groups single-platform display toggles. responseSchema is Agnai structured-output config carried editable likely migrating to Preset later. CharacterBehavior child first-classes regexScripts as RegexScript twin, triggerScripts virtualScript background markup defaultVariables prebuiltAsset moduleToggles and privileged as warning and sandbox gate never execution. TriggerScript child is event conditions effects state machine rows.",
       "topics": [
         "never execute behavior",
         "talkativeness risu toggles",
@@ -376,8 +376,8 @@
       "slug": "what-rides-escrow-not-a-field",
       "title": "What rides escrow, not a field",
       "level": 2,
-      "sourceHash": "sha256:6aac5e6af574b86cf6048cfb5519125bbb94d880bbc75ffe313f13e5147b20dc",
-      "summary": "Anything a single source keeps without a canonical field stays in escrow formatId raw and survives same-format round-trip. Cross-format conversion carries only the canonical body so private app data never copies into another app file. Escrow riders include RoleCall private ids, unmapped SillyTavern extension keys, app-local layout state, and source bytes such as PNG pixels in sourceMedia served as portrait. Authored on-card behavior does NOT ride escrow because it is first-classed in behavior as CharacterBehavior editable data re-emitted only on its own format wire and never executed by converter or editor.",
+      "sourceHash": "sha256:7d98b17249252cc08b678eb1411d8855c7341ebaa7bd7e2b2ef577ed2e90031b",
+      "summary": "Anything a single source keeps without a canonical field stays in original[formatId].raw and survives same-format round-trip semantically. Byte identity requires an explicit format specification and fixture proof. Cross-format conversion carries only the canonical body so private app data never copies into another app file. Escrow riders include RoleCall private ids, unmapped SillyTavern extension keys, app-local layout state, and source bytes such as PNG pixels in sourceMedia served as portrait. Authored on-card behavior does NOT ride escrow because it is first-classed in behavior as CharacterBehavior editable data re-emitted only on its own format wire and never executed by converter or ordinary field editing.",
       "topics": [
         "escrow raw residue",
         "sourceMedia PNG",

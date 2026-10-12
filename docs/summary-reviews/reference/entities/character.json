@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/entities/character",
   "sourcePath": "docs/reference/entities/character.md",
-  "sourceHash": "sha256:c5902ada0d8026f625b89b86931f2e1c7c65ca9665c406a446f9af6789f7c5a5",
-  "semanticSummaryHash": "sha256:2b3ef43c3a66c210254127e5620e28858bf37c98c183fb53f0e669fde0276f1a",
+  "sourceHash": "sha256:f46d6e1d6c78a4890aa826a03f891f9ff0e83057dce50b754b62d4d5f430c295",
+  "semanticSummaryHash": "sha256:d136bb3a6e705d89b5a04e3fdf27b5b15db7775a632a41f804df0dfe480ca54b",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
-  "reviewedAt": "2026-07-25T15:35:30.073Z"
+  "reviewer": "warren-independent-sa-0-9d7ffae9",
+  "notes": "Independent agent sa-0-9d7ffae9 reviewed the complete source and sidecar. Greeting Add/clear/Remove lifecycle and existing save ownership match code; nickname retains platform-specific char override; inert import/conversion/ordinary editing are distinct from opt-in benches; no packaged-host isolation claim; original escrow and semantic round trips with explicit fixture-proven byte tiers match canonical authorities. All 22 field tables remain verbatim. Four pre-existing word-band-short warnings are non-blocking. Parent verified both exact hashes before recording this independent verdict.",
+  "reviewedAt": "2026-10-12T16:18:14.821Z"
 }

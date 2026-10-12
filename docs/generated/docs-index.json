@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-13",
+  "generated": "2026-10-12",
   "count": 115,
   "docs": [
     {
@@ -5491,7 +5491,7 @@
           "text": "Identity",
           "slug": "identity",
           "level": 2,
-          "summary": "Identity is who the character is: required name plus authored attributes. char macro resolves to name; nickname from CCv3 Risu Backyard overrides display without changing canonical name. tagline is a short one-liner. description is the main CCv2/v3 persona block. characterVersion is unannotated version text. RoleCall adds fullName title age as free text never int pronouns. Agnai culture drives default language and voice selection. Together these separate display casting metadata from the portable name slot.",
+          "summary": "Identity is who the character is: required name plus authored attributes. nickname carries a platform's char macro override through CCv3 nickname or Risu/Backyard aiName without changing canonical name. tagline is a short one-liner. description is the main CCv2/v3 persona block. characterVersion is unannotated version text. RoleCall adds fullName title age as free text never int pronouns. Agnai culture drives default language and voice selection. Together these separate display casting metadata from the portable name slot.",
           "topics": [
             "name and nickname",
             "description persona block",
@@ -5574,7 +5574,7 @@
           "text": "Greetings and examples",
           "slug": "greetings-and-examples",
           "level": 2,
-          "summary": "Greetings and examples cover opening messages and example dialogue. firstMessage is the primary opening. alternateGreetings is an array of Greeting values. groupOnlyGreetings from CCv3 are group-chat-only and distinct from alternates. Greeting child is text plus optional title and format-local id for editing provenance that other writers drop, emitting only text and title. Examples child holds exampleMessages as the mes_example string slot.",
+          "summary": "Greetings and examples cover opening messages and example dialogue. firstMessage is the primary opening. alternateGreetings is an array of Greeting values. groupOnlyGreetings from CCv3 are group-chat-only and distinct from alternates. Workbench Add creates blank editable rows; clearing text or title keeps them, while Remove deletes them. Edits use the character's usual save flow. Greeting child is text plus optional title and format-local id for editing provenance that other writers drop, emitting only text and title. Examples child holds exampleMessages as the mes_example string slot.",
           "topics": [
             "firstMessage",
             "alternateGreetings",
@@ -5692,7 +5692,7 @@
           "text": "Settings and behavior",
           "slug": "settings-and-behavior",
           "level": 2,
-          "summary": "Settings and behavior hold authored inline dials and on-card behavior. Converter and editor NEVER execute any behavior payload: no eval require or DOM injection; execution only inside a later capability sandbox. Behavior re-emits only on its own format wire and is never blind-copied across formats. talkativeness is SillyTavern group turn weight 0 to 1. risu groups single-platform display toggles. responseSchema is Agnai structured-output config carried editable likely migrating to Preset later. CharacterBehavior child first-classes regexScripts as RegexScript twin, triggerScripts virtualScript background markup defaultVariables prebuiltAsset moduleToggles and privileged as warning and sandbox gate never execution. TriggerScript child is event conditions effects state machine rows.",
+          "summary": "Settings and behavior hold authored inline dials and on-card behavior. Import conversion and ordinary field editing NEVER execute imported scripts. User-invoked testing is separate: Workshop has a declarative trigger simulator and worker-based Lua bench; regex testing uses a terminable worker. Source paths do not prove packaged-host isolation; see ADR-009. Behavior re-emits only on its own format wire and is never blind-copied across formats. talkativeness is SillyTavern group turn weight 0 to 1. risu groups single-platform display toggles. responseSchema is Agnai structured-output config carried editable likely migrating to Preset later. CharacterBehavior child first-classes regexScripts as RegexScript twin, triggerScripts virtualScript background markup defaultVariables prebuiltAsset moduleToggles and privileged as warning and sandbox gate never execution. TriggerScript child is event conditions effects state machine rows.",
           "topics": [
             "never execute behavior",
             "talkativeness risu toggles",
@@ -5788,7 +5788,7 @@
           "text": "What rides escrow, not a field",
           "slug": "what-rides-escrow-not-a-field",
           "level": 2,
-          "summary": "Anything a single source keeps without a canonical field stays in escrow formatId raw and survives same-format round-trip. Cross-format conversion carries only the canonical body so private app data never copies into another app file. Escrow riders include RoleCall private ids, unmapped SillyTavern extension keys, app-local layout state, and source bytes such as PNG pixels in sourceMedia served as portrait. Authored on-card behavior does NOT ride escrow because it is first-classed in behavior as CharacterBehavior editable data re-emitted only on its own format wire and never executed by converter or editor.",
+          "summary": "Anything a single source keeps without a canonical field stays in original[formatId].raw and survives same-format round-trip semantically. Byte identity requires an explicit format specification and fixture proof. Cross-format conversion carries only the canonical body so private app data never copies into another app file. Escrow riders include RoleCall private ids, unmapped SillyTavern extension keys, app-local layout state, and source bytes such as PNG pixels in sourceMedia served as portrait. Authored on-card behavior does NOT ride escrow because it is first-classed in behavior as CharacterBehavior editable data re-emitted only on its own format wire and never executed by converter or ordinary field editing.",
           "topics": [
             "escrow raw residue",
             "sourceMedia PNG",

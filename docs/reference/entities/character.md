@@ -47,8 +47,8 @@ The sections below walk each group. Every field table is pasted verbatim from
 ## Identity
 
 Who the character is: the canonical `name` plus authored identity attributes (RoleCall casting-card
-details and Agnai culture). `{{char}}` resolves to `name`; `nickname` overrides the display name
-without changing the canonical `name`.
+details and Agnai culture). `nickname` carries a platform's `{{char}}` override (CCv3 nickname or
+Risu/Backyard aiName) without changing the canonical `name`.
 
 | Field | Type | Producers | Meaning |
 | --- | --- | --- | --- |
@@ -136,6 +136,9 @@ injection so it re-emits to its original home on export.
 ## Greetings and examples
 
 The opening messages and example dialogue.
+
+In the Workbench, Add creates a blank editable row in either greeting list. Clearing its text or
+optional title keeps the row; Remove deletes it. Greeting edits use the character's usual save flow.
 
 | Field | Type | Producers | Meaning |
 | --- | --- | --- | --- |
@@ -237,10 +240,12 @@ A creator-curated background, optionally a video with playback controls.
 
 ## Settings and behavior
 
-Authored inline dials and authored on-card behavior. The converter and editor NEVER execute any
-behavior payload: no eval, no require, no DOM injection. Execution happens only inside the capability
-sandbox, a later milestone. Behavior re-emits only on its own format's wire and is never blind-copied
-across formats.
+Authored inline dials and authored on-card behavior. Import, conversion, and ordinary field editing
+NEVER execute imported scripts: no eval, no require, no automatic DOM injection. Testing is separate
+and user-invoked: the Workshop offers a declarative trigger simulator and a worker-based Lua bench;
+the regex bench runs in a terminable worker. These source paths do not prove packaged-host isolation
+(see [ADR-009](../../decisions/ADR-009-sandbox-origin.md)). Behavior re-emits only on its own format's
+wire and is never blind-copied across formats.
 
 | Field | Type | Producers | Meaning |
 | --- | --- | --- | --- |
@@ -353,10 +358,11 @@ keys inherit from the base.
 
 ## What rides escrow, not a field
 
-Anything a single source format keeps but no canonical field expresses stays in `escrow[formatId].raw`
-and survives a same-format round-trip byte-for-byte. Cross-format conversion carries only the canonical
-body, so one app's private data is never copied into another app's file. See the escrow rule in
-[architecture.md](../architecture.md).
+Anything a single source format keeps but no canonical field expresses stays in `original[formatId].raw`
+and survives a same-format round-trip semantically. Byte identity is required only where a format's
+specification explicitly declares it and fixtures prove it. Cross-format conversion carries only the
+canonical body, so one app's private data is never copied into another app's file. See the escrow rule
+in [architecture.md](../architecture.md).
 
 Rides escrow, because it has no canonical slot: RoleCall's private ids, SillyTavern extension keys with
 no canonical mapping, and other app-local layout or state. The source file's own bytes ride too: a PNG
@@ -366,7 +372,7 @@ card's pixels are kept as the escrow entry's `sourceMedia` carrier and served as
 Does NOT ride escrow, because it is modeled: authored on-card behavior is first-classed in the
 `behavior` field (a `CharacterBehavior`: regex scripts, trigger scripts, virtual script, background
 markup, and so on). It is carried as editable data, re-emits only on its own format's wire, and is
-never executed by the converter or editor.
+never executed by conversion or ordinary field editing.
 
 ## See also
 
