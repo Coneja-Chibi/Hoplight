@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-13",
+  "generated": "2026-10-19",
   "count": 115,
   "docs": [
     {
@@ -14268,7 +14268,7 @@
           "text": "The Library room (the shelves - deep browse)",
           "slug": "the-library-room-the-shelves---deep-browse",
           "level": 2,
-          "summary": "Library presents first-run doors when empty and, when populated, live per-kind deck counts, a drop-in proscenium view, portrait-backed covers, drop-anywhere import receipts, and the configured initial deck. It loads healthy summaries and damaged records together through one `/api/studio/inventory` filesystem pass and renders an expandable notice even when no readable pieces remain. The notice names each file and bounded reason, states that Hoplight did not change it, includes the local studio path when available, and offers manual restore-or-remove guidance. Grid, showcase, and list are DeckView modules behind the one browser registry seam; each receives consistent open and staged states. Tapping ordinary pieces toggles a staging set that survives deck switches, then sendMany moves the batch through one follow decision reporting the true newly opened count. Already-open pieces remain annotation-only, while the context menu preserves one-shot Send. A continuous, fail-closed 4-to-36rem art-size control updates CSS live and persists on release. View choice and size live in per-user Library preferences.",
+          "summary": "Library presents first-run doors when empty and, when populated, live per-kind deck counts, a drop-in proscenium view, portrait-backed covers, drop-anywhere import receipts, and the configured initial deck. An overflowing desktop deck row supports themed scrollbar dragging and mouse-wheel navigation; phone-width chips wrap. It loads healthy summaries and damaged records together through one `/api/studio/inventory` filesystem pass and renders an expandable notice even when no readable pieces remain. The notice names each file and bounded reason, states that Hoplight did not change it, includes the local studio path when available, and offers manual restore-or-remove guidance. Grid, showcase, and list are DeckView modules behind the one browser registry seam; each receives consistent open and staged states. Tapping ordinary pieces toggles a staging set that survives deck switches, then sendMany moves the batch through one follow decision reporting the true newly opened count. Already-open pieces remain annotation-only, while the context menu preserves one-shot Send. A continuous, fail-closed 4-to-36rem art-size control updates CSS live and persists on release. View choice and size live in per-user Library preferences.",
           "topics": [
             "empty and populated Library",
             "damaged file notice",

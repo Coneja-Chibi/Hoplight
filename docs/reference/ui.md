@@ -338,6 +338,8 @@ Empty studio = the locked first-run doors; populated = the browse room: deck chi
 per-kind counts, a proscenium stage presenting the active deck through a DROP-IN VIEW, and the
 continuous art-size dial. Opens on the setup wizard's `firstDeck`. Import (drop anywhere,
 plain-words receipts) lives here. Covers use `/api/studio/portrait` art when carried.
+When the deck row overflows on desktop, its themed horizontal scrollbar stays available for dragging
+to the remaining decks; at phone widths the chips wrap instead.
 - **Damaged files stay visible**: the Library loads `/api/studio/inventory`, which returns healthy
   entities and damage records from one filesystem pass. When any safe-id JSON file fails closed, an
   expandable notice names the file and bounded reason,

@@ -1,8 +1,8 @@
 {
-  "generated": "2026-09-13",
+  "generated": "2026-10-19",
   "targetChars": 90000,
   "totalPages": 115,
-  "totalSourceChars": 1059974,
+  "totalSourceChars": 1060139,
   "batches": [
     {
       "id": "batch-001",
@@ -966,7 +966,7 @@
     },
     {
       "id": "batch-013",
-      "sourceChars": 76159,
+      "sourceChars": 76324,
       "pages": [
         {
           "docId": "reference/security/untrusted-content",
@@ -981,7 +981,7 @@
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 22,
-          "sourceChars": 53718,
+          "sourceChars": 53883,
           "status": "APPROVED"
         },
         {

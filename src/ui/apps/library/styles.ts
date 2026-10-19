@@ -245,8 +245,6 @@ export const LIBRARY_STYLE = `
 .lib *::-webkit-scrollbar{width:8px;height:8px}
 .lib *::-webkit-scrollbar-thumb{background:var(--stage-seam)}
 .lib *::-webkit-scrollbar-track{background:transparent}
-.deckchips{scrollbar-width:none}
-.deckchips::-webkit-scrollbar{display:none}
 /* phones: chips WRAP (everything visible, nothing hidden behind an invisible scroll), the view
    seg gets its row, the dial gets a full row so the thumb never clips (fluid law) */
 @media(max-width:40rem){

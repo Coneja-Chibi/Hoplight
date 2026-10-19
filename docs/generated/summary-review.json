@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-13",
+  "generated": "2026-10-19",
   "count": 115,
   "pages": [
     {
@@ -902,9 +902,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "pages-adversarial-review",
-      "sourceHash": "sha256:df44633c4910bc7e3aca529bb20600247ae4aa2fecd50fecba16c569e4b38d34",
-      "semanticSummaryHash": "sha256:6aa7e70c6bf17bed557386ffd92615ab553500433accd0cd443d9e07f937c511"
+      "reviewer": "codex-gpt-6-hoplight-ui-summary-review-20261019",
+      "sourceHash": "sha256:a0a109c0afd8d6bcb15fff0f3a0d3f53431582bd13c1de0401c0566bd6a3c57c",
+      "semanticSummaryHash": "sha256:085f0572af7ae13ffbef26655662c8f50aa794977f58154f1f055ea95fa9fc29"
     },
     {
       "docId": "reference/updates",
