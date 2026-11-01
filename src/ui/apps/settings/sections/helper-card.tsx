@@ -32,11 +32,9 @@ export interface HelperControls {
  * platform is a property of the build, so re-asking every 1.5s would be pure noise. It is refreshed from
  * the download's own response.
  *
- * `onFirstInstall` fires only when the helper was previously absent. Turning remote access on is the
- * natural next step for someone who just pressed a button on the "cannot run here" card, but re-fetching
- * from the off card is maintenance and must not flip remote access on behind their back.
+ * Installing never enables mesh access; the status poll exposes a separate Enable action.
  */
-export function useHelper(ctx: AppContext, onFirstInstall: () => void): HelperControls {
+export function useHelper(ctx: AppContext): HelperControls {
   const [status, setStatus] = useState<AuxHelperStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -55,14 +53,12 @@ export function useHelper(ctx: AppContext, onFirstInstall: () => void): HelperCo
   }, [ctx]);
 
   const download = (): void => {
-    const wasMissing = !status?.installed;
     setBusy(true);
     setError("");
     ctx.api
       .remoteHelperDownload()
       .then((s) => {
         setStatus(s);
-        if (wasMissing) onFirstInstall();
       })
       .catch((e: unknown) => {
         /**
@@ -147,16 +143,17 @@ export function HelperInstalledLine({ h }: { h: HelperControls }): JSX.Element |
   return (
     <>
       <div className={styles.subtle}>
-        Mesh helper downloaded
-        {h.status.installedTag ? ` with ${h.status.installedTag}` : ""}.{" "}
-        <button
-          type="button"
-          className={styles.btnGhost}
-          disabled={h.busy}
-          onClick={() => h.download()}
-        >
-          {h.busy ? "Downloading..." : "Get it again"}
-        </button>
+        {h.status.installedTag ? `Mesh helper downloaded with ${h.status.installedTag}.` : "Mesh helper installed locally."}{" "}
+        {h.status.offered && (
+          <button
+            type="button"
+            className={styles.btnGhost}
+            disabled={h.busy}
+            onClick={() => h.download()}
+          >
+            {h.busy ? "Downloading..." : "Get it again"}
+          </button>
+        )}
       </div>
       <HelperError h={h} />
     </>

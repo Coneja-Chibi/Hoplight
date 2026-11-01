@@ -13,30 +13,9 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { loadFormats } from "./core";
 import { startUi } from "./ui/server";
+import { claimStudio, desktopPortOverride } from "./ui/port-owner";
 
 const PORT = 8321;
-const DEV_URL = `http://127.0.0.1:${PORT}`;
-
-/** True if something is already listening on the dev port (another Hoplight (dev)). */
-async function portBusy(port: number): Promise<boolean> {
-  try {
-    const s = Bun.listen({
-      hostname: "127.0.0.1",
-      port,
-      socket: {
-        data() {},
-        open() {},
-        close() {},
-        error() {},
-      },
-    });
-    s.stop(true);
-    return false;
-  } catch {
-    return true;
-  }
-}
-
 /** Open the UI in the default browser when a native window cannot be created / already running. */
 function openInBrowser(url: string): void {
   if (process.platform === "win32") {
@@ -49,20 +28,11 @@ function openInBrowser(url: string): void {
   });
 }
 
-if (await portBusy(PORT)) {
-  // Second click of the Start Menu tile: process is already up, window may be hidden.
-  // Do not crash on EADDRINUSE - send them to the live UI.
-  console.log(`Hoplight (dev) is already running at ${DEV_URL}`);
-  console.log(
-    "Opening in your browser. If the native window is stuck, end bun desktop-dev in Task Manager and launch again.",
-  );
-  openInBrowser(DEV_URL);
-  process.exit(0);
-}
-
+const override = desktopPortOverride(process.env.HOPLIGHT_PORT);
 await loadFormats(); // discover adapters from src/formats (the CLI's proven dev path)
 const studioDir = join(homedir(), "Documents", "Hoplight Studio");
-const { url: uiUrl, stop } = startUi(PORT, studioDir); // no packaged assets -> live source + dev watch
+const { url: uiUrl, stop } = await claimStudio(override ?? PORT, override === null ? 10 : 1,
+  (port) => startUi(port, studioDir), override === null);
 console.log(`Hoplight (dev) is up at ${uiUrl} - live source, no rebuild needed`);
 
 // Use import.meta.dir (string path). Avoid `new URL(..., import.meta.url)` after binding a `url`

@@ -23,10 +23,6 @@ import { auxSidecarInstalled, auxSidecarPath, installAuxSidecar, readAuxMarker }
 import { SIDECAR_PINS, SIDECAR_REPO } from "./remote/sidecar-pins";
 import { json, err, readJsonCapped, openInBrowser } from "./server-security";
 
-/** The UNTRUSTED loopback port the sidecar reverse-proxies remote traffic into (a second Bun.serve binds
- *  it and serves the app gated by the shared secret the sidecar stamps). */
-const UNTRUSTED_PORT = 8788;
-const UNTRUSTED_UPSTREAM = `127.0.0.1:${UNTRUSTED_PORT}`;
 /** LAN mode's listener port (bound on 0.0.0.0 with a self-signed cert when the host turns LAN on). */
 const LAN_PORT = 8790;
 
@@ -281,64 +277,64 @@ export interface RemoteAccessHandle {
 /**
  * Boot wiring for remote access. Creates the managers, binds the untrusted listener BEFORE resuming (the
  * sidecar proxies into it), then resumes if the user left it on. Fail-closed: a bad settings read leaves
- * it off; a listener bind failure degrades to "remote will not serve" rather than crashing the server.
+ * it off; a listener bind failure disables mesh access while local Studio and LAN remain available.
  */
 export function setupRemoteAccess(deps: {
   settings: SettingsStoreLike;
   studioDir: string;
   makeHandler: MakeHandler;
+  createSidecar?: typeof createSidecarManager;
 }): RemoteAccessHandle {
   const { settings, studioDir, makeHandler } = deps;
 
   // One per-boot secret shared by the sidecar (which stamps it) and the untrusted listener (which
   // requires it). Never persisted; regenerated every launch.
   const sharedSecret = randomBytes(32).toString("hex");
-  const remote = createSidecarManager({
-    resolveBin: resolveSidecarBin,
-    untrustedUpstream: UNTRUSTED_UPSTREAM,
-    sharedSecret,
-    openUrl: openInBrowser,
-  });
-
-  // LAN mode's approved-session app handler is a lanApproved handler; the trusted handler (built by the
-  // caller) gets `lan` for the host-only /api/remote/lan/* routes.
-  const lan = createLanManager({
-    makeAppHandler: () => makeHandler({ remote, lanApproved: true }),
-    port: LAN_PORT,
-    certDir: `${studioDir}/.hoplight-lan`,
-    now: () => Date.now(),
-  });
-
-  // The UNTRUSTED remote listener: the sidecar reverse-proxies remote (owner-gated) traffic here, gated
-  // by the shared secret. Bound only on loopback; only the sidecar ever reaches it. Bind before resume.
-  let stopUntrusted: (() => void) | null = null;
+  let untrustedHandler: ReturnType<MakeHandler> | null = null;
+  let untrustedServer: Bun.Server<undefined> | null = null;
+  let closed = false;
   try {
-    const untrustedServer = Bun.serve({
-      port: UNTRUSTED_PORT,
-      hostname: "127.0.0.1",
-      idleTimeout: 120,
-      fetch: makeHandler({ remote, remoteSecret: sharedSecret }),
+    untrustedServer = Bun.serve({
+      port: 0, hostname: "127.0.0.1", idleTimeout: 120,
+      fetch: (req) => untrustedHandler ? untrustedHandler(req) : new Response("Remote access is starting", { status: 503 }),
     });
-    stopUntrusted = () => untrustedServer.stop(true);
-  } catch (e) {
-    console.warn(
-      "server: untrusted remote listener failed to bind; remote access will not serve:",
-      e instanceof Error ? e.message : e,
-    );
+  } catch {
+    console.warn("server: private-mesh listener unavailable; local Studio and LAN remain available");
   }
+  try {
+    const remote = (deps.createSidecar ?? createSidecarManager)({
+      resolveBin: resolveSidecarBin,
+      untrustedUpstream: untrustedServer ? `127.0.0.1:${untrustedServer.port}` : null,
+      unavailableDetail: untrustedServer ? undefined : "The private-mesh listener could not start. Restart the studio to retry. LAN mode remains available.",
+      sharedSecret,
+      openUrl: openInBrowser,
+    });
 
-  // Resume remote access if the user left it on. Fail-closed: a bad or missing read leaves it off.
-  void settings.read().then((s) => {
-    if (s.remoteAccessEnabled === true) remote.enable();
-  });
+    // LAN mode's approved-session app handler is a lanApproved handler; the trusted handler (built by the
+    // caller) gets `lan` for the host-only /api/remote/lan/* routes.
+    const lan = createLanManager({
+      makeAppHandler: () => makeHandler({ remote, lanApproved: true }),
+      port: LAN_PORT,
+      certDir: `${studioDir}/.hoplight-lan`,
+      now: () => Date.now(),
+    });
 
-  return {
-    remote,
-    lan,
-    stop: () => {
-      stopUntrusted?.();
-      void remote.disable();
-      void lan.disable();
-    },
-  };
+    if (untrustedServer) untrustedHandler = makeHandler({ remote, remoteSecret: sharedSecret });
+
+    // Resume remote access if the user left it on. Fail-closed: a bad or missing read leaves it off.
+    void settings.read().then((s) => {
+      if (!closed && s.remoteAccessEnabled === true) remote.enable();
+    }).catch(() => {});
+
+    return {
+      remote,
+      lan,
+      stop: () => {
+        closed = true;
+        untrustedServer?.stop(true);
+        void remote.disable();
+        void lan.disable();
+      },
+    };
+  } catch (error) { untrustedServer?.stop(true); throw error; }
 }

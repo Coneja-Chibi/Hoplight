@@ -41,7 +41,7 @@ import {
   setupRemoteAccess,
   type MakeHandler,
 } from "./server-remote";
-import { APP_VERSION } from "../version";
+import { APP_PRODUCT, APP_VERSION } from "../version";
 import { handleUpdateCheck } from "./server-update";
 import { makeSwitchManager } from "./switch/setup";
 import type { SwitchManager } from "./switch/manager";
@@ -236,6 +236,8 @@ export function createHandler(
     if (p === "/api/version") {
       return json({
         version: APP_VERSION,
+        product: APP_PRODUCT,
+        instanceId: security.instanceId,
         // Never leak the host filesystem path to a remote/LAN device.
         studioDir: isRemote ? undefined : store.studioPath(),
         mode: packaged ? "packaged" : "source",
@@ -408,7 +410,7 @@ export function startUi(
   port: number,
   studioDir: string,
   packaged?: PackagedAssets,
-): { url: string; sandboxUrl: string | null; stop: () => void } {
+): { instanceId: string; url: string; sandboxUrl: string | null; stop: () => void } {
   // openStudio, not `new StudioStore`: the bare constructor cannot read a file it did not write, and
   // this window spent its life reporting a folder of SillyTavern presets as 145 damaged files.
   const store = openStudio(studioDir);
@@ -426,63 +428,65 @@ export function startUi(
     createHandler(store, settings, packaged, sec, sandboxOriginRef, lifecycle, o.remote, o.remoteSecret, o.lanApproved, o.lan);
   const remoteAccess = setupRemoteAccess({ settings, studioDir, makeHandler });
 
-  // Version switching (update/rollback). Host-only: only the trusted handler below gets the manager.
-  const switchManager = makeSwitchManager(!!packaged, process.cwd(), APP_VERSION, settings);
-
-  const handler = createHandler(
-    store,
-    settings,
-    packaged,
-    sec,
-    sandboxOriginRef,
-    lifecycle,
-    remoteAccess.remote,
-    undefined,
-    undefined,
-    remoteAccess.lan,
-    switchManager,
-  );
-  // idleTimeout: Bun's default 10s killed bulk imports mid-inspect; 120s covers the slowest real
-  // inspect observed (23MB charx) with room to spare. maxRequestBodySize: Bun's 128MB default sits
-  // under a Lumiverse backup's real ceiling (LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes) - below it, Bun
-  // itself would refuse the request before handleInspectArchive's own error messages ever run.
-  const server = Bun.serve({
-    port,
-    hostname: "127.0.0.1",
-    idleTimeout: 120,
-    maxRequestBodySize: LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes,
-    fetch: handler,
-  });
-  const host = `127.0.0.1:${server.port}`;
-  sec.expectedHost = host;
-  sec.expectedOrigin = `http://${host}`;
-
-  let sandboxUrl: string | null = null;
-  let stopSandbox: (() => void) | null = null;
   try {
-    const sandbox = startSandboxHost({
-      allowOrigin: sec.expectedOrigin,
+    // Version switching (update/rollback). Host-only: only the trusted handler below gets the manager.
+    const switchManager = makeSwitchManager(!!packaged, process.cwd(), APP_VERSION, settings);
+
+    const handler = createHandler(
+      store,
+      settings,
       packaged,
-    });
-    sandboxUrl = sandbox.origin;
-    sandboxOriginRef.current = sandbox.origin;
-    stopSandbox = sandbox.stop;
-  } catch (e) {
-    console.warn(
-      "server: sandbox host failed to start; falling back to same-origin worker:",
-      e instanceof Error ? e.message : e,
+      sec,
+      sandboxOriginRef,
+      lifecycle,
+      remoteAccess.remote,
+      undefined,
+      undefined,
+      remoteAccess.lan,
+      switchManager,
     );
-  }
+    // idleTimeout: Bun's default 10s killed bulk imports mid-inspect; 120s covers the slowest real
+    // inspect observed (23MB charx) with room to spare. maxRequestBodySize: Bun's 128MB default sits
+    // under a Lumiverse backup's real ceiling (LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes) - below it, Bun
+    // itself would refuse the request before handleInspectArchive's own error messages ever run.
+    const server = Bun.serve({
+      port,
+      hostname: "127.0.0.1",
+      idleTimeout: 120,
+      maxRequestBodySize: LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes,
+      fetch: handler,
+    });
+    const host = `127.0.0.1:${server.port}`;
+    sec.expectedHost = host;
+    sec.expectedOrigin = `http://${host}`;
 
-  const stop = (): void => {
-    server.stop(true);
-    stopSandbox?.();
-    remoteAccess.stop();
-    // Best-effort: staged archive entities are temp files the size of a backup's payload; leaving
-    // them across sessions is the disk-fill this route's loopback-only rationale worries about.
-    void clearAllStagings();
-  };
-  lifecycle.stop = stop;
+    let sandboxUrl: string | null = null;
+    let stopSandbox: (() => void) | null = null;
+    try {
+      const sandbox = startSandboxHost({
+        allowOrigin: sec.expectedOrigin,
+        packaged,
+      });
+      sandboxUrl = sandbox.origin;
+      sandboxOriginRef.current = sandbox.origin;
+      stopSandbox = sandbox.stop;
+    } catch (e) {
+      console.warn(
+        "server: sandbox host failed to start; falling back to same-origin worker:",
+        e instanceof Error ? e.message : e,
+      );
+    }
 
-  return { url: `http://${host}`, sandboxUrl, stop };
+    const stop = (): void => {
+      server.stop(true);
+      stopSandbox?.();
+      remoteAccess.stop();
+      // Best-effort: staged archive entities are temp files the size of a backup's payload; leaving
+      // them across sessions is the disk-fill this route's loopback-only rationale worries about.
+      void clearAllStagings();
+    };
+    lifecycle.stop = stop;
+
+    return { instanceId: sec.instanceId, url: `http://${host}`, sandboxUrl, stop };
+  } catch (error) { remoteAccess.stop(); throw error; }
 }

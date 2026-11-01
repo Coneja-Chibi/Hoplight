@@ -190,8 +190,11 @@ describe("/api/version reports the run mode (the update prescription fork)", () 
     const dir = await mkdtemp(join(tmpdir(), "vaude-srv-"));
     const sec = filledSec();
     const source = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
-    const a = (await (await source(apiReq("/api/version"))).json()) as { version: string; mode: string };
+    const a = (await (await source(apiReq("/api/version"))).json()) as { version: string; mode: string; product: string; instanceId: string };
     expect(a.mode).toBe("source");
+    expect(a.product).toBe("hoplight");
+    expect(a.instanceId).toBe(sec.instanceId);
+    expect(a.instanceId).not.toBe(sec.token);
     expect(a.version.length).toBeGreaterThan(0);
     // the version route never reads the bundle contents, only its presence
     const packaged = createHandler(
@@ -200,8 +203,10 @@ describe("/api/version reports the run mode (the update prescription fork)", () 
       {} as Parameters<typeof createHandler>[2],
       sec,
     );
-    const b = (await (await packaged(apiReq("/api/version"))).json()) as { mode: string };
+    const b = (await (await packaged(apiReq("/api/version"))).json()) as { mode: string; product: string; instanceId: string };
     expect(b.mode).toBe("packaged");
+    expect(b.product).toBe("hoplight");
+    expect(b.instanceId).toBe(sec.instanceId);
     await rm(dir, { recursive: true, force: true });
   });
 });

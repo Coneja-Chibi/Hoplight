@@ -28,6 +28,7 @@ export interface LanManager {
 }
 
 export interface LanManagerOptions {
+  start?: typeof startLanServer;
   /** builds the app handler for approved sessions (createHandler with lanApproved: true). */
   makeAppHandler: () => (req: Request) => Promise<Response>;
   port: number;
@@ -50,23 +51,36 @@ export function createLanManager(opts: LanManagerOptions): LanManager {
   const lanHost = new LanHost({ now: opts.now });
   let server: LanServerHandle | null = null;
   let code = "";
+  let generation = 0;
+  let starting: { generation: number; promise: Promise<LanStatus> } | null = null;
 
   const off = (): LanStatus => ({ on: false, code: "", url: "", fingerprint: "", pending: [], connected: [] });
 
-  const enable = async (): Promise<LanStatus> => {
-    if (server) return status();
-    code = await lanHost.reset();
-    server = await startLanServer({
-      lanHost,
-      appHandler: opts.makeAppHandler(),
-      port: opts.port,
-      certDir: opts.certDir,
-      hostIp: lanHostIp(),
-    });
-    return status();
+  const enable = (): Promise<LanStatus> => {
+    if (server) return Promise.resolve(status());
+    if (starting) {
+      if (starting.generation === generation) return starting.promise;
+      const intent = generation;
+      const restart = () => intent === generation ? enable() : off();
+      return starting.promise.then(restart, restart);
+    }
+    const attempt = generation;
+    const pending = (async () => {
+      const nextCode = await lanHost.reset();
+      if (attempt !== generation) return off();
+      const next = await (opts.start ?? startLanServer)({ lanHost, appHandler: opts.makeAppHandler(), port: opts.port, certDir: opts.certDir, hostIp: lanHostIp() });
+      if (attempt !== generation) { next.stop(); return off(); }
+      code = nextCode;
+      server = next;
+      return status();
+    })();
+    const owned = pending.finally(() => { if (starting?.promise === owned) starting = null; });
+    starting = { generation: attempt, promise: owned };
+    return owned;
   };
 
   const disable = async (): Promise<void> => {
+    generation++;
     server?.stop();
     server = null;
     code = "";

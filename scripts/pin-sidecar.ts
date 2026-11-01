@@ -19,6 +19,7 @@
 import { SIDECAR_TARGETS } from "../sidecar/build-targets";
 import type { SidecarPinEntry } from "./sidecar-pin-format";
 import { pinsFromChecksums, sidecarPinsModule } from "./sidecar-pin-format";
+import { SIDECAR_REPO } from "../src/ui/remote/sidecar-pins";
 
 const tag = process.argv[2];
 if (!tag || !/^[A-Za-z0-9._-]+$/.test(tag)) {
@@ -26,7 +27,7 @@ if (!tag || !/^[A-Za-z0-9._-]+$/.test(tag)) {
   process.exit(2);
 }
 
-const repo = "Coneja-Chibi/Hoplight";
+const repo = SIDECAR_REPO;
 const base = `https://github.com/${repo}/releases/download/${tag}`;
 
 console.log(`reading ${base}/SHA256SUMS`);

@@ -5,6 +5,8 @@
 uses. Optional remote listeners are separately enabled and gated. One engine, two shells - no format
 logic exists in the UI layer.
 
+Launchers identify this product using the explicit product field from `/api/version`; another app or a generic version server is not reused. A new bind is accepted only when its public per-server instance ID matches; this ID is independent of the private session bearer. Default launches search ports 8321-8330. Browser launchers open only the actual positively identified address within a shared twelve-second readiness deadline. The native desktop accepts `HOPLIGHT_PORT` as an isolated explicit port from 1024 to 65535; an occupied override fails rather than attaching to another session. Failed native creation is reported as a window failure, not a normal close; the owned Studio server remains available and opens its verified URL in the browser.
+
 ## Browser Studio
 
 The GitHub Pages build publishes the same React shell, discovered apps, setup steps, format

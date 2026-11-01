@@ -13,35 +13,12 @@ import { homedir } from "node:os";
 import { startUi } from "./ui/server";
 import { registerPackagedFormats } from "./generated/packaged-formats";
 import { PACKAGED_ASSETS } from "./generated/packaged-assets";
-import type { PackagedAssets } from "./ui/assets";
 import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 import { reportBootFailure, reportWindowFailure } from "./desktop-boot-report";
-import { runningHoplightAt } from "./ui/port-owner";
+import { claimStudio, desktopPortOverride } from "./ui/port-owner";
 
 const PORT = 8321;
 const PORT_TRIES = 10;
-
-/**
- * Claim a port for the studio. The exe used to hard-bind 8321 and die on EADDRINUSE, which read as
- * "the download does not work" the moment a dev server or an earlier launch held the port (field
- * report). Now: a Hoplight already on the port just gets ANOTHER WINDOW (its server stays its
- * own); a foreign listener makes us walk forward to the next port.
- */
-async function claimStudio(
-  studioDir: string,
-  assets: PackagedAssets,
-): Promise<{ url: string; stop: () => void }> {
-  for (let port = PORT; port < PORT + PORT_TRIES; port++) {
-    try {
-      const { url, stop } = startUi(port, studioDir, assets);
-      return { url, stop };
-    } catch {
-      const existing = await runningHoplightAt(port);
-      if (existing) return { url: existing, stop: () => {} };
-    }
-  }
-  throw new Error(`no free port between ${PORT} and ${PORT + PORT_TRIES - 1}`);
-}
 
 /**
  * Bring the studio up and open its window. Throws on any fatal step; the caller turns that into a log
@@ -49,6 +26,7 @@ async function claimStudio(
  * server's own event loop until the window closes.
  */
 async function boot(): Promise<void> {
+  const override = desktopPortOverride(process.env.HOPLIGHT_PORT);
   // The committed module is a null placeholder; only scripts/build-desktop.ts bakes the real one.
   // Failing loud beats a compiled exe silently serving nothing (or a stale checkout's UI).
   if (PACKAGED_ASSETS === null) {
@@ -58,7 +36,8 @@ async function boot(): Promise<void> {
   registerPackagedFormats();
   const studioDir = resolveDefaultStudioDir(homedir());
 
-  const { url: uiUrl, stop } = await claimStudio(studioDir, assets);
+  const { url: uiUrl, stop } = await claimStudio(override ?? PORT, override === null ? PORT_TRIES : 1,
+    (port) => startUi(port, studioDir, assets), override === null);
   console.log(`Hoplight. is up at ${uiUrl} (studio: ${studioDir})`);
 
   // The RELATIVE STRING LITERAL is load-bearing: it is the one specifier Bun's compiler recognizes

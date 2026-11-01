@@ -9,21 +9,14 @@ import { spawn } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
+import { findRunningStudio } from "../src/ui/port-owner";
 
 const PORT = 8321;
-const url = `http://localhost:${PORT}`;
+const readySignal = AbortSignal.timeout(12000);
+let url = await findRunningStudio(PORT, 10, readySignal);
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const isUp = async (): Promise<boolean> => {
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(800) });
-    return r.status < 500;
-  } catch {
-    return false;
-  }
-};
-
-if (!(await isUp())) {
+if (!url) {
   // start a detached headless dev server that outlives this launcher; process.execPath is the same
   // bun running this script, so no PATH assumption
   const studioDir = join(homedir(), "Documents", "Hoplight Studio");
@@ -32,8 +25,13 @@ if (!(await isUp())) {
     detached: true,
     stdio: "ignore",
   }).unref();
-  for (let i = 0; i < 40 && !(await isUp()); i++) await Bun.sleep(250);
+  for (let i = 0; i < 40 && !url; i++) {
+    await Bun.sleep(250);
+    url = await findRunningStudio(PORT, 10, readySignal);
+  }
 }
+
+if (!url) throw new Error("Hoplight did not become ready on ports 8321-8330; no browser was opened.");
 
 // open the default browser (Windows `start`); detached so this launcher can exit immediately
 spawn("cmd", ["/c", "start", "", url], { detached: true, stdio: "ignore" }).unref();

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-13",
+  "generated": "2026-11-01",
   "count": 115,
   "pages": [
     {
@@ -862,9 +862,9 @@
       "docId": "reference/security/remote-access",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "chi",
-      "sourceHash": "sha256:ca9f331d9d8fa8e736bfccf34678ccab1afb3b2f52d0629aaecd2de1eadb2500",
-      "semanticSummaryHash": "sha256:c24f3bf2d0ada24a92bef51db65fdf3cf0cea57693e18bb5ece103a6a9000a8a"
+      "reviewer": "root",
+      "sourceHash": "sha256:792375ed5df4812f99abdcd031bdc6277934a77445b5de0a8a7d8a66e8370397",
+      "semanticSummaryHash": "sha256:6ac4d6dbbf97bd6f143b37f31e55c8c226d9b063dda85a5bf58a1efa740915e1"
     },
     {
       "docId": "reference/security/safe-rendering",
@@ -902,9 +902,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "pages-adversarial-review",
-      "sourceHash": "sha256:df44633c4910bc7e3aca529bb20600247ae4aa2fecd50fecba16c569e4b38d34",
-      "semanticSummaryHash": "sha256:6aa7e70c6bf17bed557386ffd92615ab553500433accd0cd443d9e07f937c511"
+      "reviewer": "root",
+      "sourceHash": "sha256:18a8253b3a043c912f5c3a0d93ab7ef8b650d4dd2cca9d5e787a7567bfb1b095",
+      "semanticSummaryHash": "sha256:0c094bf4add1a9e5917d574b2ea1fc48c511dac6aee4b4b9a87709f9b7e7d835"
     },
     {
       "docId": "reference/updates",

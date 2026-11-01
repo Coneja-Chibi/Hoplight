@@ -250,8 +250,8 @@ function RemoteAccessSection({ ctx }: { ctx: AppContext }): JSX.Element {
   const [managedElsewhere, setManagedElsewhere] = useState(false);
   const [devices, setDevices] = useState<RemoteDevice[]>([]);
   const [redacted, setRedacted] = useState(false);
-  // A freshly downloaded helper is picked up without a restart: the manager re-resolves on enable.
-  const helper = useHelper(ctx, () => enable());
+  // The status poll discovers installation; mesh starts only through the separate Enable action.
+  const helper = useHelper(ctx);
 
   useEffect(() => {
     let alive = true;
