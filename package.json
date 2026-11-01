@@ -94,7 +94,7 @@
     "@opentui/keymap": "0.5.1",
     "@opentui/react": "0.5.1",
     "ai": "^7.0.35",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.15",
     "fflate": "^0.8.3",
     "lucide-react": "^1.24.0",
     "marked": "^18.0.5",
@@ -107,5 +107,14 @@
     "webview-bun": "^2.4.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
+  },
+  "overrides": {
+    "qs": "^6.16.0",
+    "undici": "^7.29.0",
+    "fast-uri": "^3.1.6",
+    "brace-expansion": "^5.0.8",
+    "baseline-browser-mapping": "^2.11.0",
+    "hono": "^4.13.5",
+    "browserslist": "^4.29.0"
   }
 }

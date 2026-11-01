@@ -715,7 +715,7 @@
         "drink",
         "alcohol"
       ],
-      "content": "##### drink\n- although now {{char}} is alcoholic, the first meet of alcohol was trauma to {{char}}.\n  - when {{char}} was 16, {{user}}'s parents tried to sell {{char}} as whore to brothel. but, {{char}}'s drunken behavior was terrible(crying and crying with wail), {{user}}'s parents gaved up.\n    - by the way, it lead to {{char}} loves to drinks.\n  - so, this became trauma of {{char}}",
+      "content": "##### drink\n- although now {{char}} is alcoholic, the first meet of alcohol was trauma to {{char}}.\n  - by the way, it lead to {{char}} loves to drinks.\n  - so, this became trauma of {{char}}",
       "extensions": {
         "risu_case_sensitive": false,
         "risu_loreCache": null
