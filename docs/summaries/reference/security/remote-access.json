@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "docId": "reference/security/remote-access",
   "sourcePath": "docs/reference/security/remote-access.md",
-  "sourceHash": "sha256:792375ed5df4812f99abdcd031bdc6277934a77445b5de0a8a7d8a66e8370397",
-  "summary": "Hoplight remote access is off by default and managed from Settings. Tailscale supplies an encrypted private link gated by the studio owner's numeric account identity, while LAN requires a random connect code followed by host approval. Trusted loopback requests use Host, Origin and session-token checks. Every Studio instance owns a separate ephemeral private loopback listener, passes its actual address to its helper, and authenticates it with a per-boot secret refused by the trusted door. Failed private binding disables mesh while local Studio and LAN remain available. Failed primary startup releases its private listener, and shutdown prevents deferred automatic resume. Host-only controls remain unavailable to remote clients. The helper is found in the source tree, beside the executable or in the product-specific support cache. Downloads require an explicitly published SHA-256 pin, bounded HTTPS fetching and verified bytes before installation. Locally supplied helpers carry no invented release marker; readiness can refresh without enabling mesh, and redownload is shown only when offered. Downloading leaves mesh off until a separate explicit Enable action. The manager kills only its owned child and ignores stale output. Isolated real-handler tests prove concurrent listener and lifecycle isolation. Earlier device evidence is separate from this pass, which does not claim new tailnet activation or physical-device verification.",
+  "sourceHash": "sha256:a2482d5c7e44505c0703d7cb43ff424ac3a811897850ea9c6a4641b58b119f9d",
+  "summary": "Hoplight remote access is off by default and managed from Settings. Tailscale supplies an encrypted private link gated by the studio owner's numeric account identity, while LAN requires a random connect code followed by host approval. Trusted loopback requests use Host, Origin and session-token checks. Every Studio instance owns a separate ephemeral private loopback listener, passes its actual address to its helper, and authenticates it with a per-boot secret refused by the trusted door. Failed private binding disables mesh while local Studio and LAN remain available. Failed primary startup releases its private listener, and shutdown prevents deferred automatic resume. Host-only controls remain unavailable to remote clients. The helper is found in the source tree, beside the executable or in the product-specific support cache. Downloads require an explicitly published SHA-256 pin, bounded HTTPS fetching and verified bytes before installation. Locally supplied helpers carry no invented release marker; readiness can refresh without enabling mesh, and redownload is shown only when offered. Downloading leaves mesh off until a separate explicit Enable action. The manager kills only its owned child and ignores stale output. Local access resolves installed OpenSSL from PATH or standard Git for Windows directories. Startup failures are visible in Settings and permit retry. An isolated HTTPS regression checks the IP SAN, fingerprint and unapproved-device gate. Source tests do not establish installed-binary or physical-device behavior.",
   "topics": [
     "remote access off by default",
     "Tailscale owner gate",
@@ -186,6 +186,20 @@
         "aux-download refusal tests",
         "release workflow shape pinned",
         "live LAN end-to-end"
+      ],
+      "children": []
+    },
+    {
+      "slug": "local-access-certificate-dependency-and-failures",
+      "title": "Local-access certificate dependency and failures",
+      "level": 2,
+      "sourceHash": "sha256:cc88933cc4e18f560490e9a4771ae3158734ceed3f12bb76b970fc5d69b0839d",
+      "summary": "Local network access uses installed OpenSSL to create its self-signed HTTPS certificate. Discovery checks PATH first and standard Git for Windows usr/bin and mingw64/bin locations on Windows. It downloads or installs no certificate executable. Missing OpenSSL produces installation guidance and allows retry. Generation and fingerprint failures remain errors, and the card displays failures from enable, disable, approval, denial and removal operations. Connect codes, explicit device approval and host-only management remain required. The isolated TLS regression starts an ephemeral real HTTPS listener, checks its IP SAN and fingerprint, verifies an unapproved request stays gated, and stops the listener. This is source listener evidence; it does not verify installed binaries or physical devices.",
+      "topics": [
+        "installed OpenSSL discovery",
+        "visible local-access failures",
+        "isolated HTTPS regression",
+        "verification limits"
       ],
       "children": []
     }

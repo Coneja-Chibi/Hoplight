@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01",
+  "generated": "2026-11-03",
   "count": 115,
   "pages": [
     {
@@ -863,8 +863,8 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "root",
-      "sourceHash": "sha256:792375ed5df4812f99abdcd031bdc6277934a77445b5de0a8a7d8a66e8370397",
-      "semanticSummaryHash": "sha256:6ac4d6dbbf97bd6f143b37f31e55c8c226d9b063dda85a5bf58a1efa740915e1"
+      "sourceHash": "sha256:a2482d5c7e44505c0703d7cb43ff424ac3a811897850ea9c6a4641b58b119f9d",
+      "semanticSummaryHash": "sha256:d531babe196412b70bfa4cf2521cbac82454953cdd0a1249f36927fe1ab5761a"
     },
     {
       "docId": "reference/security/safe-rendering",

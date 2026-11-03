@@ -5,6 +5,7 @@
  * the host to approve; only then is the real app served. This flow IS the LAN security (no Tailscale
  * identity on a local network), so nothing bypasses it.
  */
+import { existsSync } from "node:fs";
 import { chmod, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { json } from "../server-security";
@@ -65,6 +66,24 @@ function readCookie(req: Request, name: string): string {
   return "";
 }
 
+/** Resolve installed OpenSSL without downloading or executing an unverified helper. */
+export function findLanOpenSsl(
+  which: () => string | null = () => Bun.which("openssl"),
+  exists: (path: string) => boolean = existsSync,
+  platform: string = process.platform,
+  programFiles: string = process.env.ProgramW6432 ?? process.env.ProgramFiles ?? "C:\\Program Files",
+): string {
+  const found = which();
+  if (found) return found;
+  if (platform === "win32") {
+    for (const folder of ["usr", "mingw64"]) {
+      const candidate = join(programFiles, "Git", folder, "bin", "openssl.exe");
+      if (exists(candidate)) return candidate;
+    }
+  }
+  throw new Error("Local access needs OpenSSL to create its HTTPS certificate. Install OpenSSL (or Git for Windows), then try again.");
+}
+
 async function run(argv: string[]): Promise<{ code: number; out: string }> {
   // windowsHide keeps the console-app openssl from flashing a terminal window during cert generation.
   const proc = Bun.spawn(argv, { stdout: "pipe", stderr: "ignore", stdin: "ignore", windowsHide: true });
@@ -81,6 +100,7 @@ async function ensureCert(
   certDir: string,
   hostIp: string,
 ): Promise<{ cert: string; key: string; fingerprint: string }> {
+  const openssl = findLanOpenSsl();
   await mkdir(certDir, { recursive: true });
   const certPath = join(certDir, "lan-cert.pem");
   const keyPath = join(certDir, "lan-key.pem");
@@ -90,26 +110,27 @@ async function ensureCert(
   let have = (await Bun.file(certPath).exists()) && (await Bun.file(keyPath).exists());
   if (have && hostIp && hostIp !== "unknown") {
     // Regenerate if the cached cert does not cover the current IP (address changed, or an old CN-only cert).
-    const { out } = await run(["openssl", "x509", "-in", certPath, "-noout", "-ext", "subjectAltName"]);
+    const { out } = await run([openssl, "x509", "-in", certPath, "-noout", "-ext", "subjectAltName"]);
     if (!out.includes(hostIp)) have = false;
   }
   if (!have) {
     const { code } = await run([
-      "openssl", "req", "-x509", "-newkey", "rsa:2048",
+      openssl, "req", "-x509", "-newkey", "rsa:2048",
       "-keyout", keyPath, "-out", certPath, "-days", "3650", "-nodes",
       "-subj", "/CN=hoplight-lan",
       "-addext", `subjectAltName=${san.join(",")}`,
     ]);
-    if (code !== 0) throw new Error("lan: openssl self-signed cert generation failed");
+    if (code !== 0) throw new Error("OpenSSL could not create the local-access HTTPS certificate. Check OpenSSL and certificate-folder write permissions, then try again.");
     // Restrict the private key so a co-located local user cannot read it (best-effort; Windows uses ACLs).
     await chmod(keyPath, 0o600).catch(() => {});
   }
-  const { out } = await run(["openssl", "x509", "-in", certPath, "-noout", "-fingerprint", "-sha256"]);
+  const { out } = await run([openssl, "x509", "-in", certPath, "-noout", "-fingerprint", "-sha256"]);
   const m = out.match(/Fingerprint=([0-9A-Fa-f:]+)/);
+  if (!m) throw new Error("OpenSSL could not read the local-access certificate fingerprint. Check the certificate folder and try again.");
   return {
     cert: await Bun.file(certPath).text(),
     key: await Bun.file(keyPath).text(),
-    fingerprint: m ? m[1]! : "",
+    fingerprint: m[1]!,
   };
 }
 

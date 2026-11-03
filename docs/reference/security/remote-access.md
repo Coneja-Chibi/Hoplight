@@ -223,3 +223,17 @@ layer.
   been verified live from a phone reaching the studio.
 
 The October 31 coexistence changes have isolated real-handler HTTP and lifecycle regressions. This pass does not claim a real Tailscale sign-in, physical-device LAN journey or new cross-platform packaged verification.
+
+## Local-access certificate dependency and failures
+
+Local network access creates its self-signed HTTPS certificate with installed OpenSSL. The host first
+uses OpenSSL on PATH. On Windows it also checks the standard Git for Windows installation's `usr/bin`
+and `mingw64/bin` executables. No certificate command downloads or installs an executable. If none is
+available, the settings card explains how to install OpenSSL or Git for Windows and permits retry.
+Certificate-generation and fingerprint failures remain failures; the UI does not claim local access is on.
+Enable, disable, approval, denial and removal errors appear in the card. Host-only management, connect
+codes and explicit device approval remain required.
+
+The isolated `lan-tls.test.ts` regression starts a real ephemeral HTTPS listener, validates its IP SAN and
+fingerprint, confirms an unapproved request cannot reach the app, and stops the listener afterward.
+This is source-level listener proof, not verification of an already installed binary or a physical device.

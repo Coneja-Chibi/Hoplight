@@ -3,7 +3,7 @@
  * from devices on the same network without a Tailscale account. Host-only, it polls /api/remote/lan/*,
  * which is refused on any tailed-in listener. Rendered null when the parent detects a remote session.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import type { LanStatus } from "../../../remote/sidecar-status";
@@ -23,8 +23,11 @@ export function LanCard({
 }): JSX.Element | null {
   const [lan, setLan] = useState<LanStatus>(OFF);
   const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const aliveRef = useRef(true);
 
   useEffect(() => {
+    aliveRef.current = !hidden;
     if (hidden) return;
     let alive = true;
     const poll = async (): Promise<void> => {
@@ -39,6 +42,7 @@ export function LanCard({
     const id = setInterval(() => void poll(), 1500);
     return () => {
       alive = false;
+      aliveRef.current = false;
       clearInterval(id);
     };
   }, [ctx, hidden]);
@@ -47,12 +51,10 @@ export function LanCard({
 
   const run = (p: Promise<LanStatus>): void => {
     setBusy(true);
-    p.then(setLan)
-      .catch(() => {})
-      .finally(() => setBusy(false));
-  };
-  const settle = (p: Promise<LanStatus>): void => {
-    p.then(setLan).catch(() => {});
+    setProblem(null);
+    p.then((state) => { if (aliveRef.current) setLan(state); })
+      .catch((error: unknown) => { if (aliveRef.current) setProblem(error instanceof Error ? error.message : "Local access could not be changed. Try again."); })
+      .finally(() => { if (aliveRef.current) setBusy(false); });
   };
 
   if (!lan.on) {
@@ -69,6 +71,7 @@ export function LanCard({
             Enable local access
           </button>
         </div>
+        {problem && <p role="alert" className={styles.bad}>{problem}</p>}
       </div>
     );
   }
@@ -84,6 +87,7 @@ export function LanCard({
       <div className={styles.cardBody}>
         On a device on this network, open the link and enter this code. Only enable on a network you trust.
       </div>
+      {problem && <p role="alert" className={styles.bad}>{problem}</p>}
       <div className={styles.code}>{redacted ? mask(lan.code) : lan.code}</div>
       {lan.url && <span className={styles.urlbar}>{redacted ? mask(lan.url) : lan.url}</span>}
       {lan.fingerprint && (
@@ -100,13 +104,14 @@ export function LanCard({
             <div key={d.id} className={styles.deviceRow}>
               <span className={styles.deviceName}>{redacted ? mask(d.label) : d.label}</span>
               <div className={styles.actions}>
-                <button type="button" className={styles.btn} onClick={() => settle(ctx.api.remoteLanApprove(d.id))}>
+                <button type="button" className={styles.btn} disabled={busy} onClick={() => run(ctx.api.remoteLanApprove(d.id))}>
                   Approve
                 </button>
                 <button
                   type="button"
                   className={`${styles.btnGhost} ${styles.btnDanger}`}
-                  onClick={() => settle(ctx.api.remoteLanDeny(d.id))}
+                  disabled={busy}
+                  onClick={() => run(ctx.api.remoteLanDeny(d.id))}
                 >
                   Deny
                 </button>
@@ -125,7 +130,8 @@ export function LanCard({
               <button
                 type="button"
                 className={`${styles.btnGhost} ${styles.btnDanger}`}
-                onClick={() => settle(ctx.api.remoteLanKick(d.id))}
+                disabled={busy}
+                onClick={() => run(ctx.api.remoteLanKick(d.id))}
               >
                 Remove
               </button>
