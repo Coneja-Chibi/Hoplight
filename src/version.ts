@@ -3,5 +3,5 @@
  * it to package.json's version so the two can never drift (the release workflow refuses a tag that
  * disagrees with package.json, so tag = package.json = this).
  */
-export const APP_VERSION = "0.1.41";
+export const APP_VERSION = "0.1.42";
 export const APP_PRODUCT = "hoplight";
